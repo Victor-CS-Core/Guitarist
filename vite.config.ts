@@ -1,11 +1,8 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { sites } from "@openai/sites-vite-plugin";
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: "jsdom",
-    globals: true,
-    setupFiles: ["./src/test/setup.ts"],
-    exclude: ["e2e/**", "node_modules/**"],
-  },
+  plugins: [react(), sites(), cloudflare()],
 });

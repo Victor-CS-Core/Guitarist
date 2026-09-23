@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "server",
+  "main": "./server/index.ts",
+  "compatibility_date": "2026-09-22",
+  "assets": { "not_found_handling": "single-page-application" },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "guitarist-local",
+    "database_id": "00000000-0000-4000-8000-000000000000",
+    "migrations_dir": "./drizzle"
+  }]
+}

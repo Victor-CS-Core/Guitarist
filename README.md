@@ -1,5 +1,11 @@
 # Guitarist
 
+The production account conversion is in progress on `codex/product-accounts`; the published `main` version remains the demo until the authenticated release passes verification. The approved [design](docs/superpowers/specs/2026-09-23-production-accounts-design.md) and [implementation plan](docs/superpowers/plans/2026-09-23-production-accounts.md) define the cutover.
+
+This branch builds a Cloudflare-compatible Worker plus SPA assets for OpenAI Sites. `wrangler.jsonc` configures a local D1 binding; `.openai/hosting.json` declares the hosted binding. Migration source lives in `drizzle/` and is copied to `dist/.openai/drizzle/` at build time. `ADMIN_BOOTSTRAP_PASSWORD` is an initial, server-only Sites secret and must never be committed.
+
+Run `npm ci`, `npm run dev`, and apply the local D1 migration with `npx wrangler d1 migrations apply guitarist-local --local`. Run `npm run build` to produce `dist/server/index.js`, `dist/client/`, and `dist/.openai/`.
+
 A React single-page prototype for teacher-guided guitar practice. Maple and cream styling with deep denim blue, muted copper, and teacher-earned pick badges. Hosted privately on OpenAI Sites.
 
 ## Run
