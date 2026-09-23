@@ -11,16 +11,16 @@ Guitarist's approved [design](superpowers/specs/2026-09-23-production-accounts-d
 - Verified the branch builds `dist/server/index.js`, `dist/client/`, and `dist/.openai/`.
 - Baseline test suite: 15 passing tests; TypeScript, lint, and production build pass as of the completed persistence task.
 - Added one-time teacher bootstrap from a server-only secret, salted password hashing, rate-limited login, secure cookie sessions, logout revocation, and disabled-account rejection.
-- Current branch verification: 19 passing tests, TypeScript, lint, and production build pass.
+- Current branch verification: 24 passing tests, TypeScript, lint, production build, and production-dependency audit pass.
+- Added teacher-only student creation using a display name, username, and password, plus password reset and account disabling with session revocation.
+- Added server-authorized `/api/state` and `/api/commands` routes. Student responses exclude other students and teacher notes; duplicate practice submissions remain idempotent and stale revisions return a conflict.
 
 ## In progress
 
-- The next implementation step is teacher-controlled student account management and server-authorized learning records.
+- The next implementation step is replacing the demo SPA state and role switcher with a login page and live API-backed teaching and practice flows.
 
 ## Remaining before release
 
-- Teacher-only student creation, password reset, and disable controls.
-- Server-authorized practice, assessments, assignments, and notes with student isolation.
 - Login-first SPA, API-backed state, and removal of demo data and role switching.
 - Browser and security checks, private deployment verification, then the approved public-audience cutover.
 
