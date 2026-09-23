@@ -1,0 +1,654 @@
+/* Acoustic editorial pass: larger learning content and a single primary action. */
+:root {
+  --muted: #74604e;
+}
+p {
+  font-size: 16px;
+}
+.eyebrow,
+.sidebar-label {
+  font-size: 11px;
+  letter-spacing: 1.3px;
+}
+.small {
+  font-size: 14px;
+}
+.button {
+  font-size: 14px;
+  min-height: 48px;
+  padding: 12px 21px;
+}
+.text-link {
+  font-size: 14px;
+}
+.nav-item {
+  font-size: 15px;
+}
+.profile-row strong {
+  font-size: 14px;
+}
+.profile-row small {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.sidebar-label {
+  color: #806b57;
+  font-size: 10px;
+}
+.topbar > .eyebrow {
+  font-size: 10px;
+  color: #74604e;
+}
+.demo-controls select {
+  font-size: 13px;
+}
+h1 {
+  font-size: 36px;
+}
+.dashboard-heading {
+  margin-bottom: 30px;
+}
+.dashboard-heading .eyebrow {
+  font-size: 11px;
+}
+.dashboard-heading p {
+  font-size: 16px;
+}
+.hero {
+  padding: 34px;
+  min-height: 380px;
+  border-radius: 18px;
+  background: #ead8bd;
+}
+.hero-copy {
+  width: 57%;
+  padding-right: 10px;
+}
+.hero h2 {
+  font-size: 39px;
+  line-height: 1.2;
+  margin: 22px 0 13px;
+}
+.hero p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #705438;
+}
+.pill {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #76583a;
+}
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 23px;
+}
+.hero .button.light {
+  margin: 0;
+  background: #795032;
+  border: 1px solid #795032;
+  font-size: 15px;
+  min-height: 50px;
+  box-shadow: 0 3px 8px #70422115;
+}
+.hero .button.light:hover {
+  background: #624026;
+}
+.hero-lesson-link {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #68492d;
+  font-size: 13px;
+}
+.hero-progress {
+  max-width: 290px;
+  margin-top: 19px;
+}
+.hero-progress > div {
+  font-size: 12px;
+  color: #705235;
+}
+.hero-progress small {
+  font-size: 11px;
+  color: #795d3e;
+}
+.hero-progress progress {
+  height: 6px;
+}
+.hero-guitar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 42%;
+  height: 100%;
+  overflow: hidden;
+  background: #eee3d2;
+}
+.hero-guitar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 22px 0 28px -25px #76543335;
+  pointer-events: none;
+}
+.hero-guitar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.guitar-caption {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 1.7px;
+  color: #725336;
+}
+.goal-card {
+  padding: 27px;
+  background: #f7f0e5;
+  border-radius: 18px;
+}
+.goal-card .round-icon {
+  width: 48px;
+  height: 48px;
+}
+.goal-card .eyebrow {
+  font-size: 10px;
+  color: #826440;
+  margin-top: 24px;
+}
+.goal-card h3 {
+  font-size: 22px;
+  line-height: 1.5;
+  margin: 14px 0;
+}
+.goal-card p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #78624c;
+}
+.teacher-sign {
+  font-size: 12px;
+  color: #7b644a;
+}
+.section-heading {
+  margin: 34px 0 21px;
+}
+.section-heading h2 {
+  font-size: 24px;
+}
+.section-heading p {
+  font-size: 14px;
+  color: #74604e;
+}
+.count {
+  width: 26px;
+  height: 26px;
+  font-size: 12px;
+}
+.practice-cards {
+  gap: 20px;
+}
+.practice-card {
+  border-color: #e5d9ca;
+  border-radius: 14px;
+}
+.activity-art {
+  height: 180px;
+  margin: 9px;
+  padding: 10px 14px;
+}
+.art-0 {
+  background: #f1e6d3;
+  color: #7c5e3d;
+}
+.art-1 {
+  background: #efe0ca;
+  color: #785335;
+}
+.art-2 {
+  background: #eee5d9;
+  color: #7c6650;
+}
+.activity-index {
+  top: 10px;
+  left: 12px;
+  font-size: 10px;
+  opacity: 1;
+  color: #8c7356;
+}
+.activity-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+}
+.preview-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  max-width: 45%;
+}
+.preview-caption strong {
+  font-family: Manrope, sans-serif;
+  font-size: 38px;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+.preview-caption span {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #7d6348;
+}
+.chord-preview .chord-diagram.compact {
+  margin: 0;
+  width: 135px;
+  flex-shrink: 0;
+  padding: 10px 4px 0;
+}
+.chord-preview .chord-name {
+  display: none;
+}
+.preview-puzzle {
+  width: 140px;
+}
+.preview-puzzle svg {
+  display: block;
+  width: 100%;
+}
+.finger-tokens {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.finger-tokens > span {
+  display: grid;
+  place-items: center;
+  height: 23px;
+  width: 23px;
+  border-radius: 50%;
+  color: #fff7ed;
+  background: #987249;
+  font-size: 11px;
+}
+.finger-tokens small {
+  font-size: 9px;
+  text-align: center;
+  width: 100%;
+  margin-top: 3px;
+}
+.strings-preview .preview-caption strong {
+  font-size: 19px;
+  letter-spacing: -0.5px;
+}
+.strings-preview svg {
+  max-width: 48%;
+}
+.melody-preview {
+  justify-content: center;
+  gap: 15px;
+}
+.melody-preview > div {
+  display: grid;
+  gap: 10px;
+}
+.melody-preview span {
+  font-size: 11px;
+}
+.melody-preview strong {
+  font-family: Manrope, sans-serif;
+  font-size: 25px;
+  letter-spacing: -1px;
+}
+.melody-preview small {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 10px;
+}
+.practice-card-content {
+  padding: 16px 20px 17px;
+}
+.practice-card .eyebrow {
+  font-size: 10px;
+  color: #866a4e;
+  letter-spacing: 1px;
+}
+.practice-card h3 {
+  font-size: 18px;
+  line-height: 1.45;
+  margin: 10px 0 8px;
+}
+.practice-card p {
+  font-size: 14px;
+  line-height: 1.65;
+  min-height: 46px;
+}
+.card-bottom {
+  padding-top: 13px;
+  margin-top: 19px;
+}
+.card-bottom > span:first-child {
+  font-size: 12px;
+  color: #795f45;
+}
+.card-play,
+.card-check {
+  width: 35px;
+  height: 35px;
+}
+.dashboard-footer-note {
+  margin-top: 23px;
+  border-top: 1px solid #e6d9c8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.small-stat strong {
+  font-size: 14px;
+}
+.small-stat p {
+  font-size: 12px;
+  color: #78624c;
+}
+.status {
+  font-size: 12px;
+}
+.instructions {
+  font-size: 16px;
+}
+.chord-diagram:not(.compact) {
+  max-width: 270px;
+}
+.chord-diagram:not(.compact) .chord-name {
+  font-size: 34px;
+}
+.chord-diagram:not(.compact) .chord-name span {
+  font-size: 14px;
+}
+.string-details button {
+  min-width: 36px;
+}
+.form-card label,
+.activity-link,
+.skill-list {
+  font-size: 14px;
+}
+.teacher-tip,
+.teacher-tip p {
+  font-size: 14px;
+}
+footer {
+  font-size: 11px;
+  color: #806a53;
+}
+@media (max-width: 1200px) {
+  .hero {
+    padding: 28px;
+  }
+  .hero h2 {
+    font-size: 32px;
+  }
+  .hero p {
+    font-size: 14px;
+  }
+  .goal-card h3 {
+    font-size: 19px;
+  }
+  .activity-art {
+    padding: 12px 8px;
+  }
+  .chord-preview .chord-diagram.compact {
+    width: 105px;
+  }
+  .preview-caption strong {
+    font-size: 30px;
+  }
+  .preview-caption span {
+    font-size: 10px;
+  }
+  .practice-card-content {
+    padding: 15px;
+  }
+  .practice-card h3 {
+    font-size: 16px;
+  }
+  .practice-card p {
+    font-size: 13px;
+  }
+  .card-bottom > span:first-child {
+    font-size: 11px;
+  }
+}
+@media (max-width: 850px) {
+  .nav-item {
+    font-size: 0;
+  }
+  .hero-copy {
+    width: 61%;
+  }
+  .hero-guitar {
+    width: 37%;
+  }
+  .hero {
+    min-height: 400px;
+  }
+  .goal-card {
+    padding: 22px;
+  }
+  .goal-card h3 {
+    font-size: 18px;
+  }
+  .hero h2 {
+    font-size: 30px;
+  }
+  .hero p {
+    font-size: 13px;
+  }
+  .pill {
+    font-size: 9px;
+  }
+  .preview-caption {
+    display: none;
+  }
+  .activity-preview {
+    justify-content: center;
+  }
+  .chord-preview .chord-diagram.compact {
+    width: 132px;
+  }
+  .strings-preview .preview-caption {
+    display: flex;
+  }
+  .melody-preview {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  .melody-preview strong {
+    font-size: 19px;
+  }
+  .melody-preview small {
+    justify-content: center;
+  }
+}
+@media (max-width: 620px) {
+  .nav-item {
+    font-size: 11px;
+  }
+  h1 {
+    font-size: 29px;
+  }
+  .dashboard-heading p {
+    font-size: 15px;
+  }
+  .topbar > .eyebrow {
+    font-size: 9px;
+  }
+  .hero {
+    min-height: 370px;
+    padding: 24px 20px;
+  }
+  .hero-copy {
+    width: 65%;
+    padding-right: 5px;
+  }
+  .hero-guitar {
+    width: 32%;
+  }
+  .hero-guitar img {
+    object-position: 49% center;
+  }
+  .hero h2 {
+    font-size: 31px;
+  }
+  .hero .button.light {
+    font-size: 14px;
+    padding: 11px 15px;
+  }
+  .hero-lesson-link {
+    font-size: 12px;
+  }
+  .hero-progress > div {
+    font-size: 11px;
+  }
+  .hero-progress small {
+    font-size: 10px;
+  }
+  .guitar-caption {
+    display: none;
+  }
+  .goal-card {
+    padding: 20px;
+  }
+  .goal-card .eyebrow {
+    margin: 0;
+    font-size: 10px;
+  }
+  .goal-card h3 {
+    font-size: 17px;
+    margin: 7px 0;
+  }
+  .goal-card p {
+    font-size: 13px;
+  }
+  .section-heading h2 {
+    font-size: 22px;
+  }
+  .section-heading p {
+    font-size: 13px;
+    max-width: 225px;
+  }
+  .section-heading .text-link {
+    font-size: 12px;
+  }
+  .practice-card {
+    grid-template-columns: 113px minmax(0, 1fr);
+  }
+  .activity-art {
+    padding: 9px 0;
+    margin: 7px;
+    height: auto;
+    min-height: 195px;
+  }
+  .chord-preview .chord-diagram.compact {
+    width: 98px;
+    padding: 0 5px;
+  }
+  .chord-preview .chord-name {
+    display: block;
+    font-size: 23px;
+    margin-top: 10px;
+  }
+  .chord-preview .chord-name span {
+    display: none;
+  }
+  .preview-puzzle {
+    width: 94px;
+  }
+  .preview-puzzle svg {
+    margin-top: 5px;
+  }
+  .strings-preview {
+    padding: 10px;
+  }
+  .strings-preview svg {
+    max-width: 100%;
+  }
+  .strings-preview .preview-caption {
+    display: none;
+  }
+  .melody-preview {
+    padding: 10px 6px;
+  }
+  .melody-preview span {
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  .melody-preview strong {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  .melody-preview small {
+    display: none;
+  }
+  .practice-card-content {
+    padding: 18px 12px;
+  }
+  .practice-card .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.7px;
+  }
+  .practice-card h3 {
+    font-size: 17px;
+    margin-top: 9px;
+  }
+  .practice-card p {
+    font-size: 13px;
+    min-height: 0;
+  }
+  .card-bottom {
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 13px;
+  }
+  .card-bottom > span:first-child {
+    font-size: 11px;
+  }
+  .small-stat {
+    gap: 8px;
+  }
+  .small-stat strong {
+    font-size: 13px;
+  }
+  .small-stat p {
+    font-size: 11px;
+  }
+  .dashboard-footer-note > .text-link {
+    font-size: 12px;
+  }
+  footer {
+    font-size: 10px;
+  }
+}
+@media (max-width: 850px) {
+  .sidebar-label {
+    display: none;
+  }
+}

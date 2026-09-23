@@ -1,17 +1,8 @@
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  Play,
-  Clock3,
-  Check,
-  Music2,
-  Sparkles,
-  Target,
-  Flame,
-} from "lucide-react";
+import { ArrowRight, Play, Clock3, Check, Target, Flame } from "lucide-react";
 import { useDemo, useStudent } from "../demo/StoreProvider";
 import { levels, activityById } from "../curriculum/foundations";
-import { ChordDiagram } from "../components/ChordDiagram";
+import { ActivityPreview } from "../components/ActivityPreview";
 export function Dashboard() {
   const { state } = useDemo(),
     student = useStudent(),
@@ -26,7 +17,7 @@ export function Dashboard() {
   const days = new Set(sessions.map((s) => new Date(s.at).toDateString())).size;
   return (
     <>
-      <div className="page-heading">
+      <div className="page-heading dashboard-heading">
         <div className="eyebrow green">LET’S MAKE A LITTLE MUSIC</div>
         <h1>
           Good to see you, {student.name}
@@ -46,9 +37,17 @@ export function Dashboard() {
               <br />
               Let’s see what your fingers can do.
             </p>
-            <Link to={`/student/learn/${level.id}`} className="button light">
-              Keep exploring <ArrowRight size={17} />
-            </Link>
+            <div className="hero-actions">
+              <Link to="/student/practice" className="button light hero-start">
+                <Play size={17} fill="currentColor" /> Start practice
+              </Link>
+              <Link
+                to={`/student/learn/${level.id}`}
+                className="hero-lesson-link"
+              >
+                Explore this chapter <ArrowRight size={16} />
+              </Link>
+            </div>
             <div className="hero-progress">
               <div>
                 <span>
@@ -62,14 +61,15 @@ export function Dashboard() {
               <small>One skill at a time. At your own pace.</small>
             </div>
           </div>
-          <div className="hero-diagrams" aria-hidden="true">
-            <div className="chord-paper back">
-              <ChordDiagram chordId="Em" compact />
-            </div>
-            <div className="chord-paper front">
-              <ChordDiagram chordId={level.order === 1 ? "Em" : "Am"} compact />
-            </div>
-            <span className="music-spark">♫</span>
+          <div className="hero-guitar" aria-hidden="true">
+            <img
+              src="/images/acoustic-guitar-hero.webp"
+              alt=""
+              width="1024"
+              height="1536"
+              fetchPriority="high"
+            />
+            <span className="guitar-caption">SIX STRINGS. YOUR STORY.</span>
           </div>
         </section>
         <aside className="goal-card">
@@ -109,18 +109,7 @@ export function Dashboard() {
                 key={item.id}
               >
                 <div className={`activity-art art-${index % 3}`}>
-                  {a.chordId ? (
-                    <span className="big-chord">
-                      {a.chordId}
-                      <small>
-                        {a.kind === "builder"
-                          ? "BUILD IT YOURSELF"
-                          : "FIND YOUR SHAPE"}
-                      </small>
-                    </span>
-                  ) : (
-                    <Music2 size={48} strokeWidth={1} />
-                  )}
+                  <ActivityPreview activity={a} />
                   <span className="activity-index">0{index + 1}</span>
                 </div>
                 <div className="practice-card-content">
@@ -162,32 +151,19 @@ export function Dashboard() {
           </div>
         )}
       </div>
-      <div className="bottom-grid">
-        <section className="practice-invite">
-          <span className="round-icon">
-            <Music2 size={22} />
-          </span>
-          <div>
-            <h3>Your guitar is waiting.</h3>
-            <p>Find a comfy spot. Take a breath. Let’s play.</p>
-          </div>
-          <Link to="/student/practice" className="button">
-            Start practice <ArrowRight size={17} />
-          </Link>
-        </section>
-        <section className="small-stat">
-          <Flame size={26} />
+      <div className="dashboard-footer-note">
+        <div className="small-stat">
+          <Flame size={23} />
           <div>
             <strong>
               {days} practice {days === 1 ? "day" : "days"}
             </strong>
             <p>Every time you show up counts.</p>
           </div>
-        </section>
-      </div>
-      <div className="gentle-note">
-        <Sparkles size={16} /> Progress sounds different for everyone. You’re
-        right where you need to be.
+        </div>
+        <Link to="/student/progress" className="text-link">
+          See your journey <ArrowRight size={16} />
+        </Link>
       </div>
     </>
   );
