@@ -10,11 +10,12 @@ Guitarist's approved [design](superpowers/specs/2026-09-23-production-accounts-d
 - Added revision-checked student record persistence and a test using a real local D1 implementation.
 - Verified the branch builds `dist/server/index.js`, `dist/client/`, and `dist/.openai/`.
 - Baseline test suite: 15 passing tests; TypeScript, lint, and production build pass as of the completed persistence task.
+- Added one-time teacher bootstrap from a server-only secret, salted password hashing, rate-limited login, secure cookie sessions, logout revocation, and disabled-account rejection.
+- Current branch verification: 19 passing tests, TypeScript, lint, and production build pass.
 
 ## In progress
 
-- Authentication route tests are written and intentionally failing: the login, session, and request-protection routes have not been implemented yet. These failures prove the planned behavior is not accidentally supplied by the current Worker shell.
-- The next implementation step is password hashing, one-time admin bootstrap from a hosted secret, secure sessions, and login throttling.
+- The next implementation step is teacher-controlled student account management and server-authorized learning records.
 
 ## Remaining before release
 
