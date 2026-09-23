@@ -78,3 +78,7 @@ Prototype role checks are domain tests, not proof of secure authorization. Real 
 ## Subsequent MVP milestone
 
 Replace the demo adapter with a Sites-compatible HTTP API backed by a database and mature authentication integration, retaining the React SPA frontend and OpenAI Sites hosting. Enforce teacher/student ownership and tenant boundaries on the server, keep notes out of student responses, support student creation/deletion and access, complete Levels 1–6, and test authorization end to end. Confirm database and student identity requirements against Sites capabilities before implementing that milestone. The prototype is not ready for use with real children.
+
+## Approved visual refinement
+
+The user later requested the full visual-improvement set and a richer color scheme. Guitarist now pairs the maple/cream base with deep denim blue for primary actions and muted copper accents, retains large chord diagrams and learning previews, adds eight distinct teacher-earned pick badges on a connected progress path, and applies subtle maple grain only to the hero. No green is used.

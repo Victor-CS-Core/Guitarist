@@ -652,3 +652,401 @@ footer {
     display: none;
   }
 }
+
+/* A brighter musical palette on the restrained acoustic base. */
+:root {
+  --accent: #284a60;
+  --ink: #322f3b;
+  --copper: #ac644a;
+  --paper: #faf7f1;
+  --muted: #665f64;
+}
+body {
+  color: var(--ink);
+  background: #fcfaf7;
+}
+h1,
+h2,
+h3 {
+  color: #303543;
+}
+.brand-symbol,
+.button:not(.secondary):not(.light),
+.session-step.current > span,
+.pulse.active,
+.milestone.earned,
+.completion-icon {
+  background: var(--accent);
+}
+.brand-dot,
+.green,
+.text-link,
+.activity-link,
+.stat-value,
+.timer-display,
+.card-check,
+.round-icon,
+.teacher-tip strong {
+  color: var(--accent);
+}
+.nav-item.active {
+  color: var(--accent);
+  background: #edf2f5;
+  box-shadow: inset 3px 0 #456b85;
+}
+.nav-item:hover {
+  background: #f1f4f6;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: #bf7757;
+}
+.button:hover:not(:disabled):not(.secondary):not(.light) {
+  background: #1c394d;
+}
+.button.secondary {
+  color: var(--accent);
+  border-color: #c5d0d7;
+}
+.button.secondary:hover {
+  background: #eef3f5;
+}
+.hero {
+  background-color: #f1e4d2;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(249, 244, 235, 0.82),
+      rgba(247, 239, 226, 0.72)
+    ),
+    url("/images/maple-grain.webp");
+  background-size:
+    auto,
+    760px auto;
+  background-position: center;
+}
+.hero .button.light {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 5px 12px #284a6029;
+}
+.hero .button.light:hover {
+  background: #1c394d;
+}
+.hero-progress progress::-webkit-progress-value {
+  background: #456b85;
+}
+.hero-progress progress::-moz-progress-bar {
+  background: #456b85;
+}
+.hero-progress > div,
+.hero-progress small,
+.hero-lesson-link {
+  color: #485261;
+}
+.pill,
+.hero h2 {
+  color: #374b59;
+}
+.goal-card {
+  background: #f7f3ed;
+  border-color: #e4d9cb;
+}
+.goal-card .round-icon {
+  color: #a1604b;
+  background: #f3dfd5;
+}
+.goal-card .eyebrow,
+.practice-card .eyebrow,
+.activity-index {
+  color: #9c624e;
+}
+.art-0 {
+  background: #e9eff1;
+  color: #3e5b70;
+}
+.art-1 {
+  background: #f0e4da;
+  color: #965d4a;
+}
+.art-2 {
+  background: #eee7ed;
+  color: #7e6576;
+}
+.preview-caption span,
+.card-bottom > span:first-child,
+.small-stat p {
+  color: #655f64;
+}
+.card-play,
+.card-check {
+  color: var(--accent);
+  background: #eaf0f2;
+}
+.status-mastered {
+  background: #e6eff3;
+  color: #23485d;
+}
+.status-introduced,
+.status-learning,
+.status-practicing {
+  background: #f8e9de;
+  color: #814930;
+}
+.status-ready_for_assessment {
+  background: #e9e6f1;
+  color: #62567a;
+}
+.status-needs_reinforcement {
+  background: #fae9dc;
+  color: #945638;
+}
+.learning-layout > .stack > .card,
+.learning-panel {
+  background: #faf7f1;
+  border-color: #eadfd2;
+}
+.learning-panel .exercise,
+.learning-panel .choice,
+.learning-panel .string-details button,
+.practice-focus,
+.practice-focus .exercise {
+  background: #fff;
+}
+.learning-panel .exercise,
+.practice-focus .exercise {
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e9e0d6;
+}
+.learning-panel .choice {
+  border-color: #dfd7cf;
+}
+.learning-panel .choice:hover {
+  background: #f0f4f6;
+}
+.level-card {
+  background: #faf7f1;
+  border-color: #eadfd2;
+}
+.level-card.locked {
+  background: #f7f5f2;
+}
+.level-card h2 {
+  color: #354452;
+}
+.level-card:hover {
+  border-color: #b6c8d2;
+}
+.chapter-badge {
+  --badge-color: #284a60;
+  position: relative;
+  width: 84px;
+  height: 92px;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  color: #fff;
+  background: var(--badge-color);
+  clip-path: polygon(
+    50% 100%,
+    42% 97%,
+    33% 88%,
+    15% 60%,
+    7% 42%,
+    5% 28%,
+    9% 16%,
+    20% 7%,
+    34% 3%,
+    50% 2%,
+    66% 3%,
+    80% 7%,
+    91% 16%,
+    95% 28%,
+    93% 42%,
+    85% 60%,
+    67% 88%,
+    58% 97%
+  );
+  filter: drop-shadow(0 3px 1px #423c3c18);
+}
+.chapter-badge svg {
+  transform: translateY(-7px);
+}
+.chapter-badge.is-pending {
+  color: #657383;
+  background: #e6e9e8;
+}
+.chapter-badge.is-compact {
+  width: 57px;
+  height: 64px;
+}
+.chapter-badge.is-compact svg {
+  transform: translateY(-5px);
+}
+.chapter-badge.is-earned[data-badge="fretboard-rookie"] {
+  --badge-color: #9c614a;
+}
+.chapter-badge.is-earned[data-badge="chord-builder"] {
+  --badge-color: #755c7f;
+}
+.chapter-badge.is-earned[data-badge="rhythm-keeper"] {
+  --badge-color: #5a6f8e;
+}
+.chapter-badge.is-earned[data-badge="chord-switcher"] {
+  --badge-color: #aa704d;
+}
+.chapter-badge.is-earned[data-badge="first-song"] {
+  --badge-color: #9e5b69;
+}
+.chapter-badge.is-earned[data-badge="guitar-player"] {
+  --badge-color: #8d704c;
+}
+.chapter-badge.is-earned[data-badge="independent-musician"] {
+  --badge-color: #4c607b;
+}
+.level-card .chapter-badge {
+  align-self: flex-start;
+}
+.journey {
+  position: relative;
+  gap: 18px;
+}
+.journey::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 65px;
+  top: 45px;
+  bottom: 45px;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(#5c7890, #d1c7bc 35%);
+}
+.journey-level {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  gap: 22px;
+  padding: 26px 26px 24px;
+  min-height: 160px;
+  align-items: start;
+  border-color: #e4e1df;
+  background: #fff;
+}
+.journey-level.journey-current {
+  border-color: #a8bdc9;
+  box-shadow: 0 5px 20px #3149600b;
+}
+.journey-level.journey-locked {
+  background: #faf9f7;
+}
+.journey-node {
+  display: flex;
+  justify-content: center;
+}
+.journey-content {
+  min-width: 0;
+}
+.journey-content .eyebrow {
+  color: #7c6970;
+  font-size: 11px;
+}
+.journey-level h2 {
+  font-size: 22px;
+  margin: 6px 0 6px;
+}
+.journey-badge-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #6d6571;
+  text-transform: capitalize;
+}
+.journey-earned .journey-badge-name {
+  color: #405a74;
+  font-weight: 650;
+}
+.journey-state {
+  font-size: 12px;
+  line-height: 1.4;
+  border-radius: 18px;
+  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.journey-state.collected {
+  color: #2e5369;
+  background: #e8f0f3;
+}
+.journey-state.in-progress {
+  color: #94533d;
+  background: #f8ede6;
+}
+.journey-state.up-ahead {
+  color: #716c72;
+  background: #eeecea;
+}
+.journey-level .skill-list {
+  margin-top: 5px;
+}
+@media (max-width: 850px) {
+  .journey-level {
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: 15px;
+    padding: 21px;
+  }
+  .journey-level .chapter-badge {
+    width: 68px;
+    height: 74px;
+  }
+  .journey::before {
+    left: 53px;
+  }
+  .journey-state {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+@media (max-width: 620px) {
+  .journey-level {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 10px;
+    padding: 18px;
+  }
+  .journey-level .chapter-badge {
+    width: 56px;
+    height: 64px;
+  }
+  .journey-level .chapter-badge svg {
+    width: 23px;
+  }
+  .journey::before {
+    left: 46px;
+  }
+  .journey-level h2 {
+    font-size: 18px;
+  }
+  .journey-content .eyebrow {
+    font-size: 10px;
+  }
+  .journey-badge-name {
+    font-size: 12px;
+  }
+  .journey-state {
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+  .level-card .chapter-badge {
+    width: 52px;
+    height: 59px;
+  }
+}

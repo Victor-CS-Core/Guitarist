@@ -5,9 +5,12 @@ import { levels, activities } from "../curriculum/foundations";
 import { useDemo, useStudent } from "../demo/StoreProvider";
 import { StatusBadge } from "../components/StatusBadge";
 import { Exercises } from "./Exercises";
+import { ChapterBadge } from "../components/ChapterBadge";
+import { earnedBadgeIds } from "../domain/selectors";
 export function LearnPage() {
   const student = useStudent(),
-    { actor } = useDemo();
+    { actor, state } = useDemo();
+  const badges = earnedBadgeIds(state, student.id);
   return (
     <>
       <div className="page-heading">
@@ -22,9 +25,12 @@ export function LearnPage() {
             to={`${actor.role === "teacher" ? "/teacher/curriculum" : "/student/learn"}/${l.id}`}
             key={l.id}
           >
-            <span className="level-number">
-              {String(l.order).padStart(2, "0")}
-            </span>
+            <ChapterBadge
+              badgeId={l.badgeId}
+              title={l.title}
+              earned={badges.includes(l.badgeId)}
+              compact
+            />
             <div>
               <div className="eyebrow">LEVEL {l.order}</div>
               <h2>{l.title}</h2>

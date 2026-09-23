@@ -1,9 +1,10 @@
-import { Award, Check, Lock } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDemo, useStudent } from "../demo/StoreProvider";
 import { levels, skills } from "../curriculum/foundations";
 import { earnedBadgeIds } from "../domain/selectors";
 import { StatusBadge } from "../components/StatusBadge";
+import { ChapterBadge } from "../components/ChapterBadge";
 export function ProgressPage() {
   const student = useStudent(),
     { state } = useDemo(),
@@ -47,42 +48,64 @@ export function ProgressPage() {
         <h2>Your chapters</h2>
         <p>No deadlines. Your own rhythm.</p>
       </div>
-      <div className="journey">
-        {levels.map((l) => (
-          <section className="card journey-level" key={l.id}>
-            <span
-              className={`milestone ${badges.includes(l.badgeId) ? "earned" : ""}`}
+      <div className="journey" aria-label="Connected chapter progress path">
+        {levels.map((l) => {
+          const earned = badges.includes(l.badgeId);
+          const unlocked = student.unlockedLevels.includes(l.id);
+          return (
+            <section
+              className={`card journey-level ${earned ? "journey-earned" : unlocked ? "journey-current" : "journey-locked"}`}
+              key={l.id}
             >
-              {badges.includes(l.badgeId) ? (
-                <Check size={23} />
-              ) : student.unlockedLevels.includes(l.id) ? (
-                l.order
-              ) : (
-                <Lock size={18} />
-              )}
-            </span>
-            <div>
-              <div className="eyebrow">LEVEL {l.order}</div>
-              <Link to={`/student/learn/${l.id}`}>
-                <h2>{l.title}</h2>
-              </Link>
-              <div className="skill-list">
-                {l.skills.map((s) => (
-                  <div className="row spread" key={s.id}>
-                    <span>{s.title}</span>
-                    <StatusBadge status={student.skills[s.id]} />
-                  </div>
-                ))}
+              <div className="journey-node">
+                <ChapterBadge
+                  badgeId={l.badgeId}
+                  title={l.title}
+                  earned={earned}
+                />
               </div>
-            </div>
-            <Award
-              className={
-                badges.includes(l.badgeId) ? "badge-earned" : "badge-locked"
-              }
-              size={35}
-            />
-          </section>
-        ))}
+              <div className="journey-content">
+                <div className="eyebrow">CHAPTER {l.order}</div>
+                <Link to={`/student/learn/${l.id}`}>
+                  <h2>{l.title}</h2>
+                </Link>
+                <p className="journey-badge-name">
+                  {earned ? (
+                    <>
+                      <Check size={15} /> {l.badgeId.replaceAll("-", " ")} badge
+                      collected
+                    </>
+                  ) : unlocked ? (
+                    "A badge to earn with your teacher"
+                  ) : (
+                    "A new chapter is ahead"
+                  )}
+                </p>
+                <div className="skill-list">
+                  {l.skills.map((s) => (
+                    <div className="row spread" key={s.id}>
+                      <span>{s.title}</span>
+                      <StatusBadge status={student.skills[s.id]} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <span
+                className={`journey-state ${earned ? "collected" : unlocked ? "in-progress" : "up-ahead"}`}
+              >
+                {earned ? (
+                  "Collected"
+                ) : unlocked ? (
+                  "In progress"
+                ) : (
+                  <>
+                    <Lock size={13} /> Ahead
+                  </>
+                )}
+              </span>
+            </section>
+          );
+        })}
       </div>
     </>
   );

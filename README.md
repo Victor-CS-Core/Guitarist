@@ -1,6 +1,6 @@
 # Guitarist
 
-A React single-page prototype for teacher-guided guitar practice. Light maple, cream, walnut and amber styling. Hosted privately on OpenAI Sites.
+A React single-page prototype for teacher-guided guitar practice. Maple and cream styling with deep denim blue, muted copper, and teacher-earned pick badges. Hosted privately on OpenAI Sites.
 
 ## Run
 

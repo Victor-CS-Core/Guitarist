@@ -4,7 +4,7 @@
   color: #49382a;
   background: #fcf9f3;
   font-synthesis: none;
-  --green: #8a5a36;
+  --accent: #8a5a36;
   --muted: #867666;
   --line: #e8dfd3;
   --paper: #fff;
@@ -111,13 +111,13 @@ button {
   gap: 9px;
 }
 .brand-dot {
-  color: var(--green);
+  color: var(--accent);
   margin-left: -9px;
 }
 .brand-symbol {
   height: 37px;
   width: 37px;
-  background: var(--green);
+  background: var(--accent);
   color: #fff;
   border-radius: 12px;
   display: grid;
@@ -147,7 +147,7 @@ button {
 }
 .nav-item.active {
   background: #f2e5d5;
-  color: var(--green);
+  color: var(--accent);
   font-weight: 700;
 }
 .nav-item:hover {
@@ -245,7 +245,7 @@ button {
   padding: 40px 47px 18px;
 }
 .green {
-  color: var(--green);
+  color: var(--accent);
 }
 .page-heading {
   margin-bottom: 28px;
@@ -305,7 +305,7 @@ button {
   justify-content: center;
   gap: 13px;
   min-height: 44px;
-  background: var(--green);
+  background: var(--accent);
   color: #fff;
   padding: 12px 20px;
   border-radius: 7px;
@@ -320,7 +320,7 @@ button {
 }
 .button.secondary {
   background: #fff;
-  color: var(--green);
+  color: var(--accent);
   border-color: #e0cfb9;
 }
 .hero-progress {
@@ -492,7 +492,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--green);
+  color: var(--accent);
   font-weight: 650;
   min-height: 44px;
 }
@@ -596,7 +596,7 @@ button {
   height: 29px;
   border-radius: 50%;
   background: #f5eadb;
-  color: var(--green);
+  color: var(--accent);
 }
 .bottom-grid {
   display: grid;
@@ -1101,7 +1101,7 @@ footer span {
   min-height: 48px;
   padding: 10px 0;
   text-align: left;
-  color: var(--green);
+  color: var(--accent);
   border-top: 1px solid var(--line);
   font-size: 13px;
 }
@@ -1171,7 +1171,7 @@ footer span {
 .exercise-feedback {
   font-size: 13px;
   line-height: 1.8;
-  color: var(--green);
+  color: var(--accent);
   min-height: 36px;
   margin: 12px 0;
 }
@@ -1194,7 +1194,7 @@ footer span {
   background: #faf1e3;
   border: 1px solid #dfcfb8;
   border-radius: 4px;
-  color: var(--green);
+  color: var(--accent);
   font-size: 22px;
 }
 .builder-grid button[aria-pressed="true"] {
@@ -1211,7 +1211,7 @@ footer span {
   font-size: 39px;
   font-family: Manrope;
   margin: 12px 0;
-  color: var(--green);
+  color: var(--accent);
 }
 .stat-value small {
   font-size: 18px;
@@ -1237,7 +1237,7 @@ footer span {
   color: #a38a68;
 }
 .milestone.earned {
-  background: var(--green);
+  background: var(--accent);
   color: #fff;
 }
 .journey-level h2 {
@@ -1280,10 +1280,10 @@ footer span {
   font-size: 12px;
 }
 .session-step.current {
-  color: var(--green);
+  color: var(--accent);
 }
 .session-step.current > span {
-  background: var(--green);
+  background: var(--accent);
   color: white;
 }
 .session-step strong {
@@ -1307,7 +1307,7 @@ footer span {
   display: block;
   margin: 24px 0 14px;
   font-variant-numeric: tabular-nums;
-  color: var(--green);
+  color: var(--accent);
 }
 .timer-display span {
   color: #baa17d;
@@ -1377,7 +1377,7 @@ footer span {
   color: #a28860;
 }
 .pulse.active {
-  background: var(--green);
+  background: var(--accent);
   color: white;
 }
 .check-label {
@@ -1403,7 +1403,7 @@ footer span {
   width: 76px;
   border-radius: 50%;
   background: #f2e2c5;
-  color: var(--green);
+  color: var(--accent);
   display: grid;
   place-items: center;
   margin: 0 auto 25px;
