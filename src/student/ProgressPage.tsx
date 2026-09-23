@@ -1,7 +1,89 @@
-import {Award,Check,Lock} from 'lucide-react';
-import {Link} from 'react-router-dom';
-import {useDemo,useStudent} from '../demo/StoreProvider';
-import {levels,skills} from '../curriculum/foundations';
-import {earnedBadgeIds} from '../domain/selectors';
-import {StatusBadge} from '../components/StatusBadge';
-export function ProgressPage(){const student=useStudent(),{state}=useDemo(),badges=earnedBadgeIds(state,student.id),mastered=Object.values(student.skills).filter(s=>s==='MASTERED').length;return <><div className="page-heading"><div className="eyebrow green">LOOK HOW FAR YOU’VE COME</div><h1>Your progress</h1><p>Every skill is a small win. Every practice helps it grow.</p></div><div className="stats-grid"><div className="card"><span className="eyebrow">SKILLS MASTERED</span><strong className="stat-value">{mastered}<small> / {skills.length}</small></strong><p>Confirmed by your teacher</p></div><div className="card"><span className="eyebrow">CHAPTER BADGES</span><strong className="stat-value">{badges.length}<small> / 8</small></strong><p>Earned through demonstrated mastery</p></div><div className="card"><span className="eyebrow">PRACTICE SESSIONS</span><strong className="stat-value">{state.sessions.filter(s=>s.studentId===student.id).length}</strong><p>Time spent making space for music</p></div></div><div className="section-heading"><h2>Your chapters</h2><p>No deadlines. Your own rhythm.</p></div><div className="journey">{levels.map(l=><section className="card journey-level" key={l.id}><span className={`milestone ${badges.includes(l.badgeId)?'earned':''}`}>{badges.includes(l.badgeId)?<Check size={23}/>:student.unlockedLevels.includes(l.id)?l.order:<Lock size={18}/>}</span><div><div className="eyebrow">LEVEL {l.order}</div><Link to={`/student/learn/${l.id}`}><h2>{l.title}</h2></Link><div className="skill-list">{l.skills.map(s=><div className="row spread" key={s.id}><span>{s.title}</span><StatusBadge status={student.skills[s.id]}/></div>)}</div></div><Award className={badges.includes(l.badgeId)?'badge-earned':'badge-locked'} size={35}/></section>)}</div></>;}
+import { Award, Check, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useDemo, useStudent } from "../demo/StoreProvider";
+import { levels, skills } from "../curriculum/foundations";
+import { earnedBadgeIds } from "../domain/selectors";
+import { StatusBadge } from "../components/StatusBadge";
+export function ProgressPage() {
+  const student = useStudent(),
+    { state } = useDemo(),
+    badges = earnedBadgeIds(state, student.id),
+    mastered = Object.values(student.skills).filter(
+      (s) => s === "MASTERED",
+    ).length;
+  return (
+    <>
+      <div className="page-heading">
+        <div className="eyebrow green">LOOK HOW FAR YOU’VE COME</div>
+        <h1>Your progress</h1>
+        <p>Every skill is a small win. Every practice helps it grow.</p>
+      </div>
+      <div className="stats-grid">
+        <div className="card">
+          <span className="eyebrow">SKILLS MASTERED</span>
+          <strong className="stat-value">
+            {mastered}
+            <small> / {skills.length}</small>
+          </strong>
+          <p>Confirmed by your teacher</p>
+        </div>
+        <div className="card">
+          <span className="eyebrow">CHAPTER BADGES</span>
+          <strong className="stat-value">
+            {badges.length}
+            <small> / 8</small>
+          </strong>
+          <p>Earned through demonstrated mastery</p>
+        </div>
+        <div className="card">
+          <span className="eyebrow">PRACTICE SESSIONS</span>
+          <strong className="stat-value">
+            {state.sessions.filter((s) => s.studentId === student.id).length}
+          </strong>
+          <p>Time spent making space for music</p>
+        </div>
+      </div>
+      <div className="section-heading">
+        <h2>Your chapters</h2>
+        <p>No deadlines. Your own rhythm.</p>
+      </div>
+      <div className="journey">
+        {levels.map((l) => (
+          <section className="card journey-level" key={l.id}>
+            <span
+              className={`milestone ${badges.includes(l.badgeId) ? "earned" : ""}`}
+            >
+              {badges.includes(l.badgeId) ? (
+                <Check size={23} />
+              ) : student.unlockedLevels.includes(l.id) ? (
+                l.order
+              ) : (
+                <Lock size={18} />
+              )}
+            </span>
+            <div>
+              <div className="eyebrow">LEVEL {l.order}</div>
+              <Link to={`/student/learn/${l.id}`}>
+                <h2>{l.title}</h2>
+              </Link>
+              <div className="skill-list">
+                {l.skills.map((s) => (
+                  <div className="row spread" key={s.id}>
+                    <span>{s.title}</span>
+                    <StatusBadge status={student.skills[s.id]} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Award
+              className={
+                badges.includes(l.badgeId) ? "badge-earned" : "badge-locked"
+              }
+              size={35}
+            />
+          </section>
+        ))}
+      </div>
+    </>
+  );
+}

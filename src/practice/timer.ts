@@ -1,1 +1,11 @@
-export function elapsedSeconds(segments:Array<{start:number;end:number}>,activeStart:number|null,now:number):number{return Math.floor((segments.reduce((n,s)=>n+Math.max(0,s.end-s.start),0)+(activeStart===null?0:Math.max(0,now-activeStart)))/1000);}
+export function elapsedSeconds(
+  segments: Array<{ start: number; end: number }>,
+  activeStart: number | null,
+  now: number,
+): number {
+  return Math.floor(
+    (segments.reduce((n, s) => n + Math.max(0, s.end - s.start), 0) +
+      (activeStart === null ? 0 : Math.max(0, now - activeStart))) /
+      1000,
+  );
+}
