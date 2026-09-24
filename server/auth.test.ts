@@ -64,6 +64,15 @@ test("wrong passwords are generic and repeated attempts block even a correct pas
   expect((await login()).status).toBe(429);
 });
 
+test("simultaneous failures consume the same durable rate limit", async () => {
+  expect((await login()).status).toBe(200);
+  const responses = await Promise.all(Array.from({ length: 8 }, () => login("wrong-password")));
+  const statuses = responses.map((response) => response.status);
+  expect(statuses.filter((status) => status === 401).length).toBeLessThanOrEqual(5);
+  expect(statuses.filter((status) => status === 429).length).toBeGreaterThanOrEqual(3);
+  expect((await login()).status).toBe(429);
+});
+
 test("mutations reject a foreign Origin and non-JSON content", async () => {
   const foreign = await worker.fetch(request("/api/login", "POST", { username: "Ktr0nn", password: testPassword }, undefined, "https://other.example"), env);
   expect(foreign.status).toBe(403);

@@ -18,7 +18,8 @@ Guitarist's approved [design](superpowers/specs/2026-09-23-production-accounts-d
 - Connected teacher account creation, password reset, disabling, assessments, assignments, notes, and student practice to authenticated API state.
 - Browser-tested sign-in, protected deep links, username-only student creation, cross-browser practice persistence, sign-out, password reset and disable revocation, and teacher-approved chapter unlock. Four Playwright tests pass against local D1.
 - Private Sites deployment provisioned D1 and all four expected tables. Hosted smoke testing found the Worker caps one PBKDF2 derivation at 100,000 iterations, so password hashing now uses that supported limit and has a regression test. Hosted teacher login, secure cookie, authenticated state, and anonymous 401 checks now pass.
-- Review-driven browser regressions now cover reinforcement after assessment, retrying practice after a revision conflict, and retaining the signed-in state when logout fails. These fixes are validated locally and pending a fresh private deployment.
+- Review-driven browser regressions now cover reinforcement after assessment, retrying practice after a revision conflict, and retaining the signed-in state when logout fails. These fixes are validated locally and deployed privately.
+- The teacher account was bootstrapped on the private Site; the bootstrap secret was then removed, and hosted login still succeeds. A parallel-login test exposed undercounted failures; rate-limit reservations are now atomic and tested before public release.
 
 ## In progress
 

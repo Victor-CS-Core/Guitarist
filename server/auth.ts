@@ -28,21 +28,26 @@ function ipKey(request: Request): string {
   return request.headers.get("cf-connecting-ip") ?? "unknown";
 }
 
-async function isBlocked(db: D1Database, key: string, ip: string): Promise<boolean> {
-  const row = await db.prepare("SELECT blocked_until FROM login_attempts WHERE username_key = ? AND ip_key = ?")
-    .bind(key, ip).first<{blocked_until:string|null}>();
-  return !!row?.blocked_until && row.blocked_until > new Date().toISOString();
-}
-
-async function failedAttempt(db: D1Database, key: string, ip: string): Promise<void> {
+async function reserveAttempt(db: D1Database, key: string, ip: string): Promise<boolean> {
   const now = new Date();
   const cutoff = new Date(now.getTime() - 15 * 60_000).toISOString();
-  const row = await db.prepare("SELECT attempts, updated_at FROM login_attempts WHERE username_key = ? AND ip_key = ?")
-    .bind(key, ip).first<{attempts:number; updated_at:string}>();
-  const attempts = row && row.updated_at > cutoff ? row.attempts + 1 : 1;
-  const blocked = attempts >= 5 ? new Date(now.getTime() + 15 * 60_000).toISOString() : null;
-  await db.prepare("INSERT INTO login_attempts (username_key, ip_key, attempts, blocked_until, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(username_key, ip_key) DO UPDATE SET attempts = excluded.attempts, blocked_until = excluded.blocked_until, updated_at = excluded.updated_at")
-    .bind(key, ip, attempts, blocked, now.toISOString()).run();
+  const blocked = new Date(now.getTime() + 15 * 60_000).toISOString();
+  const row = await db.prepare(`
+    INSERT INTO login_attempts (username_key, ip_key, attempts, blocked_until, updated_at)
+    VALUES (?, ?, 1, NULL, ?)
+    ON CONFLICT(username_key, ip_key) DO UPDATE SET
+      attempts = CASE
+        WHEN login_attempts.blocked_until > ? OR login_attempts.updated_at > ? THEN login_attempts.attempts + 1
+        ELSE 1 END,
+      blocked_until = CASE
+        WHEN login_attempts.blocked_until > ? THEN login_attempts.blocked_until
+        WHEN login_attempts.updated_at > ? AND login_attempts.attempts + 1 >= 5 THEN ?
+        ELSE NULL END,
+      updated_at = CASE WHEN login_attempts.blocked_until > ? THEN login_attempts.updated_at ELSE ? END
+    RETURNING attempts
+  `).bind(key, ip, now.toISOString(), now.toISOString(), cutoff, now.toISOString(), cutoff, blocked, now.toISOString(), now.toISOString())
+    .first<{attempts:number}>();
+  return (row?.attempts ?? 0) > 5;
 }
 
 async function login(request: Request, env: Env): Promise<Response> {
@@ -58,13 +63,11 @@ async function login(request: Request, env: Env): Promise<Response> {
     return json({ error: "Invalid username or password." }, 401);
   const key = username.trim().toLocaleLowerCase("en-US");
   const ip = ipKey(request);
-  if (await isBlocked(env.DB, key, ip) || await isBlocked(env.DB, key, "*"))
+  if (await reserveAttempt(env.DB, key, ip) || (ip !== "*" && await reserveAttempt(env.DB, key, "*")))
     return json({ error: "Too many attempts. Try again later." }, 429);
   await ensureTeacher(env);
   const account = await getAccountByUsername(env.DB, key);
   if (!account || account.disabled_at || !(await verifyPassword(password, account))) {
-    await failedAttempt(env.DB, key, ip);
-    if (ip !== "*") await failedAttempt(env.DB, key, "*");
     return json({ error: "Invalid username or password." }, 401);
   }
   await env.DB.prepare("DELETE FROM login_attempts WHERE username_key = ?").bind(key).run();
