@@ -16,3 +16,7 @@ Guitarist is live at [guitarist-practice.ktr0nn.chatgpt.site](https://guitarist-
 ## Operational limits
 
 This release has one teacher account, no student self-registration, and no email recovery. Practice time is self-reported; the teacher decides mastery. Sites must not be used to target students below age 13 or the local age of digital consent.
+
+## Source synchronization pending
+
+The live Site runs the publicly verified functional code. GitHub `main` also contains the completed release documentation, but the final documentation-only commit has not reached the Sites source repository because its Git endpoint returned HTTP 503 on repeated pushes. The public deployment is unaffected. Push the current `main` commit to the existing Sites source repository and save/deploy that exact commit once the service recovers.
