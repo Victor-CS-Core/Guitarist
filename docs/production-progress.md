@@ -1,34 +1,18 @@
-# Production conversion progress — 2026-09-24
+# Guitarist production release progress — 2026-09-24
 
-Guitarist's approved [design](superpowers/specs/2026-09-23-production-accounts-design.md) and [plan](superpowers/plans/2026-09-23-production-accounts.md) have been pushed to `main`. Implementation is underway on `codex/product-accounts`.
+Guitarist is live at [guitarist-practice.ktr0nn.chatgpt.site](https://guitarist-practice.ktr0nn.chatgpt.site) as a public, login-first SPA for students ages 13+. The approved [design](superpowers/specs/2026-09-23-production-accounts-design.md) and [plan](superpowers/plans/2026-09-23-production-accounts.md) are implemented.
 
 ## Complete
 
-- Created an isolated feature branch and worktree so the current published demo stays stable.
-- Added a Sites-compatible Worker build alongside the existing React SPA.
-- Added the D1 schema for accounts, student records, sessions, and login throttling, packaged as a Sites migration.
-- Added revision-checked student record persistence and a test using a real local D1 implementation.
-- Verified the branch builds `dist/server/index.js`, `dist/client/`, and `dist/.openai/`.
-- Baseline test suite: 15 passing tests; TypeScript, lint, and production build pass as of the completed persistence task.
-- Added one-time teacher bootstrap from a server-only secret, salted password hashing, rate-limited login, secure cookie sessions, logout revocation, and disabled-account rejection.
-- Server checkpoint verification: 24 passing tests, TypeScript, lint, production build, and production-dependency audit passed.
-- Added teacher-only student creation using a display name, username, and password, plus password reset and account disabling with session revocation.
-- Added server-authorized `/api/state` and `/api/commands` routes. Student responses exclude other students and teacher notes; duplicate practice submissions remain idempotent and stale revisions return a conflict.
-- Replaced the public entry route with a login-only screen and removed the demo role switcher, fictional students, and browser-local persistence from the production UI.
-- Connected teacher account creation, password reset, disabling, assessments, assignments, notes, and student practice to authenticated API state.
-- Browser-tested sign-in, protected deep links, username-only student creation, cross-browser practice persistence, sign-out, password reset and disable revocation, and teacher-approved chapter unlock. Four Playwright tests pass against local D1.
-- Private Sites deployment provisioned D1 and all four expected tables. Hosted smoke testing found the Worker caps one PBKDF2 derivation at 100,000 iterations, so password hashing now uses that supported limit and has a regression test. Hosted teacher login, secure cookie, authenticated state, and anonymous 401 checks now pass.
-- Review-driven browser regressions now cover reinforcement after assessment, retrying practice after a revision conflict, and retaining the signed-in state when logout fails. These fixes are validated locally and deployed privately.
-- The teacher account was bootstrapped on the private Site; the bootstrap secret was then removed, and hosted login still succeeds. A parallel-login test exposed undercounted failures; rate-limit reservations are now atomic and tested before public release.
-- Hosted API checks passed for a release-check student: creation without email, student sign-in, private-note omission, practice persistence, and cross-student mutation rejection. The public audience is enabled. Direct SPA deep links exposed a Worker asset-fallback 404 and then an `/index.html` canonical redirect; the fallback now fetches `/` internally and is pending deployment and public-browser verification.
+- Replaced the fictional browser-local demo with a Sites Worker API, Sites-managed D1 database, and real teacher/student sessions.
+- Bootstrapped the teacher username `Ktr0nn` using the requested password as a one-time hosted secret. The secret has been removed; only a salted password verifier remains in D1. No password or local `.dev.vars` file is included in Git or the deployment archive.
+- Added teacher-created student accounts using display name, username, and password without email. The teacher can reset passwords and disable accounts, revoking existing sessions.
+- Moved learning commands and role checks to the server. Student data excludes other students and teacher notes. Practice persists between browsers; only the teacher can assess mastery and unlock chapters.
+- Preserved the acoustic-guitar design and added a login-only public entry page. Direct SPA paths load the app and redirect signed-out visitors to sign-in.
+- Verified local TypeScript, lint, build, 25 unit/integration tests, four browser tests, and a production-dependency audit with zero reported vulnerabilities.
+- Verified the hosted public Site with a fresh browser: anonymous `/api/state` returns 401; a username/password student signed in without a ChatGPT account or email; practice remained after reload. Hosted API checks also confirmed teacher-note isolation and a 403 for a cross-student mutation.
+- Disabled the temporary release-check student account after verification. Its previous session and new login both return 401. The disabled account remains visible to the teacher as a release record.
 
-## In progress
+## Operational limits
 
-- Final hardening, accessibility and browser review, private deployment, and production smoke checks.
-
-## Remaining before release
-
-- Complete validation of the current UI checkpoint and address any release findings.
-- Configure the initial teacher password as a hosted secret, deploy privately, verify hosted D1 and auth, then perform the approved public-audience cutover.
-
-The live Site now runs authenticated accounts and D1, while GitHub `main` still has the earlier demo. One release-check student account exists for public-browser verification; it will be disabled after the check. No demo students were imported. The requested initial admin password was never committed, and its one-time hosted bootstrap secret has been removed.
+This release has one teacher account, no student self-registration, and no email recovery. Practice time is self-reported; the teacher decides mastery. Sites must not be used to target students below age 13 or the local age of digital consent.

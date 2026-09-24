@@ -2,7 +2,7 @@
 
 Guitarist is a teacher-guided guitar practice SPA for students ages 13+. The public entry page is sign-in only. A teacher creates student accounts with a display name, username, and password; email is not required. Student practice, assignments, assessments, and progress are stored in a server-side D1 database.
 
-The production conversion is being completed on `codex/product-accounts`. See the approved [design](docs/superpowers/specs/2026-09-23-production-accounts-design.md), [implementation plan](docs/superpowers/plans/2026-09-23-production-accounts.md), and [progress document](docs/production-progress.md). The authenticated Site is live while final public-browser and deep-link checks finish.
+The authenticated app is live at [guitarist-practice.ktr0nn.chatgpt.site](https://guitarist-practice.ktr0nn.chatgpt.site). See the approved [design](docs/superpowers/specs/2026-09-23-production-accounts-design.md), [implementation plan](docs/superpowers/plans/2026-09-23-production-accounts.md), and [release progress](docs/production-progress.md).
 
 ## Local development
 
