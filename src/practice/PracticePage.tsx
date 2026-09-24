@@ -24,12 +24,14 @@ export function PracticePage() {
     [running, setRunning] = useState(false),
     [seconds, setSeconds] = useState(0),
     [done, setDone] = useState(false),
+    [saving, setSaving] = useState(false),
     [error, setError] = useState("");
   const segments = useRef<Array<{ start: number; end: number }>>([]),
     start = useRef<number | null>(null),
     session = useRef(crypto.randomUUID()),
     completed = useRef<string[]>([]),
-    finished = useRef(false);
+    finished = useRef(false),
+    submitting = useRef(false);
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
       started &&
@@ -90,30 +92,39 @@ export function PracticePage() {
     setRunning(true);
   }
   async function advance(early = false) {
-    if (finished.current) return;
+    if (finished.current || submitting.current) return;
     pause();
     const ids = early
       ? [...completed.current]
       : [...completed.current, items[index].id];
-    completed.current = ids;
     if (!early && index < items.length - 1) {
+      completed.current = ids;
       setIndex(index + 1);
       return;
     }
     const duration = elapsedSeconds(segments.current, null, performance.now());
-    const result = await dispatch({
-      type: "completePractice",
-      studentId: student.id,
-      sessionId: session.current,
-      durationSeconds: duration,
-      itemIds: ids,
-      at: new Date().toISOString(),
-    });
-    if (result.ok) {
-      finished.current = true;
-      setSeconds(duration);
-      setDone(true);
-    } else setError(result.error);
+    submitting.current = true;
+    setSaving(true);
+    setError("");
+    try {
+      const result = await dispatch({
+        type: "completePractice",
+        studentId: student.id,
+        sessionId: session.current,
+        durationSeconds: duration,
+        itemIds: ids,
+        at: new Date().toISOString(),
+      });
+      if (result.ok) {
+        completed.current = ids;
+        finished.current = true;
+        setSeconds(duration);
+        setDone(true);
+      } else setError(result.error);
+    } finally {
+      submitting.current = false;
+      setSaving(false);
+    }
   }
   if (done)
     return (
@@ -250,7 +261,7 @@ export function PracticePage() {
             </p>
             <button
               className="button"
-              disabled={!started}
+              disabled={!started || saving}
               onClick={() => advance()}
             >
               {index === items.length - 1 ? "Finish practice" : "Next activity"}{" "}
@@ -259,7 +270,7 @@ export function PracticePage() {
           </div>
           <button
             className="text-link"
-            disabled={!started || seconds === 0}
+            disabled={!started || seconds === 0 || saving}
             onClick={() => advance(true)}
           >
             Finish early

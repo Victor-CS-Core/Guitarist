@@ -20,7 +20,7 @@ interface Studio {
   warning?: string;
   dispatch: (command: Command) => Promise<Result<DemoState>>;
   login: (username: string, password: string) => Promise<Result<Identity>>;
-  logout: () => Promise<void>;
+  logout: () => Promise<boolean>;
   createStudent: (name: string, username: string, password: string) => Promise<Result<string>>;
   resetStudentPassword: (id: string, password: string) => Promise<Result<null>>;
   setStudentDisabled: (id: string, disabled: boolean) => Promise<Result<null>>;
@@ -44,6 +44,8 @@ export function StoreProvider({ children, initialState, initialActor }: {
   const [practiceActive, setPracticeActive] = useState(false);
   const stateRef = useRef(state);
   stateRef.current = state;
+  const revisionsRef = useRef(revisions);
+  revisionsRef.current = revisions;
 
   async function refresh() {
     if (fixture) return;
@@ -51,6 +53,7 @@ export function StoreProvider({ children, initialState, initialActor }: {
     if (result.status === 401) { setStatus("signed-out"); return; }
     if (result.status !== 200 || !("state" in result.data)) throw Error("Could not load your studio.");
     setState(result.data.state);
+    revisionsRef.current = result.data.revisions;
     setRevisions(result.data.revisions);
     setAccounts(result.data.accounts);
     setWarning(undefined);
@@ -87,9 +90,21 @@ export function StoreProvider({ children, initialState, initialActor }: {
       return { ok: true, value: result.data };
     } catch { return failure("Could not connect to Guitarist. Please try again."); }
   }
-  async function logout() {
-    if (!fixture) await apiRequest<{ok:boolean}>("/api/logout", { method: "POST", body: "{}" }).catch(() => undefined);
-    setStatus("signed-out"); setIdentity(null); setActor(signedOutActor); setState(empty); setAccounts([]); setRevisions({});
+  async function logout(): Promise<boolean> {
+    if (!fixture) {
+      try {
+        const result = await apiRequest<{ok:boolean} | ApiError>("/api/logout", { method: "POST", body: "{}" });
+        if (result.status !== 200 || !("ok" in result.data) || !result.data.ok) {
+          setWarning("Could not sign out. Please try again.");
+          return false;
+        }
+      } catch {
+        setWarning("Could not sign out. Check your connection and try again.");
+        return false;
+      }
+    }
+    setStatus("signed-out"); setIdentity(null); setActor(signedOutActor); setState(empty); setAccounts([]); setRevisions({}); revisionsRef.current = {};
+    return true;
   }
   async function dispatch(command: Command): Promise<Result<DemoState>> {
     if (fixture) {
@@ -99,7 +114,7 @@ export function StoreProvider({ children, initialState, initialActor }: {
     }
     try {
       const result = await apiRequest<{state:DemoState;revision:number} | ApiError>("/api/commands", {
-        method: "POST", body: JSON.stringify({ command, revision: revisions[command.studentId] }),
+        method: "POST", body: JSON.stringify({ command, revision: revisionsRef.current[command.studentId] }),
       });
       if (result.status !== 200 || !("state" in result.data)) {
         if (result.status === 409) await refresh();

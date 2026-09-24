@@ -20,6 +20,9 @@ test("teacher assessments unlock the next chapter for a signed-in student", asyn
   await page.getByRole("link").filter({ has: page.getByRole("heading", { name }) }).click();
 
   await page.getByRole("tab", { name: "Assess" }).click();
+  await page.getByLabel("Skill", { exact: true }).selectOption({ label: "Guitar parts" });
+  await page.getByRole("button", { name: "Assign reinforcement" }).click();
+  await expect(page.getByRole("status")).toContainText("Reinforcement assigned");
   for (const skill of ["Guitar parts", "String numbers", "Finger numbers", "Holding your guitar", "Your first notes"]) {
     await page.getByLabel("Skill", { exact: true }).selectOption({ label: skill });
     await page.getByRole("button", { name: "Mark mastered" }).click();

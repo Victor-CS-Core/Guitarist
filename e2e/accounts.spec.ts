@@ -39,6 +39,10 @@ test("teacher creates a student without email and practice persists across brows
   await expect(studentPage).toHaveURL(/\/student$/);
   await studentPage.getByRole("link", { name: /Start practice/ }).click();
   await studentPage.getByRole("button", { name: "Start practice", exact: true }).click();
+  await studentPage.route("**/api/commands", (route) => route.fulfill({ status: 409, contentType: "application/json", body: '{"error":"Progress changed. Reload and try again."}' }));
+  await studentPage.getByRole("button", { name: "Finish practice" }).click();
+  await expect(studentPage.getByRole("alert")).toContainText("Progress changed");
+  await studentPage.unroute("**/api/commands");
   await studentPage.getByRole("button", { name: "Finish practice" }).click();
   await expect(studentPage.getByRole("heading", { name: "Practice complete." })).toBeVisible();
   await studentPage.goto("/student/progress");
@@ -48,6 +52,11 @@ test("teacher creates a student without email and practice persists across brows
   await page.reload();
   await page.getByRole("tab", { name: "Activity" }).click();
   await expect(page.getByText(/sec practiced/)).toBeVisible();
+  await studentPage.route("**/api/logout", (route) => route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"Temporary failure"}' }));
+  await studentPage.getByRole("button", { name: "Sign out" }).click();
+  await expect(studentPage.getByRole("status")).toContainText("Could not sign out");
+  await expect(studentPage).toHaveURL(/\/student\/progress$/);
+  await studentPage.unroute("**/api/logout");
   await studentPage.getByRole("button", { name: "Sign out" }).click();
   await expect(studentPage.getByRole("heading", { name: "Sign in to Guitarist" })).toBeVisible();
   await studentContext.close();

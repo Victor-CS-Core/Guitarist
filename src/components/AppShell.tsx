@@ -13,8 +13,7 @@ export function AppShell() {
     : ([["/student", "Home", House], ["/student/learn", "Learn", BookOpen], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined]] as const);
   async function signOut() {
     if (practiceActive && !window.confirm("Leave unfinished practice? Unsaved practice time will be discarded.")) return;
-    await logout();
-    navigate("/", { replace: true });
+    if (await logout()) navigate("/", { replace: true });
   }
   return <div className="app-layout">
     <AgentTools />
