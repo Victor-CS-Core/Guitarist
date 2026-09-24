@@ -1,6 +1,7 @@
 import type { AccountRow } from "./db";
 
-const ITERATIONS = 310_000;
+// The Sites Worker runtime caps a single PBKDF2 derivation at 100,000 rounds.
+const ITERATIONS = 100_000;
 
 function encode(bytes: Uint8Array): string {
   return btoa(String.fromCharCode(...bytes));

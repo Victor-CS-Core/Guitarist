@@ -17,6 +17,7 @@ Guitarist's approved [design](superpowers/specs/2026-09-23-production-accounts-d
 - Replaced the public entry route with a login-only screen and removed the demo role switcher, fictional students, and browser-local persistence from the production UI.
 - Connected teacher account creation, password reset, disabling, assessments, assignments, notes, and student practice to authenticated API state.
 - Browser-tested sign-in, protected deep links, username-only student creation, cross-browser practice persistence, sign-out, password reset and disable revocation, and teacher-approved chapter unlock. Four Playwright tests pass against local D1.
+- Private Sites deployment provisioned D1 and all four expected tables. Hosted smoke testing found the Worker caps one PBKDF2 derivation at 100,000 iterations, so password hashing now uses that supported limit and has a regression test. The corrected version is pending redeployment.
 
 ## In progress
 
