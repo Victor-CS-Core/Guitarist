@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Lock, BookOpen } from "lucide-react";
 import { levels, activities } from "../curriculum/foundations";
-import { useDemo, useStudent } from "../demo/StoreProvider";
+import { useDemo, useStudent } from "../app/StoreProvider";
 import { StatusBadge } from "../components/StatusBadge";
 import { Exercises } from "./Exercises";
 import { ChapterBadge } from "../components/ChapterBadge";

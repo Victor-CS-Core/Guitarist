@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { activities, skills } from "../curriculum/foundations";
-import { useDemo } from "../demo/StoreProvider";
+import { useDemo } from "../app/StoreProvider";
 export function AssignmentForm({ studentId }: { studentId: string }) {
   const { state, dispatch } = useDemo(),
     student = state.students.find((s) => s.id === studentId)!;
@@ -16,9 +16,9 @@ export function AssignmentForm({ studentId }: { studentId: string }) {
   return (
     <form
       className="card form-card"
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
-        const r = dispatch({
+        const r = await dispatch({
           type: "assign",
           studentId,
           activityId,

@@ -1,0 +1,54 @@
+import { test, expect } from "@playwright/test";
+
+const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? "example-test-password";
+
+test("signed-out visitors see only login, including on protected deep links", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Sign in to Guitarist" })).toBeVisible();
+  await expect(page.getByText("Emma")).toHaveCount(0);
+  await page.goto("/teacher/students/private-id");
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole("heading", { name: "Sign in to Guitarist" })).toBeVisible();
+});
+
+test("teacher creates a student without email and practice persists across browsers", async ({ page, browser }) => {
+  const username = `player${Date.now()}`;
+  const displayName = `Practice Player ${Date.now()}`;
+  const password = "example-student-password";
+  await page.goto("/");
+  await page.getByLabel("Username").fill("Ktr0nn");
+  await page.getByLabel("Password").fill(adminPassword);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/teacher$/);
+  await page.getByRole("button", { name: "Add student" }).click();
+  await page.getByLabel("Student name").fill(displayName);
+  await page.getByLabel("Student username").fill(username);
+  await page.getByLabel("Student password").fill(password);
+  await page.getByRole("button", { name: "Create student" }).click();
+  await expect(page.getByRole("heading", { name: displayName })).toBeVisible();
+  await page.getByRole("link").filter({ has: page.getByRole("heading", { name: displayName }) }).click();
+  await page.getByRole("tab", { name: "Assignments" }).click();
+  await page.getByRole("button", { name: "Assign practice" }).click();
+
+  const studentContext = await browser.newContext();
+  const studentPage = await studentContext.newPage();
+  await studentPage.goto("/");
+  await studentPage.getByLabel("Username").fill(username);
+  await studentPage.getByLabel("Password").fill(password);
+  await studentPage.getByRole("button", { name: "Sign in" }).click();
+  await expect(studentPage).toHaveURL(/\/student$/);
+  await studentPage.getByRole("link", { name: /Start practice/ }).click();
+  await studentPage.getByRole("button", { name: "Start practice", exact: true }).click();
+  await studentPage.getByRole("button", { name: "Finish practice" }).click();
+  await expect(studentPage.getByRole("heading", { name: "Practice complete." })).toBeVisible();
+  await studentPage.goto("/student/progress");
+  await studentPage.reload();
+  await expect(studentPage.getByText("PRACTICE SESSIONS")).toBeVisible();
+  await expect(studentPage.getByText("PRACTICE SESSIONS").locator("..").getByText("1")).toBeVisible();
+  await page.reload();
+  await page.getByRole("tab", { name: "Activity" }).click();
+  await expect(page.getByText(/sec practiced/)).toBeVisible();
+  await studentPage.getByRole("button", { name: "Sign out" }).click();
+  await expect(studentPage.getByRole("heading", { name: "Sign in to Guitarist" })).toBeVisible();
+  await studentContext.close();
+});

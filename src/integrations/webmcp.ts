@@ -1,7 +1,7 @@
 import type { Actor, DemoState } from "../domain/types";
 export function practiceSummary(state: DemoState, actor: Actor) {
   if (actor.role !== "student")
-    throw Error("Select a student demo view first.");
+    throw Error("Sign in as a student first.");
   const student = state.students.find((s) => s.id === actor.studentId);
   if (!student) throw Error("Student not found.");
   return {
@@ -61,7 +61,7 @@ export function registerTools(
       name: "get_practice_summary",
       title: "Read practice summary",
       description:
-        "Read pending activities and recorded seconds for the current fictional student.",
+        "Read pending activities and recorded seconds for the signed-in student.",
       execute: (input) => {
         validateEmptyInput(input);
         const { state, actor } = read();
@@ -73,7 +73,7 @@ export function registerTools(
       name: "navigate_to_practice",
       title: "Open assigned practice",
       description:
-        "Open the practice page for the selected fictional student. Does not start the timer or complete practice.",
+        "Open the practice page for the signed-in student. Does not start the timer or complete practice.",
       annotations: { readOnlyHint: false, untrustedContentHint: false },
       execute: (input) => {
         validateEmptyInput(input);

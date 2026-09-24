@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams, useBlocker } from "react-router-dom";
 import { Play, Pause, Check, ArrowRight, Music2 } from "lucide-react";
-import { useDemo, useStudent } from "../demo/StoreProvider";
+import { useDemo, useStudent } from "../app/StoreProvider";
 import { activityById } from "../curriculum/foundations";
 import { Exercises } from "../student/Exercises";
 import { elapsedSeconds } from "./timer";
@@ -89,7 +89,7 @@ export function PracticePage() {
     setStarted(true);
     setRunning(true);
   }
-  function advance(early = false) {
+  async function advance(early = false) {
     if (finished.current) return;
     pause();
     const ids = early
@@ -101,7 +101,7 @@ export function PracticePage() {
       return;
     }
     const duration = elapsedSeconds(segments.current, null, performance.now());
-    const result = dispatch({
+    const result = await dispatch({
       type: "completePractice",
       studentId: student.id,
       sessionId: session.current,

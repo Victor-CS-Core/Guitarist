@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { seed } from "../demo/seed";
+import { seed } from "../test/fixtures";
 import { applyCommand } from "./commands";
 import { canUnlock, earnedBadgeIds } from "./selectors";
 import type { DemoState, Command } from "./types";

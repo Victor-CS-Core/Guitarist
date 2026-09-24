@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { it, expect } from "vitest";
-import { StoreProvider } from "../demo/StoreProvider";
-import { seed } from "../demo/seed";
+import { StoreProvider } from "../app/StoreProvider";
+import { seed } from "../test/fixtures";
 import { LevelPage } from "./LevelPage";
 it("keeps locked material unavailable on direct navigation", () => {
   render(

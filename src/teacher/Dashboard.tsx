@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Users, Music2, ClipboardCheck } from "lucide-react";
-import { useDemo } from "../demo/StoreProvider";
+import { useDemo } from "../app/StoreProvider";
 import { levels } from "../curriculum/foundations";
 import { StatusBadge } from "../components/StatusBadge";
+import { StudentAccountForm } from "./StudentAccountForm";
 export function TeacherDashboard() {
-  const { state } = useDemo();
+  const { state, accounts } = useDemo();
   return (
     <>
       <div className="page-heading">
@@ -38,10 +39,12 @@ export function TeacherDashboard() {
           <p>Skills ready for your review</p>
         </div>
       </div>
+      <StudentAccountForm />
       <div className="section-heading">
         <h2>Your students</h2>
-        <span className="small">Fictional studio · Jamie Taylor</span>
+        <span className="small">Your teaching studio</span>
       </div>
+      {state.students.length === 0 && <section className="card empty"><Users size={35} /><h2>Your studio is ready.</h2><p>Add your first student to begin assigning practice and recording progress.</p></section>}
       <div className="teacher-students">
         {state.students.map((s) => {
           const level = levels.find((l) => l.id === s.currentLevelId)!;
@@ -56,10 +59,11 @@ export function TeacherDashboard() {
                 <div className="row">
                   <span className="avatar large">{s.name[0]}</span>
                   <div>
-                    <h2>{s.name}</h2>
-                    <p>
-                      Level {level.order} · {level.title}
-                    </p>
+                      <h2>{s.name}</h2>
+                      <p>
+                        Level {level.order} · {level.title}
+                      </p>
+                      <p className="small">@{accounts.find((account) => account.studentId === s.id)?.username}{accounts.find((account) => account.studentId === s.id)?.disabled ? " · Access disabled" : ""}</p>
                   </div>
                 </div>
                 <ArrowRight size={20} />

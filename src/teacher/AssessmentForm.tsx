@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDemo } from "../demo/StoreProvider";
+import { useDemo } from "../app/StoreProvider";
 import {
   skills,
   activities,
@@ -34,8 +34,8 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
     !!activity &&
     !!targetLevel &&
     student.unlockedLevels.includes(targetLevel.id);
-  function assess(status: Status) {
-    const r = dispatch({
+  async function assess(status: Status) {
+    const r = await dispatch({
       type: "assess",
       studentId,
       skillId,
@@ -48,15 +48,15 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
     );
     return r.ok;
   }
-  function reinforce() {
+  async function reinforce() {
     if (!activity || !availableTarget) {
       setMessage(
-        "This skill’s targeted activity is not yet available in the prototype.",
+        "This skill has no targeted activity available yet.",
       );
       return;
     }
-    if (assess("NEEDS_REINFORCEMENT")) {
-      const r = dispatch({
+    if (await assess("NEEDS_REINFORCEMENT")) {
+      const r = await dispatch({
         type: "assign",
         studentId,
         activityId: activity.id,

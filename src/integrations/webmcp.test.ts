@@ -1,6 +1,6 @@
 import { it, expect } from "vitest";
 import { practiceSummary, validateEmptyInput } from "./webmcp";
-import { seed } from "../demo/seed";
+import { seed } from "../test/fixtures";
 it("limits practice summaries to the selected learner and rejects unexpected input", () => {
   expect(
     practiceSummary(seed(), { role: "student", studentId: "noah" }),

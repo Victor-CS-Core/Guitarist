@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Play, Clock3, Check, Target, Flame } from "lucide-react";
-import { useDemo, useStudent } from "../demo/StoreProvider";
+import { useDemo, useStudent } from "../app/StoreProvider";
 import { levels, activityById } from "../curriculum/foundations";
 import { ActivityPreview } from "../components/ActivityPreview";
 export function Dashboard() {

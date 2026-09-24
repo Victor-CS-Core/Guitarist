@@ -1,6 +1,6 @@
 import { Check, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useDemo, useStudent } from "../demo/StoreProvider";
+import { useDemo, useStudent } from "../app/StoreProvider";
 import { levels, skills } from "../curriculum/foundations";
 import { earnedBadgeIds } from "../domain/selectors";
 import { StatusBadge } from "../components/StatusBadge";

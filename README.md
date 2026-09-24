@@ -1,43 +1,23 @@
 # Guitarist
 
-The production account conversion is in progress on `codex/product-accounts`; the published `main` version remains the demo until the authenticated release passes verification. The approved [design](docs/superpowers/specs/2026-09-23-production-accounts-design.md) and [implementation plan](docs/superpowers/plans/2026-09-23-production-accounts.md) define the cutover.
+Guitarist is a teacher-guided guitar practice SPA for students ages 13+. The public entry page is sign-in only. A teacher creates student accounts with a display name, username, and password; email is not required. Student practice, assignments, assessments, and progress are stored in a server-side D1 database.
 
-This branch builds a Cloudflare-compatible Worker plus SPA assets for OpenAI Sites. `wrangler.jsonc` configures a local D1 binding; `.openai/hosting.json` declares the hosted binding. Migration source lives in `drizzle/` and is copied to `dist/.openai/drizzle/` at build time. `ADMIN_BOOTSTRAP_PASSWORD` is an initial, server-only Sites secret and must never be committed.
+The production conversion is being completed on `codex/product-accounts`. See the approved [design](docs/superpowers/specs/2026-09-23-production-accounts-design.md), [implementation plan](docs/superpowers/plans/2026-09-23-production-accounts.md), and [progress document](docs/production-progress.md). The live OpenAI Site continues to serve the earlier demo until the new release passes private verification.
 
-Run `npm ci`, `npm run dev`, and apply the local D1 migration with `npx wrangler d1 migrations apply guitarist-local --local`. Run `npm run build` to produce `dist/server/index.js`, `dist/client/`, and `dist/.openai/`.
+## Local development
 
-A React single-page prototype for teacher-guided guitar practice. Maple and cream styling with deep denim blue, muted copper, and teacher-earned pick badges. Hosted privately on OpenAI Sites.
+Use Node.js 22+ and npm. Install with `npm ci`, then apply the database migration:
 
-## Run
+```sh
+npx wrangler d1 migrations apply guitarist-local --local --config wrangler.jsonc
+```
 
-Use Node.js 22+ and npm. Run `npm ci`, then `npm run dev`. Vite prints the preview URL.
+Copy `.env.example` to `.dev.vars` and set a local-only `ADMIN_BOOTSTRAP_PASSWORD`. The first server request creates the teacher account `Ktr0nn`; the secret is not needed after that account exists. Run `npm run dev` and open `http://localhost:5173`. Never commit `.dev.vars` or a real password.
 
-- `npm run lint`
-- `npm run typecheck`
-- `npm test`
-- `npm run build`
-- `npm run test:e2e` (start the dev server on port 5173 first; install a Playwright Chromium browser or set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`)
-
-## Try the loop
-
-Choose Noah in the demo selector. Practice an assignment and finish it. Switch to Jamie (Teacher), open Noah, and inspect Activity. Under Assess, mark skills after a fictional demonstration. When all Level 1 skills are mastered, explicitly unlock Level 2 under Overview. Switch back to Noah.
-
-For targeted reinforcement, open Emma as teacher, choose Assess, A minor, and Shape memory. Assign reinforcement; it appears in Emma's practice. Rhythm and transition exercises require their corresponding chapter to be unlocked first.
-
-## Prototype boundary
-
-Emma, Noah and Jamie are fictional. All records, including notes, are stored on this browser/device in `guitarist.demo.v1`. Demo role switching is not authentication. Notes are omitted from student UI but are present in browser storage and are not confidential. Do not enter real student information. Reset uses the top-bar reset control and affects only Guitarist demo state. Private Sites access does not provide student/teacher authorization inside the app.
-
-Level 1 and Em/Am practice are interactive. All eight chapters have structured content, while complete Levels 2–6 instruction, student creation/deletion, real accounts, durable shared persistence and server authorization belong to the subsequent MVP milestone. Timers record voluntary practice time, never mastery. Early finish leaves unfinished activities assigned.
+Run `npm test`, `npm run typecheck`, `npm run lint`, and `npm run build`. For browser tests, start the dev server and run `npm run test:e2e`. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` if Chromium is installed outside Playwright's default location; set `E2E_ADMIN_PASSWORD` if your local bootstrap password differs from the test default.
 
 ## Architecture
 
-Curriculum is in `src/curriculum`, immutable validated commands in `src/domain`, the replaceable demo adapter in `src/demo`, and route-level views in student/practice/teacher folders. Student digital actions cannot master skills or unlock levels. Teacher override reasons are recorded in progress history.
+The React SPA is in `src/`. `server/` hosts authenticated API routes, server-side authorization, password hashing, and session handling. `drizzle/` contains the D1 migration. The Sites build outputs `dist/server/index.js`, `dist/client/`, and `dist/.openai/`, including the hosting manifest and migration.
 
-React Router handles deep links and browser history. Static production output is `dist`; `.openai/hosting.json` declares it. OpenAI Sites must serve the entry document for SPA paths. No custom 404.html is emitted, allowing static SPA fallback. Future APIs should use the Sites-compatible Workers runtime, with server-side tenant boundaries and a child-appropriate identity design.
-
-Optional WebMCP tools are feature-detected: read the current learner's practice summary or navigate to practice. They accept no learner ID and never grant mastery, start timers, or complete work. Unsupported browsers use the normal UI. Real supported-context WebMCP validation was unavailable; input and state-boundary logic has unit coverage.
-
-## Environment
-
-No application secrets or environment variables are required. Deployment credentials are ephemeral, supplied through protected stdin, and never committed. External Google Fonts load for typography with local sans-serif fallbacks.
+Student actions record practice but cannot award mastery or unlock chapters. Teacher assessments and explicit unlock actions control advancement. Private teacher notes are omitted from student responses. Passwords are salted and hashed; sessions use secure, HttpOnly cookies. The hosted initial admin password belongs only in a Sites secret.

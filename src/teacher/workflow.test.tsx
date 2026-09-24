@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { it, expect } from "vitest";
-import { StoreProvider, useDemo } from "../demo/StoreProvider";
-import { seed } from "../demo/seed";
+import { StoreProvider, useDemo } from "../app/StoreProvider";
+import { seed } from "../test/fixtures";
 import { AssessmentForm } from "./AssessmentForm";
 function Readback() {
   const { state } = useDemo();

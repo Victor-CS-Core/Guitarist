@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Check, Clock3 } from "lucide-react";
-import { useDemo } from "../demo/StoreProvider";
+import { useDemo } from "../app/StoreProvider";
 import { levels, skills, activityById } from "../curriculum/foundations";
 import { StatusBadge } from "../components/StatusBadge";
 import { canUnlock } from "../domain/selectors";
@@ -9,12 +9,15 @@ import { AssessmentForm } from "./AssessmentForm";
 import { AssignmentForm } from "./AssignmentForm";
 export function StudentDetail() {
   const { studentId } = useParams(),
-    { state, dispatch } = useDemo(),
+    { state, dispatch, accounts, resetStudentPassword, setStudentDisabled } = useDemo(),
     student = state.students.find((s) => s.id === studentId);
   const [tab, setTab] = useState("Overview"),
     [note, setNote] = useState(""),
     [message, setMessage] = useState(""),
-    [override, setOverride] = useState("");
+    [override, setOverride] = useState(""),
+    [newPassword, setNewPassword] = useState(""),
+    [accountMessage, setAccountMessage] = useState(""),
+    [accountPending, setAccountPending] = useState(false);
   if (!student)
     return (
       <div className="card">
@@ -23,6 +26,7 @@ export function StudentDetail() {
       </div>
     );
   const level = levels.find((l) => l.id === student.currentLevelId)!,
+    account = accounts.find((a) => a.studentId === student.id),
     next = levels[level.order],
     sessions = state.sessions.filter((s) => s.studentId === student.id),
     items = state.assignments
@@ -44,7 +48,7 @@ export function StudentDetail() {
         </div>
       </div>
       <div className="tab-row" role="tablist" aria-label="Student detail">
-        {["Overview", "Assess", "Assignments", "Notes", "Activity"].map((t) => (
+        {["Overview", "Assess", "Assignments", "Notes", "Activity", "Account"].map((t) => (
           <button
             key={t}
             id={`tab-${t}`}
@@ -101,8 +105,8 @@ export function StudentDetail() {
                   )}
                   <button
                     className="button secondary"
-                    onClick={() => {
-                      const r = dispatch({
+                    onClick={async () => {
+                      const r = await dispatch({
                         type: "unlock",
                         studentId: student.id,
                         levelId: next.id,
@@ -159,9 +163,9 @@ export function StudentDetail() {
           <div className="learning-layout">
             <form
               className="card form-card"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                const r = dispatch({
+                const r = await dispatch({
                   type: "saveNote",
                   studentId: student.id,
                   text: note,
@@ -172,10 +176,7 @@ export function StudentDetail() {
               }}
             >
               <h2>Lesson notes</h2>
-              <p>
-                Teacher-view notes in this fictional demo. Real privacy requires
-                the planned server.
-              </p>
+              <p>These notes are visible only in your teacher account.</p>
               <label>
                 Your note
                 <textarea
@@ -258,6 +259,31 @@ export function StudentDetail() {
               )}
             </section>
           </div>
+        )}
+        {tab === "Account" && (
+          <section className="card form-card account-panel">
+            <h2>Student access</h2>
+            <p>Username: <strong>{account?.username}</strong></p>
+            <p>{account?.disabled ? "This account is disabled." : "This student can sign in."}</p>
+            <form onSubmit={async (event) => {
+              event.preventDefault(); setAccountPending(true); setAccountMessage("");
+              const result = await resetStudentPassword(student.id, newPassword);
+              setAccountPending(false);
+              setAccountMessage(result.ok ? "Password changed. The student must sign in again." : result.error);
+              if (result.ok) setNewPassword("");
+            }}>
+              <label htmlFor="reset-password">New password</label>
+              <input id="reset-password" type="password" autoComplete="new-password" minLength={10} maxLength={256} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} required />
+              <button className="button secondary" type="submit" disabled={accountPending}>Reset password</button>
+            </form>
+            <button className="button secondary" type="button" disabled={accountPending} onClick={async () => {
+              setAccountPending(true); setAccountMessage("");
+              const result = await setStudentDisabled(student.id, !account?.disabled);
+              setAccountPending(false);
+              setAccountMessage(result.ok ? (account?.disabled ? "Student access enabled." : "Student access disabled.") : result.error);
+            }}>{account?.disabled ? "Enable student access" : "Disable student access"}</button>
+            {accountMessage && <p role="status" className="form-message">{accountMessage}</p>}
+          </section>
         )}
       </div>
     </>

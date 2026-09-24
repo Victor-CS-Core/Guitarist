@@ -1692,3 +1692,93 @@ dialog p {
 dialog .row {
   flex-wrap: wrap;
 }
+.auth-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: #34495b;
+  font-size: 1.1rem;
+}
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(340px, 46%) 1fr;
+  background: #fbf7ef;
+}
+.login-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 52% 35%, #496174 0, #283f52 46%, #1d3446 100%);
+}
+.login-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .1;
+  background-image: url("/images/maple-grain.webp");
+  background-size: cover;
+  mix-blend-mode: screen;
+}
+.login-art img {
+  width: min(72%, 480px);
+  max-height: 87vh;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 30px #0d25314d);
+}
+.login-art span {
+  position: absolute;
+  bottom: 7%;
+  z-index: 1;
+  color: #fff7e9;
+  font: 750 clamp(2rem, 3vw, 3.4rem) Manrope, sans-serif;
+  letter-spacing: -.06em;
+}
+.login-panel {
+  width: min(100%, 590px);
+  margin: auto;
+  padding: clamp(32px, 7vw, 82px);
+}
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #344b5b;
+  font: 800 1.35rem Manrope, sans-serif;
+}
+.login-intro { margin: clamp(60px, 10vh, 110px) 0 32px; }
+.login-intro h1 { color: #283e50; font-size: clamp(2.2rem, 3vw, 3.1rem); margin: 12px 0; }
+.login-intro p { color: #665747; font-size: 1rem; }
+.login-form { display: grid; gap: 10px; }
+.login-form label { color: #42392e; font-size: .92rem; font-weight: 700; margin-top: 10px; }
+.login-form input, .student-account-form input, .account-panel input {
+  min-height: 50px;
+  width: 100%;
+  border: 1px solid #d9c9b8;
+  border-radius: 9px;
+  padding: 12px 14px;
+  background: #fff;
+  color: #372d25;
+  font-size: 1rem;
+}
+.login-form .button { margin-top: 16px; min-height: 52px; font-size: 1rem; background: #a65e45; }
+.login-help { margin-top: 26px; font-size: .85rem; }
+.account-controls { display: flex; align-items: center; gap: 16px; color: #574a3f; font-size: .9rem; }
+.account-controls .signout { min-height: 39px; }
+.student-account-area { margin: 24px 0; }
+.student-account-form { margin-top: 16px; max-width: 520px; }
+.student-account-form label, .account-panel label { display: block; margin: 16px 0 7px; font-size: .9rem; font-weight: 700; }
+.student-account-form .button, .account-panel .button { margin-top: 16px; }
+.account-panel { max-width: 620px; }
+.account-panel form { margin-top: 24px; }
+@media (max-width: 780px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-art { min-height: 170px; max-height: 28vh; }
+  .login-art img { width: 130px; max-height: 160px; }
+  .login-art span { right: 8%; bottom: 20%; font-size: 1.6rem; }
+  .login-panel { padding: 32px 24px 60px; }
+  .login-intro { margin: 48px 0 25px; }
+  .account-controls { gap: 8px; }
+  .account-controls .signout { padding: 8px; }
+}
