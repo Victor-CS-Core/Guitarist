@@ -2,7 +2,7 @@
 
 Guitarist is a teacher-guided guitar practice SPA for students ages 13+. The public entry page is sign-in only. A teacher creates student accounts with a display name, username, and password; email is not required. Student practice, assignments, assessments, and progress are stored in a server-side D1 database.
 
-The production conversion is being completed on `codex/product-accounts`. See the approved [design](docs/superpowers/specs/2026-09-23-production-accounts-design.md), [implementation plan](docs/superpowers/plans/2026-09-23-production-accounts.md), and [progress document](docs/production-progress.md). The live OpenAI Site continues to serve the earlier demo until the new release passes private verification.
+The production conversion is being completed on `codex/product-accounts`. See the approved [design](docs/superpowers/specs/2026-09-23-production-accounts-design.md), [implementation plan](docs/superpowers/plans/2026-09-23-production-accounts.md), and [progress document](docs/production-progress.md). The authenticated Site is live while final public-browser and deep-link checks finish.
 
 ## Local development
 

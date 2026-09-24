@@ -5,6 +5,7 @@ import { requireSession } from "./sessions";
 
 export interface Env {
   DB: D1Database;
+  ASSETS: Pick<Fetcher, "fetch">;
   ADMIN_BOOTSTRAP_PASSWORD?: string;
 }
 
@@ -25,6 +26,13 @@ export default {
         ?? (await handleLearning(request, env, account))
         ?? json({ error: "Not found" }, 404);
     }
-    return new Response("Not found", { status: 404 });
+    if (request.method === "GET" || request.method === "HEAD") {
+      const isNavigation = request.headers.get("accept")?.includes("text/html");
+      const assetRequest = isNavigation
+        ? new Request(new URL("/index.html", request.url), request)
+        : request;
+      return env.ASSETS.fetch(assetRequest);
+    }
+    return new Response("Method not allowed", { status: 405 });
   },
 } satisfies ExportedHandler<Env>;

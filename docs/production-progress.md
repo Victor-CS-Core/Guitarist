@@ -20,6 +20,7 @@ Guitarist's approved [design](superpowers/specs/2026-09-23-production-accounts-d
 - Private Sites deployment provisioned D1 and all four expected tables. Hosted smoke testing found the Worker caps one PBKDF2 derivation at 100,000 iterations, so password hashing now uses that supported limit and has a regression test. Hosted teacher login, secure cookie, authenticated state, and anonymous 401 checks now pass.
 - Review-driven browser regressions now cover reinforcement after assessment, retrying practice after a revision conflict, and retaining the signed-in state when logout fails. These fixes are validated locally and deployed privately.
 - The teacher account was bootstrapped on the private Site; the bootstrap secret was then removed, and hosted login still succeeds. A parallel-login test exposed undercounted failures; rate-limit reservations are now atomic and tested before public release.
+- Hosted API checks passed for a release-check student: creation without email, student sign-in, private-note omission, practice persistence, and cross-student mutation rejection. The public audience is enabled. A direct SPA deep link exposed a Worker asset-fallback 404; the explicit fallback is fixed locally and pending deployment.
 
 ## In progress
 
@@ -30,4 +31,4 @@ Guitarist's approved [design](superpowers/specs/2026-09-23-production-accounts-d
 - Complete validation of the current UI checkpoint and address any release findings.
 - Configure the initial teacher password as a hosted secret, deploy privately, verify hosted D1 and auth, then perform the approved public-audience cutover.
 
-The live Site and GitHub `main` still run the previous demo. No real student data has been created or imported. The requested initial admin password is not present in the repository; it will be configured only as a hosted secret during cutover.
+The live Site now runs authenticated accounts and D1, while GitHub `main` still has the earlier demo. One release-check student account exists for public-browser verification; it will be disabled after the check. No demo students were imported. The requested initial admin password was never committed, and its one-time hosted bootstrap secret has been removed.

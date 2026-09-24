@@ -20,7 +20,7 @@ beforeEach(async () => {
   for (const statement of sql.split(";").map((s) => s.trim()).filter(Boolean)) {
     await db.prepare(statement).run();
   }
-  env = { DB: db, ADMIN_BOOTSTRAP_PASSWORD: testPassword };
+  env = { DB: db, ASSETS: { fetch: async () => new Response("spa entry") }, ADMIN_BOOTSTRAP_PASSWORD: testPassword };
 });
 afterEach(async () => { await mf?.dispose(); });
 
@@ -53,6 +53,18 @@ test("teacher bootstraps once and receives an opaque, secure, revocable session"
   expect((await worker.fetch(request("/api/me", "GET", undefined, cookie), env)).status).toBe(401);
   env.ADMIN_BOOTSTRAP_PASSWORD = undefined;
   expect((await login()).status).toBe(200);
+});
+
+test("direct SPA deep links serve the app entry document", async () => {
+  let requested = "";
+  env.ASSETS = { fetch: async (request: Request) => {
+    requested = new URL(request.url).pathname;
+    return new Response("spa entry");
+  } };
+  const response = await worker.fetch(new Request(`${origin}/student/progress`, { headers: { accept: "text/html" } }), env);
+  expect(response.status).toBe(200);
+  expect(await response.text()).toBe("spa entry");
+  expect(requested).toBe("/index.html");
 });
 
 test("wrong passwords are generic and repeated attempts block even a correct password", async () => {
