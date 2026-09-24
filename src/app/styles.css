@@ -211,28 +211,6 @@ button {
   color: #95816b;
   font-size: 9px;
 }
-.demo-controls {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-.demo-tag {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  border: 1px solid #e1d6c7;
-  border-radius: 5px;
-  padding: 4px 6px;
-  color: #a18a70;
-}
-.demo-controls select {
-  border: 0;
-  background: transparent;
-  color: #735e49;
-  font-size: 12px;
-  min-height: 44px;
-  max-width: 155px;
-}
 .icon-button {
   min-width: 44px;
   min-height: 44px;
@@ -897,13 +875,6 @@ footer span {
   .topbar > .eyebrow {
     max-width: 110px;
     line-height: 1.8;
-  }
-  .demo-controls {
-    gap: 5px;
-  }
-  .demo-controls select {
-    font-size: 11px;
-    max-width: 132px;
   }
   .workspace main {
     padding: 27px 19px 12px;

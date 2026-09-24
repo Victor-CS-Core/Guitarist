@@ -52,3 +52,46 @@ test("teacher creates a student without email and practice persists across brows
   await expect(studentPage.getByRole("heading", { name: "Sign in to Guitarist" })).toBeVisible();
   await studentContext.close();
 });
+
+test("password reset and disabling revoke a student's active session", async ({ page, browser }) => {
+  const suffix = Date.now().toString();
+  const username = `access${suffix}`;
+  const name = `Access Player ${suffix}`;
+  const firstPassword = "example-student-password";
+  const nextPassword = "another-student-password";
+  await page.goto("/");
+  await page.getByLabel("Username").fill("Ktr0nn");
+  await page.getByLabel("Password").fill(adminPassword);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Add student" }).click();
+  await page.getByLabel("Student name").fill(name);
+  await page.getByLabel("Student username").fill(username);
+  await page.getByLabel("Student password").fill(firstPassword);
+  await page.getByRole("button", { name: "Create student" }).click();
+  await page.getByRole("link").filter({ has: page.getByRole("heading", { name }) }).click();
+
+  const studentContext = await browser.newContext();
+  const studentPage = await studentContext.newPage();
+  await studentPage.goto("/");
+  await studentPage.getByLabel("Username").fill(username);
+  await studentPage.getByLabel("Password").fill(firstPassword);
+  await studentPage.getByRole("button", { name: "Sign in" }).click();
+  await expect(studentPage).toHaveURL(/\/student$/);
+
+  await page.getByRole("tab", { name: "Account" }).click();
+  await page.getByLabel("New password").fill(nextPassword);
+  await page.getByRole("button", { name: "Reset password" }).click();
+  await expect(page.getByRole("status")).toContainText("Password changed");
+  await studentPage.reload();
+  await expect(studentPage.getByRole("heading", { name: "Sign in to Guitarist" })).toBeVisible();
+  await studentPage.getByLabel("Username").fill(username);
+  await studentPage.getByLabel("Password").fill(nextPassword);
+  await studentPage.getByRole("button", { name: "Sign in" }).click();
+  await expect(studentPage).toHaveURL(/\/student$/);
+
+  await page.getByRole("button", { name: "Disable student access" }).click();
+  await expect(page.getByRole("status")).toContainText("Student access disabled");
+  await studentPage.reload();
+  await expect(studentPage.getByRole("heading", { name: "Sign in to Guitarist" })).toBeVisible();
+  await studentContext.close();
+});

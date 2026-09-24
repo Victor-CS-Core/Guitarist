@@ -79,9 +79,7 @@ export function Dashboard() {
           <div className="eyebrow">YOUR NEXT LITTLE WIN</div>
           <h3>{student.goal}</h3>
           <p>No rush. Your teacher will help you know when you’re ready.</p>
-          <span className="teacher-sign">
-            With you every step <span>— Jamie</span>
-          </span>
+          <span className="teacher-sign">Your teacher is with you every step.</span>
         </aside>
       </div>
       <div className="section-heading">
