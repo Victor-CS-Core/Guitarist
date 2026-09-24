@@ -29,7 +29,7 @@ export default {
     if (request.method === "GET" || request.method === "HEAD") {
       const isNavigation = request.headers.get("accept")?.includes("text/html");
       const assetRequest = isNavigation
-        ? new Request(new URL("/index.html", request.url), request)
+        ? new Request(new URL("/", request.url), request)
         : request;
       return env.ASSETS.fetch(assetRequest);
     }

@@ -20,7 +20,7 @@ Guitarist's approved [design](superpowers/specs/2026-09-23-production-accounts-d
 - Private Sites deployment provisioned D1 and all four expected tables. Hosted smoke testing found the Worker caps one PBKDF2 derivation at 100,000 iterations, so password hashing now uses that supported limit and has a regression test. Hosted teacher login, secure cookie, authenticated state, and anonymous 401 checks now pass.
 - Review-driven browser regressions now cover reinforcement after assessment, retrying practice after a revision conflict, and retaining the signed-in state when logout fails. These fixes are validated locally and deployed privately.
 - The teacher account was bootstrapped on the private Site; the bootstrap secret was then removed, and hosted login still succeeds. A parallel-login test exposed undercounted failures; rate-limit reservations are now atomic and tested before public release.
-- Hosted API checks passed for a release-check student: creation without email, student sign-in, private-note omission, practice persistence, and cross-student mutation rejection. The public audience is enabled. A direct SPA deep link exposed a Worker asset-fallback 404; the explicit fallback is fixed locally and pending deployment.
+- Hosted API checks passed for a release-check student: creation without email, student sign-in, private-note omission, practice persistence, and cross-student mutation rejection. The public audience is enabled. Direct SPA deep links exposed a Worker asset-fallback 404 and then an `/index.html` canonical redirect; the fallback now fetches `/` internally and is pending deployment and public-browser verification.
 
 ## In progress
 

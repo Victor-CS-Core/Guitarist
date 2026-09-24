@@ -64,7 +64,7 @@ test("direct SPA deep links serve the app entry document", async () => {
   const response = await worker.fetch(new Request(`${origin}/student/progress`, { headers: { accept: "text/html" } }), env);
   expect(response.status).toBe(200);
   expect(await response.text()).toBe("spa entry");
-  expect(requested).toBe("/index.html");
+  expect(requested).toBe("/");
 });
 
 test("wrong passwords are generic and repeated attempts block even a correct password", async () => {
