@@ -80,4 +80,38 @@ describe("tools pages", () => {
     expect(container.querySelectorAll(".chord-diagram")).toHaveLength(1);
     expect(container.textContent).toContain("Em7");
   });
+
+  it("ChordLibraryPage filters by position (open vs barre shapes)", async () => {
+    const { container } = renderInRouter(<ChordLibraryPage />);
+    const { fireEvent } = await import("@testing-library/react");
+    const total = Object.keys(chords).length;
+    fireEvent.click(screen.getByRole("button", { name: "Barre shapes" }));
+    const barreCount = container.querySelectorAll(".chord-diagram").length;
+    expect(barreCount).toBeGreaterThan(0);
+    expect(barreCount).toBeLessThan(total);
+    fireEvent.click(screen.getByRole("button", { name: "Open shapes" }));
+    const openCount = container.querySelectorAll(".chord-diagram").length;
+    expect(openCount).toBeGreaterThan(0);
+    expect(openCount).toBeLessThan(total);
+    // Back to all positions restores the full grid.
+    fireEvent.click(screen.getByRole("button", { name: "All positions" }));
+    expect(container.querySelectorAll(".chord-diagram")).toHaveLength(total);
+  });
+
+  it("ChordLibraryPage dot-label toggle switches fingers to notes", async () => {
+    const { container } = renderInRouter(<ChordLibraryPage />);
+    const { fireEvent } = await import("@testing-library/react");
+    fireEvent.click(screen.getByRole("button", { name: "Notes" }));
+    // Open C shape: a dot should now read a pitch (C or E), not a finger number.
+    const labels = [...container.querySelectorAll(".chord-diagram circle")].map(
+      (c) => c.nextElementSibling?.textContent,
+    );
+    expect(labels).toContain("C");
+    expect(labels).toContain("E");
+    fireEvent.click(screen.getByRole("button", { name: "Fingers" }));
+    const fingerLabels = [...container.querySelectorAll(".chord-diagram circle")].map(
+      (c) => c.nextElementSibling?.textContent,
+    );
+    expect(fingerLabels).toContain("1");
+  });
 });

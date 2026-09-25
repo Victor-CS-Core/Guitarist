@@ -2308,7 +2308,8 @@ html[data-theme="dark"] .cents-gauge-needle {
 }
 
 /* Chord diagrams: paper-light dots and string numbers stay readable on dark */
-html[data-theme="dark"] .chord-diagram svg circle {
+html[data-theme="dark"] .chord-diagram svg circle,
+html[data-theme="dark"] .chord-diagram svg rect.barre {
   fill: #c98f5f;
 }
 html[data-theme="dark"] .chord-diagram svg text {

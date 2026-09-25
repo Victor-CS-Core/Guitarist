@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { BookOpen, Search } from "lucide-react";
-import { ChordDiagram } from "../components/ChordDiagram";
+import { ChordDiagram, type ChordLabelMode } from "../components/ChordDiagram";
+import { barreRuns } from "../components/chordGeometry";
 import { chords, type Chord } from "../curriculum/chords";
 
 const ROOT_FILTERS: Array<{ key: string; label: string }> = [
@@ -47,7 +48,13 @@ const QUALITY_FILTERS: Array<{ key: string; label: string }> = [
   { key: "13", label: "13" },
 ];
 
-function ChordCard({ id, chord }: { id: string; chord: Chord }) {
+const POSITION_FILTERS = [
+  { key: "all", label: "All positions" },
+  { key: "open", label: "Open shapes" },
+  { key: "barre", label: "Barre shapes" },
+] as const;
+
+function ChordCard({ id, chord, labelMode }: { id: string; chord: Chord; labelMode: ChordLabelMode }) {
   const [voicing, setVoicing] = useState(0);
   return (
     <div className="card">
@@ -66,7 +73,7 @@ function ChordCard({ id, chord }: { id: string; chord: Chord }) {
           ))}
         </div>
       )}
-      <ChordDiagram chordId={id} voicingIndex={voicing} />
+      <ChordDiagram chordId={id} voicingIndex={voicing} labelMode={labelMode} />
       <p className="small chord-notes">{chord.notes.join(" · ")}</p>
     </div>
   );
@@ -76,12 +83,16 @@ export function ChordLibraryPage() {
   const [query, setQuery] = useState("");
   const [root, setRoot] = useState("All");
   const [quality, setQuality] = useState("all");
+  const [position, setPosition] = useState<"all" | "open" | "barre">("all");
+  const [labelMode, setLabelMode] = useState<ChordLabelMode>("fingers");
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
     return Object.entries(chords).filter(([id, chord]) => {
       if (root !== "All" && chord.root !== root) return false;
       if (quality !== "all" && chord.quality !== quality) return false;
+      if (position === "open" && !chord.voicings.some((v) => v.baseFret === 0)) return false;
+      if (position === "barre" && !chord.voicings.some((v) => barreRuns(v).length > 0)) return false;
       if (!q) return true;
       return (
         id.toLowerCase().includes(q) ||
@@ -89,7 +100,7 @@ export function ChordLibraryPage() {
         chord.notes.join(" ").toLowerCase().includes(q)
       );
     });
-  }, [query, root, quality]);
+  }, [query, root, quality, position]);
 
   const total = Object.keys(chords).length;
 
@@ -162,6 +173,53 @@ export function ChordLibraryPage() {
             ))}
           </div>
         </div>
+        <div className="filter-group">
+          <span className="filter-label" id="position-filter-label">
+            Position
+          </span>
+          <div
+            className="filter-chips"
+            role="group"
+            aria-labelledby="position-filter-label"
+          >
+            {POSITION_FILTERS.map((p) => (
+              <button
+                key={p.key}
+                aria-pressed={position === p.key}
+                className={position === p.key ? "active" : ""}
+                onClick={() => setPosition(p.key)}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="filter-group">
+          <span className="filter-label" id="labels-filter-label">
+            Dot labels
+          </span>
+          <div
+            className="filter-chips"
+            role="group"
+            aria-labelledby="labels-filter-label"
+          >
+            {(
+              [
+                { key: "fingers", label: "Fingers" },
+                { key: "notes", label: "Notes" },
+              ] as const
+            ).map((m) => (
+              <button
+                key={m.key}
+                aria-pressed={labelMode === m.key}
+                className={labelMode === m.key ? "active" : ""}
+                onClick={() => setLabelMode(m.key)}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <p className="small">
           {matches.length} of {total} chords
           {query.trim() && (
@@ -188,6 +246,7 @@ export function ChordLibraryPage() {
               setQuery("");
               setRoot("All");
               setQuality("all");
+              setPosition("all");
             }}
           >
             Clear filters
@@ -202,7 +261,7 @@ export function ChordLibraryPage() {
           }}
         >
           {matches.map(([id, chord]) => (
-            <ChordCard key={id} id={id} chord={chord} />
+            <ChordCard key={id} id={id} chord={chord} labelMode={labelMode} />
           ))}
         </div>
       )}
@@ -214,12 +273,14 @@ export function ChordLibraryPage() {
         <p className="small">
           The thick line at the top is the nut. Circles are where your
           fingertips press, and the number inside is which finger to use: 1 is
-          your index, 4 is your pinky. ○ means play the string open, × means
-          keep it quiet. Diagrams read left to right from string 6 (thickest)
-          to string 1 (thinnest). Shapes played higher up the neck show a fret
-          badge like “5fr” instead of the nut — the four lines are frets 5
-          through 8. The notes line under each diagram lists the chord tones
-          from low to high.
+          your index, 4 is your pinky. A rounded bar across several strings
+          means lay one finger flat over them — a barre. ○ means play the
+          string open, × means keep it quiet. Diagrams read left to right from
+          string 6 (thickest) to string 1 (thinnest). Shapes played higher up
+          the neck show a fret badge like “5fr” instead of the nut — the four
+          lines are frets 5 through 8. Switch the dot labels to Notes to see
+          the sounding pitch on each string instead of finger numbers. The
+          notes line under each diagram lists the chord tones from low to high.
         </p>
       </section>
     </>
