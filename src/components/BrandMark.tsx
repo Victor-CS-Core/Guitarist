@@ -8,11 +8,10 @@ export function BrandMark({ size = 37 }: { size?: number }) {
       role="img"
       aria-label="Guitarist sound-hole mark"
     >
-      <rect width="48" height="48" rx="15" fill="currentColor" />
-      <circle cx="24" cy="24" r="13.5" fill="none" stroke="#f5dfb8" strokeWidth="2" opacity=".95" />
-      <circle cx="24" cy="24" r="9" fill="none" stroke="#d39a5b" strokeWidth="1.5" opacity=".8" />
-      <path d="M20 17.5 30.5 24 20 30.5Z" fill="#f5dfb8" />
-      <circle cx="24" cy="24" r="2.2" fill="#d36f54" />
+      <rect width="48" height="48" rx="15" fill="#25252b" />
+      <path d="M24 8c10.5 0 17 6.7 17 15.5 0 10.5-9.2 20-17 24-7.8-4-17-13.5-17-24C7 14.7 13.5 8 24 8Z" fill="#d9793e" />
+      <path d="M24 14v20M17 19h14M18.5 25h11M20 31h8" stroke="#fff4e6" strokeWidth="2.3" strokeLinecap="round" />
+      <circle cx="24" cy="35.5" r="1.7" fill="#d36f54" />
     </svg>
   );
 }
