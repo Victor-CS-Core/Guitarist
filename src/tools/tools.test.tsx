@@ -54,6 +54,7 @@ describe("tools pages", () => {
     expect(screen.getByText("Chord library")).toBeInTheDocument();
     // All 7 chords render a diagram each.
     expect(container.querySelectorAll(".chord-diagram")).toHaveLength(7);
+    expect(screen.getAllByRole("button", { name: /String 6: open/i })).toHaveLength(2);
     const search = screen.getByLabelText("Search chords by name");
     const { fireEvent } = await import("@testing-library/react");
     fireEvent.change(search, { target: { value: "minor" } });

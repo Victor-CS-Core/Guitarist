@@ -72,13 +72,13 @@ export function ChordLibraryPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))",
             gap: 16,
           }}
         >
           {matches.map(([id]) => (
             <div className="card" key={id}>
-              <ChordDiagram chordId={id} compact />
+              <ChordDiagram chordId={id} />
             </div>
           ))}
         </div>
@@ -92,7 +92,8 @@ export function ChordLibraryPage() {
           The thick line at the top is the nut. Circles are where your
           fingertips press, and the number inside is which finger to use: 1 is
           your index, 4 is your pinky. ○ means play the string open, × means
-          keep it quiet.
+          keep it quiet. Diagrams read left to right from string 6 (thickest)
+          to string 1 (thinnest).
         </p>
       </section>
     </>
