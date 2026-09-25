@@ -178,8 +178,8 @@ export const activities: Activity[] = [
     kind: "strings",
     steps: [
       "Look down at your guitar in playing position.",
-      "String 1 is the thinnest. String 6 is the thickest.",
-      "Pick strings 1, 2, then 6 gently.",
+      "Find the six string positions without naming them yet.",
+      "Pick three different string positions gently and listen for their contrast.",
     ],
   },
   {

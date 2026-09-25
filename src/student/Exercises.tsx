@@ -6,7 +6,7 @@ export function Exercises({ activity }: { activity: Activity }) {
   const [round, setRound] = useState(0),
     [feedback, setFeedback] = useState(""),
     [placements, setPlacements] = useState<Record<number, number>>({}),
-    [guide, setGuide] = useState(true);
+    [guide, setGuide] = useState(false);
   const quizzes = {
     parts: {
       prompts: [
@@ -44,9 +44,8 @@ export function Exercises({ activity }: { activity: Activity }) {
         "Find the thinnest string.",
         "Find the thickest string.",
       ],
-      answers: ["2 · B", "1 · high E", "6 · low E"],
-      choices: ["6 · low E", "5 · A", "4 · D", "3 · G", "2 · B", "1 · high E"],
-      help: "In playing position, string 6 is closest to your face. String 1 is closest to the floor.",
+      answers: [1, 0, 5],
+      help: "Look at the string positions in playing position. The thickest string is closest to your face; the thinnest is closest to the floor.",
     },
   };
   const quiz =
@@ -57,7 +56,9 @@ export function Exercises({ activity }: { activity: Activity }) {
         : activity.kind === "strings"
           ? quizzes.strings
           : null;
-  if (quiz)
+  if (quiz) {
+    const choices: Array<string | number> =
+      activity.kind === "strings" ? [6, 5, 4, 3, 2, 1] : (quiz as { choices: string[] }).choices;
     return (
       <section className="exercise">
         <span className="eyebrow green">TRY IT · ROUND {round + 1}</span>
@@ -65,19 +66,24 @@ export function Exercises({ activity }: { activity: Activity }) {
         <div
           className={`choice-grid ${activity.kind === "strings" ? "string-choices" : ""}`}
         >
-          {quiz.choices.map((choice, i) => (
+          {choices.map((choice: string | number, i: number) => (
             <button
               className="choice"
               key={choice}
+              aria-label={activity.kind === "strings" ? `String position ${choice}` : undefined}
               onClick={() =>
                 setFeedback(
-                  choice === quiz.answers[round % 3]
-                    ? "You found it! Try finding it on your guitar, too."
-                    : "Almost there. Take another look and try again.",
+                  activity.kind === "strings"
+                    ? i === (quiz.answers as number[])[round % 3]
+                      ? `You found it! This is string ${choice}. Now find it on your guitar.`
+                      : "Almost there. Compare the thickness and position, then try again."
+                    : choice === (quiz.answers as string[])[round % 3]
+                      ? "You found it! Try finding it on your guitar, too."
+                      : "Almost there. Take another look and try again.",
                 )
               }
             >
-              <span>{choice}</span>
+              <span>{activity.kind === "strings" ? "" : choice}</span>
               {activity.kind === "strings" && (
                 <span
                   className="string-line"
@@ -104,6 +110,7 @@ export function Exercises({ activity }: { activity: Activity }) {
         )}
       </section>
     );
+  }
   if (activity.kind === "builder") {
     const chord = chords[activity.chordId ?? "Am"];
     return (
