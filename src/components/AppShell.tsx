@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { House, BookOpen, Music2, ChartNoAxesCombined, Guitar, Users, LogOut, ClipboardList, Wrench, Sun, Moon, Mic } from "lucide-react";
+import { House, BookOpen, Music2, ChartNoAxesCombined, Users, LogOut, ClipboardList, Wrench, Sun, Moon, Mic } from "lucide-react";
+import { BrandMark } from "./BrandMark";
 import { AgentTools } from "../integrations/AgentTools";
 import { useStudio, useStudent } from "../app/StoreProvider";
 import { getStoredTheme, setStoredTheme, type Theme } from "../lib/theme";
@@ -33,7 +34,7 @@ export function AppShell() {
     <a className="skip-link" href="#main">Skip to content</a>
     <aside className="sidebar">
       <NavLink className="brand" to={teacher ? "/teacher" : "/student"}>
-        <span className="brand-symbol"><Guitar size={25} /></span>Guitarist<span className="brand-dot">.</span>
+        <span className="brand-symbol"><BrandMark size={37} /></span><span>Guitarist<span className="brand-dot">.</span></span>
       </NavLink>
       <div className="sidebar-label">YOUR MUSIC JOURNEY</div>
       <nav aria-label="Main navigation">

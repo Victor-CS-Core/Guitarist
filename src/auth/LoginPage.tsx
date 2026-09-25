@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { Guitar, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { BrandMark } from "../components/BrandMark";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useStudio } from "../app/StoreProvider";
 
@@ -26,7 +27,7 @@ export function LoginPage() {
       <span>Find your sound.</span>
     </div>
     <section className="login-panel" aria-labelledby="login-heading">
-      <div className="login-brand"><span className="brand-symbol"><Guitar size={25} /></span> Guitarist<span className="brand-dot">.</span></div>
+      <div className="login-brand"><span className="brand-symbol"><BrandMark size={37} /></span><span>Guitarist<span className="brand-dot">.</span></span></div>
       <div className="login-intro">
         <span className="eyebrow">YOUR MUSIC STUDIO</span>
         <h1 id="login-heading">Sign in to Guitarist</h1>
