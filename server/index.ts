@@ -1,6 +1,7 @@
 import { handleAuth, json } from "./auth";
 import { handleStudents } from "./students";
 import { handleLearning } from "./commands";
+import { handleCheckins } from "./checkins";
 import { requireSession } from "./sessions";
 
 export interface Env {
@@ -24,6 +25,7 @@ export default {
       if (!account) return json({ error: "Sign in required." }, 401);
       return (await handleStudents(request, env, account))
         ?? (await handleLearning(request, env, account))
+        ?? (await handleCheckins(request, env, account))
         ?? json({ error: "Not found" }, 404);
     }
     if (request.method === "GET" || request.method === "HEAD") {

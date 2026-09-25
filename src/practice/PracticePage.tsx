@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams, useBlocker } from "react-router-dom";
-import { Play, Pause, Check, ArrowRight, Music2 } from "lucide-react";
+import { Play, Pause, Check, ArrowRight, Music2, Timer } from "lucide-react";
 import { useDemo, useStudent } from "../app/StoreProvider";
 import { activityById } from "../curriculum/foundations";
 import { Exercises } from "../student/Exercises";
 import { elapsedSeconds } from "./timer";
+import { presetSignatureLabel } from "./rhythmEngine";
 import { Metronome } from "./Metronome";
 export function PracticePage() {
   const { state, dispatch, setPracticeActive } = useDemo(),
@@ -25,7 +26,10 @@ export function PracticePage() {
     [seconds, setSeconds] = useState(0),
     [done, setDone] = useState(false),
     [saving, setSaving] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    // Bumps each time the suggested-tempo chip is tapped, so the metronome
+    // remounts and applies the activity's preset from scratch.
+    [tempoRequest, setTempoRequest] = useState(0);
   const segments = useRef<Array<{ start: number; end: number }>>([]),
     start = useRef<number | null>(null),
     session = useRef(crypto.randomUUID()),
@@ -218,7 +222,16 @@ export function PracticePage() {
               </div>
             ))}
           </div>
-          <Metronome key={done ? "done" : "active"} />
+          <Metronome
+            key={
+              tempoRequest > 0
+                ? `tempo-${tempoRequest}`
+                : done
+                  ? "done"
+                  : "active"
+            }
+            preset={tempoRequest > 0 ? activity.tempo : undefined}
+          />
         </aside>
         <section className="card practice-focus">
           <div className="row spread">
@@ -231,6 +244,19 @@ export function PracticePage() {
           </div>
           <h2>{activity.title}</h2>
           <p>{activity.description}</p>
+          {activity.tempo && (
+            <div className="row">
+              <button
+                className="button secondary"
+                onClick={() => setTempoRequest((n) => n + 1)}
+                aria-label={`Load the suggested tempo of ${activity.tempo.bpm} BPM in ${presetSignatureLabel(activity.tempo)} into the metronome`}
+              >
+                <Timer size={15} /> Suggested: {activity.tempo.bpm} BPM ·{" "}
+                {presetSignatureLabel(activity.tempo)}
+              </button>
+              <span className="small">Tap to load it into the metronome.</span>
+            </div>
+          )}
           <div className="timer-display" aria-label="Practice elapsed time">
             {String(Math.floor(seconds / 60)).padStart(2, "0")}
             <span>:</span>

@@ -12,6 +12,7 @@ export function AssignmentForm({ studentId }: { studentId: string }) {
   const [activityId, setActivity] = useState(options[0]?.id ?? ""),
     [minutes, setMinutes] = useState(3),
     [repetitions, setRepetitions] = useState(3),
+    [dueDate, setDueDate] = useState(""),
     [message, setMessage] = useState("");
   return (
     <form
@@ -24,6 +25,7 @@ export function AssignmentForm({ studentId }: { studentId: string }) {
           activityId,
           minutes,
           repetitions,
+          ...(dueDate ? { dueDate } : {}),
           at: new Date().toISOString(),
         });
         setMessage(
@@ -70,6 +72,14 @@ export function AssignmentForm({ studentId }: { studentId: string }) {
           />
         </label>
       </div>
+      <label>
+        Due date <span className="small">(optional)</span>
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
+      </label>
       <button className="button" type="submit">
         Assign practice
       </button>

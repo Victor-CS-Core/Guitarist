@@ -215,6 +215,7 @@ export const activities: Activity[] = [
     description: "Make music on just one string.",
     minutes: 3,
     kind: "notes",
+    tempo: { bpm: 60, beatsPerBar: 4 },
     steps: [
       "Pick the open thinnest string twice: 0 — 0.",
       "Press near fret 1 with finger 1, then pick: 1 — 1.",
@@ -298,6 +299,7 @@ export const activities: Activity[] = [
     description: "Four easy downstrokes. One steady pulse.",
     minutes: 2,
     kind: "rhythm",
+    tempo: { bpm: 60, beatsPerBar: 4 },
     steps: [
       "Set a comfortable tempo between 40 and 80 BPM.",
       "Count 1–2–3–4 with the pulse.",
@@ -312,6 +314,7 @@ export const activities: Activity[] = [
     minutes: 3,
     kind: "transition",
     chordId: "Am",
+    tempo: { bpm: 60, beatsPerBar: 4 },
     steps: [
       "Build Em and strum once.",
       "Move to Am with relaxed fingers.",

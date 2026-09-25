@@ -15,6 +15,15 @@ export type Reason =
   | "rhythm"
   | "transition"
   | "other";
+/** The valid reinforcement reasons, kept next to the type so validation can't drift. */
+export const reasons: readonly Reason[] = [
+  "placement",
+  "memory",
+  "clean-tone",
+  "rhythm",
+  "transition",
+  "other",
+];
 export type Actor =
   | { role: "teacher" }
   | { role: "student"; studentId: string };
@@ -32,6 +41,8 @@ export interface AssignmentItem {
   minutes: number;
   repetitions: number;
   completed: boolean;
+  /** Optional ISO calendar date (YYYY-MM-DD) the student should practice by. */
+  dueDate?: string;
 }
 export interface Assignment {
   id: string;
@@ -82,6 +93,8 @@ export type Command = Base &
         activityId: string;
         minutes: number;
         repetitions: number;
+        /** Optional ISO calendar date (YYYY-MM-DD); stored on the new item. */
+        dueDate?: string;
       }
     | { type: "unlock"; levelId: string; overrideReason?: string }
     | {

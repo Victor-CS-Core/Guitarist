@@ -1,6 +1,7 @@
 import { activities, levels, skills } from "../curriculum/foundations";
 import { canUnlock } from "./selectors";
 import {
+  reasons,
   statuses,
   type Actor,
   type Command,
@@ -35,15 +36,7 @@ export function applyCommand(
         return fail("Unlock this level before assessing its skills.");
       if (
         command.status === "NEEDS_REINFORCEMENT" &&
-        (!command.reason ||
-          ![
-            "placement",
-            "memory",
-            "clean-tone",
-            "rhythm",
-            "transition",
-            "other",
-          ].includes(command.reason))
+        (!command.reason || !reasons.includes(command.reason))
       )
         return fail("Choose a reinforcement reason.");
       if (command.reason === "other" && !command.guidance?.trim())
@@ -68,6 +61,14 @@ export function applyCommand(
       )
         return fail("Use 1–60 minutes and 1–100 whole rounds.");
       const id = crypto.randomUUID();
+      const dueDate = command.dueDate?.trim() || undefined;
+      if (dueDate !== undefined) {
+        if (
+          !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) ||
+          !Number.isFinite(Date.parse(`${dueDate}T12:00:00`))
+        )
+          return fail("Choose a valid due date.");
+      }
       next.assignments.push({
         id,
         studentId: student.id,
@@ -79,6 +80,7 @@ export function applyCommand(
             minutes: command.minutes,
             repetitions: command.repetitions,
             completed: false,
+            ...(dueDate ? { dueDate } : {}),
           },
         ],
       });

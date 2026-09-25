@@ -1,7 +1,47 @@
 import { useEffect, useRef, useState } from "react";
 import { Volume2 } from "lucide-react";
-export function Metronome() {
-  const [bpm, setBpm] = useState(60),
+import {
+  accentForBeat,
+  applyTempoPreset,
+  barBeatLabel,
+  beatIntervalMs,
+  beatsPerBar,
+  type TempoPreset,
+  type TimeSignature,
+} from "./rhythmEngine";
+
+// The in-session metronome keeps its classic 4/4 feel; the engine supplies
+// the beat math so the two never drift apart. A curriculum tempo preset can
+// override the beats per bar (and the starting BPM) for one practice step.
+const SIGNATURE: TimeSignature = "4/4";
+// Practice-safe tempo window for this compact metronome (the full rhythm lab
+// tool supports the engine's wider 30–240 range).
+const MIN_BPM = 40;
+const MAX_BPM = 80;
+
+const clampCompactBpm = (bpm: number) =>
+  Math.max(MIN_BPM, Math.min(MAX_BPM, Math.round(bpm)));
+
+const COUNT_IN_WORDS = [
+  "One",
+  "Two",
+  "Three",
+  "Four",
+  "Five",
+  "Six",
+  "Seven",
+  "Eight",
+];
+
+export function Metronome({ preset }: { preset?: TempoPreset }) {
+  const applied = preset ? applyTempoPreset(preset) : null;
+  const beats = applied?.beatsPerBar ?? beatsPerBar(SIGNATURE);
+  const beatLabel = applied ? `${beats} beats` : barBeatLabel(SIGNATURE);
+  const countInLabel =
+    beats <= COUNT_IN_WORDS.length
+      ? `${COUNT_IN_WORDS[beats - 1]}-beat count-in cue`
+      : `${beats}-beat count-in cue`;
+  const [bpm, setBpm] = useState(() => clampCompactBpm(applied?.bpm ?? 60)),
     [running, setRunning] = useState(false),
     [beat, setBeat] = useState(0),
     [warning, setWarning] = useState(""),
@@ -25,7 +65,9 @@ export function Metronome() {
             gain = ctx.createGain();
           osc.connect(gain);
           gain.connect(ctx.destination);
-          osc.frequency.value = n % 4 === 0 ? 1000 : 700;
+          osc.frequency.value = accentForBeat("downbeat", [], n % beats)
+            ? 1000
+            : 700;
           gain.gain.setValueAtTime(0.12, next);
           gain.gain.exponentialRampToValueAtTime(0.001, next + 0.06);
           osc.start(next);
@@ -33,13 +75,13 @@ export function Metronome() {
         }
         const delay = Math.max(0, visual - performance.now());
         const timer = setTimeout(() => {
-          setBeat(n % 4);
+          setBeat(n % beats);
           count.current = n + 1;
           pending.delete(timer);
         }, delay);
         pending.add(timer);
         next += 60 / bpm;
-        visual += 60000 / bpm;
+        visual += beatIntervalMs(bpm);
       }
     }, 25);
     const hidden = () => {
@@ -52,7 +94,7 @@ export function Metronome() {
       document.removeEventListener("visibilitychange", hidden);
       void audio.current?.suspend();
     };
-  }, [running, bpm]);
+  }, [running, bpm, beats]);
   useEffect(
     () => () => {
       void audio.current?.close();
@@ -81,14 +123,16 @@ export function Metronome() {
           <Volume2 size={17} /> Your steady beat
         </h3>
         <span className="small">
-          {countIn && running && count.current < 4 ? "Count in…" : "4 beats"}
+          {countIn && running && count.current < beats
+            ? "Count in…"
+            : beatLabel}
         </span>
       </div>
       <div
         className="beat-dots"
         aria-label={running ? `Beat ${beat + 1}` : "Metronome stopped"}
       >
-        {[0, 1, 2, 3].map((n) => (
+        {Array.from({ length: beats }, (_, n) => (
           <span
             className={running && beat === n ? "pulse active" : "pulse"}
             key={n}
@@ -103,12 +147,17 @@ export function Metronome() {
           <input
             aria-label="Beats per minute"
             type="number"
-            min="40"
-            max="80"
+            min={MIN_BPM}
+            max={MAX_BPM}
             value={bpm}
             onChange={(e) => {
               setRunning(false);
-              setBpm(Math.max(40, Math.min(80, Number(e.target.value) || 40)));
+              setBpm(
+                Math.max(
+                  MIN_BPM,
+                  Math.min(MAX_BPM, Number(e.target.value) || MIN_BPM),
+                ),
+              );
             }}
           />
         </label>
@@ -122,7 +171,7 @@ export function Metronome() {
           checked={countIn}
           onChange={(e) => setCountIn(e.target.checked)}
         />{" "}
-        Four-beat count-in cue
+        {countInLabel}
       </label>
       {warning && <p role="status">{warning}</p>}
     </section>

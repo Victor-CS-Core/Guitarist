@@ -1,16 +1,29 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { House, BookOpen, Music2, ChartNoAxesCombined, Guitar, Users, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
+import { House, BookOpen, Music2, ChartNoAxesCombined, Guitar, Users, LogOut, ClipboardList, Wrench, Sun, Moon, Mic } from "lucide-react";
 import { AgentTools } from "../integrations/AgentTools";
 import { useStudio, useStudent } from "../app/StoreProvider";
+import { getStoredTheme, setStoredTheme, type Theme } from "../lib/theme";
 
 export function AppShell() {
   const { actor, identity, warning, logout, practiceActive } = useStudio();
   const student = useStudent();
   const navigate = useNavigate();
   const teacher = actor.role === "teacher";
+  const [theme, setTheme] = useState<Theme>(getStoredTheme);
+  useEffect(() => {
+    const sync = (event: StorageEvent) => {
+      if (event.key === "guitarist:theme") setTheme(getStoredTheme());
+    };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
+  }, []);
+  function toggleTheme() {
+    setTheme(setStoredTheme(theme === "dark" ? "light" : "dark"));
+  }
   const links = teacher
-    ? ([["/teacher", "Students", Users], ["/teacher/curriculum", "Curriculum", BookOpen]] as const)
-    : ([["/student", "Home", House], ["/student/learn", "Learn", BookOpen], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined]] as const);
+    ? ([["/teacher", "Students", Users], ["/teacher/curriculum", "Curriculum", BookOpen], ["/teacher/assignments", "Assignments", ClipboardList], ["/teacher/check-ins", "Check-ins", Mic], ["/tools", "Tools", Wrench]] as const)
+    : ([["/student", "Home", House], ["/student/learn", "Learn", BookOpen], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined], ["/tools", "Tools", Wrench]] as const);
   async function signOut() {
     if (practiceActive && !window.confirm("Leave unfinished practice? Unsaved practice time will be discarded.")) return;
     if (await logout()) navigate("/", { replace: true });
@@ -34,7 +47,18 @@ export function AppShell() {
     <div className="workspace">
       <header className="topbar">
         <span className="eyebrow">{teacher ? "THE TEACHING STUDIO" : "BEGINNER GUITAR FOUNDATIONS"}</span>
-        <div className="account-controls"><span>{identity?.username}</span><button className="button secondary signout" type="button" onClick={signOut}><LogOut size={16} /> Sign out</button></div>
+        <div className="account-controls">
+          <button
+            className="icon-button theme-toggle"
+            type="button"
+            onClick={toggleTheme}
+            aria-pressed={theme === "dark"}
+            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <span>{identity?.username}</span><button className="button secondary signout" type="button" onClick={signOut}><LogOut size={16} /> Sign out</button></div>
       </header>
       {warning && <div role="status" className="notice">{warning}</div>}
       <main id="main"><Outlet /></main>

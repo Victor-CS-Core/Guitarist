@@ -8,6 +8,13 @@
       "when": 1790180000000,
       "tag": "0000_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790347188000,
+      "tag": "0001_checkins",
+      "breakpoints": true
     }
   ]
 }

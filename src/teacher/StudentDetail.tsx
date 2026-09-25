@@ -1,17 +1,34 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, Clock3 } from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Check, Clock3, CalendarClock } from "lucide-react";
 import { useDemo } from "../app/StoreProvider";
 import { levels, skills, activityById } from "../curriculum/foundations";
 import { StatusBadge } from "../components/StatusBadge";
-import { canUnlock } from "../domain/selectors";
+import { canUnlock, dueDateLabel, formatDueDate, isOverdue } from "../domain/selectors";
 import { AssessmentForm } from "./AssessmentForm";
 import { AssignmentForm } from "./AssignmentForm";
+
+const overdueBadge: CSSProperties = {
+  background: "#fbe4dd",
+  color: "#a4442a",
+};
 export function StudentDetail() {
   const { studentId } = useParams(),
     { state, dispatch, accounts, resetStudentPassword, setStudentDisabled } = useDemo(),
     student = state.students.find((s) => s.id === studentId);
-  const [tab, setTab] = useState("Overview"),
+  const studentTabs = [
+    "Overview",
+    "Assess",
+    "Assignments",
+    "Notes",
+    "Activity",
+    "Account",
+  ],
+    [searchParams] = useSearchParams(),
+    requestedTab = searchParams.get("tab");
+  const [tab, setTab] = useState(
+      studentTabs.includes(requestedTab ?? "") ? requestedTab! : "Overview",
+    ),
     [note, setNote] = useState(""),
     [message, setMessage] = useState(""),
     [override, setOverride] = useState(""),
@@ -48,7 +65,7 @@ export function StudentDetail() {
         </div>
       </div>
       <div className="tab-row" role="tablist" aria-label="Student detail">
-        {["Overview", "Assess", "Assignments", "Notes", "Activity", "Account"].map((t) => (
+        {studentTabs.map((t) => (
           <button
             key={t}
             id={`tab-${t}`}
@@ -143,15 +160,29 @@ export function StudentDetail() {
                       <h3>{activityById(i.activityId)?.title}</h3>
                       <p>
                         {i.minutes} min · {i.repetitions} rounds
+                        {i.dueDate && (
+                          <>
+                            {" "}
+                            · <CalendarClock size={12} /> due{" "}
+                            {formatDueDate(i.dueDate)}
+                          </>
+                        )}
                       </p>
                     </div>
-                    {i.completed ? (
-                      <span className="status">
-                        <Check size={12} /> Complete
-                      </span>
-                    ) : (
-                      <span className="status">To practice</span>
-                    )}
+                    <div className="row">
+                      {isOverdue(i) && (
+                        <span className="status" style={overdueBadge}>
+                          {dueDateLabel(i.dueDate!)}
+                        </span>
+                      )}
+                      {i.completed ? (
+                        <span className="status">
+                          <Check size={12} /> Complete
+                        </span>
+                      ) : (
+                        <span className="status">To practice</span>
+                      )}
+                    </div>
                   </div>
                 ))}
                 {!items.length && <p>No assignments yet.</p>}

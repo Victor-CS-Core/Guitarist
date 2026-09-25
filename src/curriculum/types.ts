@@ -30,5 +30,16 @@ export interface Activity {
     | "rhythm"
     | "transition";
   chordId?: string;
+  /**
+   * Optional suggested tempo for the in-session metronome. When present, the
+   * practice page shows a chip that loads these values into the metronome.
+   * Structural twin of rhythmEngine's TempoPreset.
+   */
+  tempo?: {
+    bpm: number;
+    beatsPerBar: number;
+    /** Note value that gets one beat (4 = quarter note, 8 = eighth note). */
+    beatUnit?: number;
+  };
   steps: string[];
 }

@@ -9,6 +9,14 @@ import { ProgressPage } from "../student/ProgressPage";
 import { PracticePage } from "../practice/PracticePage";
 import { TeacherDashboard } from "../teacher/Dashboard";
 import { StudentDetail } from "../teacher/StudentDetail";
+import { AssignmentsOverview } from "../teacher/AssignmentsOverview";
+import { CheckInsPage } from "../teacher/CheckInsPage";
+import { ActivityPreviewPage } from "../teacher/ActivityPreviewPage";
+import { ToolsHome } from "../tools/ToolsHome";
+import { StudyTimerPage } from "../tools/StudyTimer";
+import { TunerPage } from "../tools/Tuner";
+import { RhythmToolPage } from "../tools/RhythmTool";
+import { ChordLibraryPage } from "../tools/ChordLibrary";
 
 function HomeRedirect() {
   const { status, actor } = useStudio();
@@ -45,8 +53,16 @@ export function AppRoutes() {
       <Route path="/student/progress" element={<Guard><ProgressPage /></Guard>} />
       <Route path="/teacher" element={<Guard teacher><TeacherDashboard /></Guard>} />
       <Route path="/teacher/students/:studentId" element={<Guard teacher><StudentDetail /></Guard>} />
+      <Route path="/teacher/assignments" element={<Guard teacher><AssignmentsOverview /></Guard>} />
+      <Route path="/teacher/check-ins" element={<Guard teacher><CheckInsPage /></Guard>} />
+      <Route path="/teacher/preview/activity/:activityId" element={<Guard teacher><ActivityPreviewPage /></Guard>} />
       <Route path="/teacher/curriculum" element={<Guard teacher><LearnPage /></Guard>} />
       <Route path="/teacher/curriculum/:levelId" element={<Guard teacher><LevelPage /></Guard>} />
+      <Route path="/tools" element={<ToolsHome />} />
+      <Route path="/tools/timer" element={<StudyTimerPage />} />
+      <Route path="/tools/tuner" element={<TunerPage />} />
+      <Route path="/tools/rhythm" element={<RhythmToolPage />} />
+      <Route path="/tools/chords" element={<ChordLibraryPage />} />
       <Route path="*" element={<div className="card empty"><h1>That page hit a quiet note.</h1><p>Let’s get you back to your music.</p><Link className="button" to="/home">Back home</Link></div>} />
     </Route>
   </Routes>;

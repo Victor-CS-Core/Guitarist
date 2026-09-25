@@ -1753,3 +1753,562 @@ dialog .row {
   .account-controls { gap: 8px; }
   .account-controls .signout { padding: 8px; }
 }
+
+/* ---- Mobile-first hardening (phones) ----
+   The layout above is desktop-first with max-width overrides; this block
+   makes the phone experience first-class instead of an afterthought. */
+@media (max-width: 620px) {
+  /* Flex rows wrap instead of squeezing or overflowing on narrow screens
+     (tool headers, tempo row, card headings with actions). */
+  .row {
+    flex-wrap: wrap;
+  }
+  /* Full-height sections respect mobile browser chrome. */
+  .login-page,
+  .auth-loading {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  /* Touch targets: 44px minimum. */
+  .account-controls .signout {
+    min-height: 44px;
+  }
+  .check-label {
+    min-height: 44px;
+  }
+  /* Range sliders get comfortable vertical hit area on phones. */
+  input[type="range"] {
+    min-height: 44px;
+  }
+  /* Tool beat dots stay tappable and on one line. */
+  .beat-dots {
+    gap: 6px;
+  }
+  .pulse {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+@media (max-width: 430px) {
+  /* Five student nav items fit comfortably at 390px. */
+  .nav-item {
+    padding: 5px 6px;
+  }
+  /* Tool pages: keep headings compact so content starts above the fold. */
+  .page-heading h1 {
+    font-size: 24px;
+  }
+}
+
+/* ---- Theme toggle + tool gauges (light values match the previous inline styles) ---- */
+.theme-toggle {
+  color: var(--accent);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+}
+.theme-toggle:hover {
+  background: #f8f1e6;
+}
+.cents-gauge {
+  background: linear-gradient(90deg, #c0392b, #f1c40f 30%, #2f7d4f 50%, #f1c40f 70%, #c0392b);
+}
+.cents-gauge-needle {
+  background: #222;
+}
+.timer-progress-track {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* ---- Dark theme ----
+   Every rule is scoped under html[data-theme="dark"], so specificity
+   (0,2,1)+ always wins over the light rules in this file and in
+   visual-refinement.css (which loads later). The light theme above is
+   untouched: removing the attribute restores it pixel-for-pixel. */
+html[data-theme="dark"] {
+  --accent: #7fb6dc;
+  --ink: #ece7de;
+  --muted: #a89f92;
+  --line: #39434f;
+  --paper: #232c37;
+  --cream: #2a3340;
+  --copper: #d99f78;
+  --er-green: #7cc48a;
+  --er-cream: #2e3844;
+  color: var(--ink);
+  background: #1a222b;
+  color-scheme: dark;
+}
+html[data-theme="dark"] body {
+  color: var(--ink);
+  background: #1a222b;
+}
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3 {
+  color: var(--ink);
+}
+html[data-theme="dark"] input[type="range"],
+html[data-theme="dark"] input[type="checkbox"] {
+  accent-color: #7fb6dc;
+}
+html[data-theme="dark"] :is(button, a, input, select, textarea):focus-visible {
+  outline-color: #d19a5b;
+}
+
+/* Buttons */
+html[data-theme="dark"] .button {
+  color: #14202b;
+}
+html[data-theme="dark"] .button:hover:not(:disabled):not(.secondary):not(.light) {
+  background: #a5cde8;
+}
+html[data-theme="dark"] .button.secondary {
+  background: #232c37;
+  color: var(--accent);
+  border-color: #46505c;
+}
+html[data-theme="dark"] .button.secondary:hover {
+  background: #2c3642;
+}
+html[data-theme="dark"] .button.light {
+  background: #2e3d4a;
+  color: #e8e2d6;
+}
+
+/* App shell */
+html[data-theme="dark"] .sidebar {
+  background: #1f2833;
+}
+html[data-theme="dark"] .brand-symbol {
+  background: #4a6b84;
+}
+html[data-theme="dark"] .nav-item {
+  color: #b7ada0;
+}
+html[data-theme="dark"] .nav-item.active {
+  background: #2e3d4d;
+  color: var(--accent);
+  box-shadow: inset 3px 0 #7fb6dc;
+}
+html[data-theme="dark"] .nav-item:hover {
+  background: #27313d;
+}
+html[data-theme="dark"] .sidebar-label {
+  color: #9a8f82;
+}
+html[data-theme="dark"] .sidebar-note {
+  color: #8d8272;
+}
+html[data-theme="dark"] .sidebar-note p {
+  color: #a89f92;
+}
+html[data-theme="dark"] .sidebar-note strong {
+  color: #d6c9b8;
+}
+html[data-theme="dark"] .avatar {
+  background: #3a4552;
+  color: #d9cdbd;
+}
+html[data-theme="dark"] .topbar > .eyebrow {
+  color: #a89f92;
+}
+html[data-theme="dark"] .account-controls {
+  color: #cfc7ba;
+}
+html[data-theme="dark"] .theme-toggle {
+  background: #232c37;
+  border-color: #46505c;
+  color: #cfc7ba;
+}
+html[data-theme="dark"] .theme-toggle:hover {
+  background: #2c3642;
+}
+html[data-theme="dark"] footer {
+  color: #8d8478;
+}
+html[data-theme="dark"] .skip-link {
+  background: #232c37;
+}
+html[data-theme="dark"] .notice {
+  background: #3a3220;
+  color: #e8d9ae;
+}
+
+/* Hero */
+html[data-theme="dark"] .hero {
+  background: linear-gradient(110deg, #2b3a48 0%, #22303d 65%, #1d2a36 100%);
+}
+html[data-theme="dark"] .hero h2 {
+  color: #e8e2d6;
+}
+html[data-theme="dark"] .hero p {
+  color: #c4bcb0;
+}
+html[data-theme="dark"] .hero .pill {
+  color: #c9b795;
+}
+html[data-theme="dark"] .hero .button.light {
+  background: #7fb6dc;
+  border-color: #7fb6dc;
+  color: #14202b;
+  box-shadow: 0 5px 12px #00000040;
+}
+html[data-theme="dark"] .hero .button.light:hover {
+  background: #a5cde8;
+}
+html[data-theme="dark"] .hero-lesson-link {
+  color: #a9c6dd;
+}
+html[data-theme="dark"] .hero-progress > div,
+html[data-theme="dark"] .hero-progress small {
+  color: #bdb5a8;
+}
+html[data-theme="dark"] .hero-progress progress,
+html[data-theme="dark"] .hero-progress progress::-webkit-progress-bar {
+  background: #46505c;
+}
+html[data-theme="dark"] .hero-progress progress::-webkit-progress-value,
+html[data-theme="dark"] .hero-progress progress::-moz-progress-bar {
+  background: #7fb6dc;
+}
+
+/* Cards and content surfaces */
+html[data-theme="dark"] .card {
+  background: #232c37;
+}
+html[data-theme="dark"] .goal-card {
+  background: #242d38;
+  border-color: var(--line);
+}
+html[data-theme="dark"] .goal-card p {
+  color: #b7ada0;
+}
+html[data-theme="dark"] .round-icon {
+  background: #33404d;
+  color: #c9a184;
+}
+html[data-theme="dark"] .goal-card .eyebrow {
+  color: #a89f92;
+}
+html[data-theme="dark"] .teacher-sign {
+  color: #a89f92;
+}
+html[data-theme="dark"] .teacher-sign span {
+  color: #c9b795;
+}
+html[data-theme="dark"] .count {
+  background: #33404d;
+  color: #cbbfae;
+}
+html[data-theme="dark"] .practice-card {
+  background: #232c37;
+}
+html[data-theme="dark"] .practice-card:hover {
+  box-shadow: 0 10px 25px #00000050;
+}
+html[data-theme="dark"] .art-0 {
+  background: #2b3a48;
+  color: #9fc4e2;
+}
+html[data-theme="dark"] .art-1 {
+  background: #3d3229;
+  color: #d9a184;
+}
+html[data-theme="dark"] .art-2 {
+  background: #33324a;
+  color: #b9a8d9;
+}
+html[data-theme="dark"] .card-play,
+html[data-theme="dark"] .card-check {
+  background: #33404d;
+  color: var(--accent);
+}
+html[data-theme="dark"] .card-bottom {
+  border-top-color: var(--line);
+}
+html[data-theme="dark"] .card-bottom > span:first-child {
+  color: #b0a695;
+}
+html[data-theme="dark"] .practice-invite {
+  background: #232c37;
+}
+html[data-theme="dark"] .small-stat {
+  color: #c9a184;
+}
+html[data-theme="dark"] .small-stat strong {
+  color: #d8cdbd;
+}
+html[data-theme="dark"] .small-stat p {
+  color: #a89f92;
+}
+html[data-theme="dark"] .gentle-note {
+  color: #a89f92;
+}
+html[data-theme="dark"] .activity-index {
+  color: #a89f92;
+}
+html[data-theme="dark"] .preview-caption span {
+  color: #a89f92;
+}
+html[data-theme="dark"] .dashboard-footer-note {
+  border-top-color: var(--line);
+}
+
+/* Learning / levels / journey */
+html[data-theme="dark"] .level-card {
+  background: #242d38;
+  border-color: var(--line);
+}
+html[data-theme="dark"] .level-card.locked {
+  background: #1e2630;
+}
+html[data-theme="dark"] .level-card:hover {
+  border-color: #7fb6dc;
+}
+html[data-theme="dark"] .level-card h2 {
+  color: var(--ink);
+}
+html[data-theme="dark"] .level-number {
+  background: #33404d;
+  color: #cbbfae;
+}
+html[data-theme="dark"] .learning-layout > .stack > .card,
+html[data-theme="dark"] .learning-panel {
+  background: #242d38;
+  border-color: var(--line);
+}
+html[data-theme="dark"] .learning-panel .exercise,
+html[data-theme="dark"] .practice-focus .exercise {
+  background: #1f2833;
+  border-color: var(--line);
+}
+html[data-theme="dark"] .practice-focus {
+  background: #232c37;
+}
+html[data-theme="dark"] .instructions {
+  color: #b0a695;
+}
+html[data-theme="dark"] .teacher-tip {
+  background: #2b2f36;
+  color: #c9b795;
+}
+html[data-theme="dark"] .choice {
+  background: #2b3542;
+  border-color: #46505c;
+  color: var(--ink);
+}
+html[data-theme="dark"] .choice:hover,
+html[data-theme="dark"] .learning-panel .choice:hover {
+  background: #344050;
+}
+html[data-theme="dark"] .string-line {
+  background: #7a6a58;
+}
+html[data-theme="dark"] .builder-grid button {
+  background: #2b3542;
+  border-color: #46505c;
+  color: var(--accent);
+}
+html[data-theme="dark"] .builder-grid button[aria-pressed="true"] {
+  background: #4a6b84;
+}
+html[data-theme="dark"] .milestone {
+  border-color: #46505c;
+  color: #b0a695;
+}
+html[data-theme="dark"] .milestone.earned {
+  background: var(--accent);
+  color: #14202b;
+}
+html[data-theme="dark"] .badge-earned {
+  color: #d4b478;
+}
+html[data-theme="dark"] .badge-locked {
+  color: #46505c;
+}
+html[data-theme="dark"] .chapter-badge {
+  --badge-color: #4a6b84;
+}
+html[data-theme="dark"] .chapter-badge.is-pending {
+  color: #a89f92;
+  background: #33404d;
+}
+html[data-theme="dark"] .journey-level {
+  background: #232c37;
+  border-color: var(--line);
+}
+html[data-theme="dark"] .journey-level.journey-current {
+  border-color: #7fb6dc;
+  box-shadow: 0 5px 20px #00000040;
+}
+html[data-theme="dark"] .journey-level.journey-locked {
+  background: #1e2630;
+}
+html[data-theme="dark"] .journey-content .eyebrow {
+  color: #a89f92;
+}
+html[data-theme="dark"] .journey-badge-name {
+  color: #a89f92;
+}
+html[data-theme="dark"] .journey-earned .journey-badge-name {
+  color: #9fc4e2;
+}
+html[data-theme="dark"] .journey-state.collected {
+  color: #9fc4e2;
+  background: #2b3d4a;
+}
+html[data-theme="dark"] .journey-state.in-progress {
+  color: #d9a184;
+  background: #3d3229;
+}
+html[data-theme="dark"] .journey-state.up-ahead {
+  color: #a89f92;
+  background: #2e3844;
+}
+
+/* Practice session */
+html[data-theme="dark"] .session-step {
+  color: #a89f92;
+}
+html[data-theme="dark"] .session-step > span {
+  border-color: #46505c;
+}
+html[data-theme="dark"] .session-step.current > span {
+  color: #14202b;
+}
+html[data-theme="dark"] .timer-display span {
+  color: #9a8f82;
+}
+html[data-theme="dark"] .metronome {
+  background: #242d38;
+  border-color: var(--line);
+}
+html[data-theme="dark"] .metronome input[type="number"] {
+  background: #1a222b;
+  border-color: #46505c;
+  color: var(--ink);
+}
+html[data-theme="dark"] .pulse {
+  background: #33404d;
+  color: #b0a695;
+}
+html[data-theme="dark"] .pulse.active {
+  color: #14202b;
+}
+html[data-theme="dark"] .completion-icon {
+  background: #33404d;
+}
+
+/* Status pills */
+html[data-theme="dark"] .status {
+  background: #2e3844;
+  color: #c9bfae;
+}
+html[data-theme="dark"] .status-mastered {
+  background: #2b3d4a;
+  color: #9fc4e2;
+}
+html[data-theme="dark"] .status-introduced,
+html[data-theme="dark"] .status-learning,
+html[data-theme="dark"] .status-practicing {
+  background: #3d3229;
+  color: #d9a184;
+}
+html[data-theme="dark"] .status-ready_for_assessment {
+  background: #33324a;
+  color: #b9a8d9;
+}
+html[data-theme="dark"] .status-needs_reinforcement {
+  background: #3d3229;
+  color: #e0a06a;
+}
+
+/* Teacher: tabs, forms, dialogs */
+html[data-theme="dark"] .tab-row button {
+  color: #a89f92;
+}
+html[data-theme="dark"] .tab-row button[aria-selected="true"] {
+  border-bottom-color: #7fb6dc;
+  color: #e8e2d6;
+}
+html[data-theme="dark"] .student-card:hover {
+  border-color: #7fb6dc;
+}
+html[data-theme="dark"] .form-card select,
+html[data-theme="dark"] .form-card input,
+html[data-theme="dark"] .form-card textarea {
+  background: #1e2732;
+  border-color: #46505c;
+  color: var(--ink);
+}
+html[data-theme="dark"] .form-message {
+  color: #d9a184;
+}
+html[data-theme="dark"] dialog {
+  background: #242d38;
+  border-color: #46505c;
+  color: var(--ink);
+  box-shadow: 0 15px 80px #00000080;
+}
+html[data-theme="dark"] dialog::backdrop {
+  background: #000000aa;
+}
+
+/* Login */
+html[data-theme="dark"] .auth-loading {
+  color: #a89f92;
+}
+html[data-theme="dark"] .login-page {
+  background: #1a222b;
+}
+html[data-theme="dark"] .login-brand {
+  color: #d8dee6;
+}
+html[data-theme="dark"] .login-intro h1 {
+  color: var(--ink);
+}
+html[data-theme="dark"] .login-intro p {
+  color: var(--muted);
+}
+html[data-theme="dark"] .login-form label {
+  color: #cfc7ba;
+}
+html[data-theme="dark"] .login-form input,
+html[data-theme="dark"] .student-account-form input,
+html[data-theme="dark"] .account-panel input {
+  background: #1e2732;
+  border-color: #46505c;
+  color: var(--ink);
+}
+html[data-theme="dark"] .login-form .button {
+  background: #d98a68;
+  color: #14202b;
+}
+
+/* Tools */
+html[data-theme="dark"] .timer-progress-track {
+  background: rgba(255, 255, 255, 0.14);
+}
+html[data-theme="dark"] .cents-gauge {
+  background: linear-gradient(90deg, #e57373, #f1c40f 30%, #66bb6a 50%, #f1c40f 70%, #e57373);
+}
+html[data-theme="dark"] .cents-gauge-needle {
+  background: #fff;
+}
+
+/* Chord diagrams: paper-light dots and string numbers stay readable on dark */
+html[data-theme="dark"] .chord-diagram svg circle {
+  fill: #c98f5f;
+}
+html[data-theme="dark"] .chord-diagram svg text {
+  fill: #a89f92;
+}
+html[data-theme="dark"] .chord-diagram svg text[fill="white"] {
+  fill: #14202b;
+}
+html[data-theme="dark"] .string-details button {
+  background: #2e3844;
+  color: var(--ink);
+}
+

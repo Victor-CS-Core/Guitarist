@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Play, Clock3, Check, Target, Flame } from "lucide-react";
+import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock } from "lucide-react";
 import { useDemo, useStudent } from "../app/StoreProvider";
 import { levels, activityById } from "../curriculum/foundations";
+import { dueDateLabel, formatDueDate } from "../domain/selectors";
 import { ActivityPreview } from "../components/ActivityPreview";
+import { CheckInRecorder } from "./CheckInRecorder";
 export function Dashboard() {
   const { state } = useDemo(),
     student = useStudent(),
@@ -118,6 +120,12 @@ export function Dashboard() {
                   </span>
                   <h3>{a.title}</h3>
                   <p>{a.description}</p>
+                  {item.dueDate && (
+                    <p className="small">
+                      <CalendarClock size={12} /> {dueDateLabel(item.dueDate)} ·{" "}
+                      {formatDueDate(item.dueDate)}
+                    </p>
+                  )}
                   <div className="card-bottom">
                     <span>
                       <Clock3 size={14} />
@@ -149,6 +157,9 @@ export function Dashboard() {
           </div>
         )}
       </div>
+      <section id="audio-check-in" aria-label="Audio check-in">
+        <CheckInRecorder />
+      </section>
       <div className="dashboard-footer-note">
         <div className="small-stat">
           <Flame size={23} />
