@@ -6,7 +6,7 @@ import { json } from "./auth";
 import type { Env } from "./index";
 
 function emptyState(): DemoState {
-  return { version: 1, students: [], assignments: [], sessions: [], notes: [], events: [] };
+  return { version: 1, students: [], assignments: [], sessions: [], notes: [], events: [], routines: [] };
 }
 
 async function stateFor(actor: AccountRow, env: Env) {
@@ -28,6 +28,7 @@ async function stateFor(actor: AccountRow, env: Env) {
     state.sessions.push(...record.sessions);
     state.notes.push(...record.notes);
     state.events.push(...record.events);
+    state.routines.push(...(record.routines ?? []));
     revisions[row.id] = row.revision;
     accounts.push({ studentId: row.id, username: row.username, disabled: !!row.disabled_at });
   }
@@ -44,7 +45,10 @@ function validCommand(command: unknown): command is Command {
     case "unlock": return typeof c.levelId === "string" && (c.overrideReason === undefined || typeof c.overrideReason === "string");
     case "setAppUnlocked": return typeof c.unlocked === "boolean";
     case "saveNote": return typeof c.text === "string";
-    case "completePractice": return typeof c.sessionId === "string" && c.sessionId.length > 0 && c.sessionId.length <= 100 && typeof c.durationSeconds === "number" && Array.isArray(c.itemIds) && c.itemIds.length <= 100 && c.itemIds.every((id) => typeof id === "string");
+    case "createRoutine": return typeof c.name === "string" && Array.isArray(c.blocks);
+    case "updateRoutine": return typeof c.routineId === "string" && typeof c.name === "string" && Array.isArray(c.blocks);
+    case "deleteRoutine": return typeof c.routineId === "string";
+    case "completePractice": return typeof c.sessionId === "string" && c.sessionId.length > 0 && c.sessionId.length <= 100 && typeof c.durationSeconds === "number" && Array.isArray(c.itemIds) && c.itemIds.length <= 100 && c.itemIds.every((id) => typeof id === "string") && (c.routineId === undefined || typeof c.routineId === "string") && (c.label === undefined || typeof c.label === "string");
     default: return false;
   }
 }
@@ -61,7 +65,8 @@ export async function handleLearning(request: Request, env: Env, account: Accoun
   } catch { return json({ error: "Invalid request." }, 400); }
   if (!input || !Number.isInteger(input.revision) || !validCommand(input.command)) return json({ error: "Invalid request." }, 400);
   const command = input.command;
-  if (account.role === "student" && (account.id !== command.studentId || command.type !== "completePractice"))
+  const studentSelfService = command.type === "completePractice" || command.type === "createRoutine" || command.type === "updateRoutine" || command.type === "deleteRoutine";
+  if (account.role === "student" && (account.id !== command.studentId || !studentSelfService))
     return json({ error: "This action is not available to this student." }, 403);
   const record = await getStudentRecord(env.DB, command.studentId);
   if (!record) return json({ error: "Student not found." }, 404);

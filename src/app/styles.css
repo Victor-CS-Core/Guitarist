@@ -2388,3 +2388,94 @@ html[data-theme="dark"] .voicing-tabs button.active {
   border-color: #c98f5f;
   color: #14202b;
 }
+
+/* Practice routines */
+.routine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.routine-card h3 {
+  margin: 0 0 4px;
+}
+.routine-block-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 16px;
+}
+.routine-block-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+.badge.teacher-shared {
+  background: #efe6f5;
+  color: #6b4a8a;
+}
+html[data-theme="dark"] .badge.teacher-shared {
+  background: #3a2c4d;
+  color: #d3bdf0;
+}
+.chord-pick-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+.chip {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.chip.active {
+  background: #2f4b5e;
+  border-color: #2f4b5e;
+  color: #fff;
+}
+html[data-theme="dark"] .chip.active {
+  background: #c98f5f;
+  border-color: #c98f5f;
+  color: #14202b;
+}
+.chord-change-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.chord-change-cell {
+  margin: 0;
+  text-align: center;
+}
+.chord-change-cell figcaption {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+@media (max-width: 560px) {
+  .routine-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -56,3 +56,40 @@ test("teacher can unlock the app for a student; students cannot", async () => {
   expect(state.status).toBe(200);
   expect(await state.text()).toContain("\"appUnlocked\":true");
 });
+
+test("practice routines: teacher shares, graduate builds, locked student is blocked", async () => {
+  const teacher = await setup.signIn("Ktr0nn", teacherPassword);
+  const alex = await createStudent(teacher.cookie, "alex3");
+  const student = await setup.signIn("alex3", studentPassword);
+  const blocks = [{ id: "b1", kind: "warmup", title: "Stretch", minutes: 2 }];
+  const cmd = (command: object, revision: number, cookie: string) =>
+    setup.api("/api/commands", "POST", { revision, command }, cookie);
+
+  // Locked student cannot build their own routine.
+  expect((await cmd({ type: "createRoutine", studentId: alex, name: "Mine", blocks }, 1, student.cookie)).status).toBe(400);
+
+  // Teacher shares one.
+  const shared = await cmd({ type: "createRoutine", studentId: alex, name: "Teacher flow", blocks }, 1, teacher.cookie);
+  expect(shared.status).toBe(200);
+  const sharedBody = (await shared.json()) as { state: { routines: { id: string; createdBy: string }[] } };
+  expect(sharedBody.state.routines).toHaveLength(1);
+  expect(sharedBody.state.routines[0].createdBy).toBe("teacher");
+  const sharedId = sharedBody.state.routines[0].id;
+
+  // Locked student cannot delete the teacher's routine, but can play it.
+  expect((await cmd({ type: "deleteRoutine", studentId: alex, routineId: sharedId }, 2, student.cookie)).status).toBe(400);
+  const played = await cmd(
+    { type: "completePractice", studentId: alex, sessionId: crypto.randomUUID(), durationSeconds: 130, itemIds: [], routineId: sharedId, label: "Teacher flow" },
+    2,
+    student.cookie,
+  );
+  expect(played.status).toBe(200);
+
+  // After graduation the student can build their own.
+  const unlock = await cmd({ type: "setAppUnlocked", studentId: alex, unlocked: true }, 3, teacher.cookie);
+  expect(unlock.status).toBe(200);
+  const own = await cmd({ type: "createRoutine", studentId: alex, name: "My flow", blocks }, 4, student.cookie);
+  expect(own.status).toBe(200);
+  const ownBody = (await own.json()) as { state: { routines: { id: string; createdBy: string }[] } };
+  expect(ownBody.state.routines.some((r) => r.createdBy === "student")).toBe(true);
+});

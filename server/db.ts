@@ -25,7 +25,7 @@ export function createEmptyStudentState(id: string, name: string): DemoState {
       goal: first.goal,
       appUnlocked: false,
     }],
-    assignments: [], sessions: [], notes: [], events: [],
+    assignments: [], sessions: [], notes: [], events: [], routines: [],
   };
 }
 

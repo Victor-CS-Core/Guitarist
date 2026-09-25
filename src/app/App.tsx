@@ -17,6 +17,13 @@ import { StudyTimerPage } from "../tools/StudyTimer";
 import { TunerPage } from "../tools/Tuner";
 import { RhythmToolPage } from "../tools/RhythmTool";
 import { ChordLibraryPage } from "../tools/ChordLibrary";
+import {
+  EditRoutineRoute,
+  NewRoutineRoute,
+  PlayRoutineRoute,
+  TeacherEditRoutineRoute,
+  TeacherNewRoutineRoute,
+} from "../routines/routes";
 
 function HomeRedirect() {
   const { status, actor } = useStudio();
@@ -51,6 +58,11 @@ export function AppRoutes() {
       <Route path="/student/learn/:levelId" element={<Guard><LevelPage /></Guard>} />
       <Route path="/student/practice" element={<Guard><PracticeRoute /></Guard>} />
       <Route path="/student/progress" element={<Guard><ProgressPage /></Guard>} />
+      <Route path="/student/routines/new" element={<Guard><NewRoutineRoute /></Guard>} />
+      <Route path="/student/routines/:routineId/edit" element={<Guard><EditRoutineRoute /></Guard>} />
+      <Route path="/student/routines/:routineId/play" element={<Guard><PlayRoutineRoute /></Guard>} />
+      <Route path="/teacher/students/:studentId/routines/new" element={<Guard teacher><TeacherNewRoutineRoute /></Guard>} />
+      <Route path="/teacher/students/:studentId/routines/:routineId/edit" element={<Guard teacher><TeacherEditRoutineRoute /></Guard>} />
       <Route path="/teacher" element={<Guard teacher><TeacherDashboard /></Guard>} />
       <Route path="/teacher/students/:studentId" element={<Guard teacher><StudentDetail /></Guard>} />
       <Route path="/teacher/assignments" element={<Guard teacher><AssignmentsOverview /></Guard>} />

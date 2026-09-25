@@ -1,6 +1,6 @@
 import { levels } from "../curriculum/foundations";
 import type { Level } from "../curriculum/types";
-import type { DemoState, Student } from "./types";
+import type { DemoState, Routine, Student } from "./types";
 
 /** Today in the viewer's local timezone as an ISO calendar date (YYYY-MM-DD). */
 export function todayIso(): string {
@@ -92,4 +92,23 @@ export function earnedBadgeIds(state: DemoState, studentId: string): string[] {
  */
 export function isAppUnlocked(student: Pick<Student, "appUnlocked">): boolean {
   return student.appUnlocked === true;
+}
+
+/**
+ * Practice routines belonging to a student, newest first. Records created
+ * before routines existed read as having none.
+ */
+export function studentRoutines(
+  state: Pick<DemoState, "routines">,
+  studentId: string,
+): Routine[] {
+  return (state.routines ?? [])
+    .filter((r) => r.studentId === studentId)
+    .slice()
+    .reverse();
+}
+
+/** Total suggested minutes across a routine's blocks. */
+export function routineMinutes(routine: Pick<Routine, "blocks">): number {
+  return routine.blocks.reduce((n, b) => n + b.minutes, 0);
 }

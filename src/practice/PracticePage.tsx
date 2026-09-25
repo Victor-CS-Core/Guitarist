@@ -8,6 +8,7 @@ import { Exercises } from "../student/Exercises";
 import { elapsedSeconds } from "./timer";
 import { presetSignatureLabel } from "./rhythmEngine";
 import { Metronome } from "./Metronome";
+import { RoutineSection } from "../routines/RoutineSection";
 export function PracticePage() {
   const { state, dispatch, setPracticeActive } = useDemo(),
     student = useStudent(),
@@ -173,37 +174,40 @@ export function PracticePage() {
     );
   if (!items.length)
     return (
-      <section className="card empty">
-        <Music2 size={38} />
-        <h1>You’re all caught up.</h1>
-        {appUnlocked ? (
-          <>
-            <p>
-              No assignments on your stand — this studio is yours now.
-              Warm up with a tool below, or revisit any lesson.
-            </p>
-            <div className="hero-actions">
-              <Link className="button" to="/tools/timer">
-                Start a timed session
+      <>
+        <RoutineSection />
+        <section className="card empty">
+          <Music2 size={38} />
+          <h1>You’re all caught up.</h1>
+          {appUnlocked ? (
+            <>
+              <p>
+                No assignments on your stand — this studio is yours now.
+                Run a routine above, warm up with a tool below, or revisit any lesson.
+              </p>
+              <div className="hero-actions">
+                <Link className="button" to="/tools/timer">
+                  Start a timed session
+                </Link>
+                <Link className="text-link" to="/tools/chords">
+                  Browse the chord library
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p>
+                Your assigned practice is complete, or your teacher hasn’t assigned it
+                yet.
+              </p>
+              <Link className="button" to="/student/learn">
+                Explore your lessons
               </Link>
-              <Link className="text-link" to="/tools/chords">
-                Browse the chord library
-              </Link>
-            </div>
-          </>
-        ) : (
-          <>
-            <p>
-              Your assigned practice is complete, or your teacher hasn’t assigned it
-              yet.
-            </p>
-            <Link className="button" to="/student/learn">
-              Explore your lessons
-            </Link>
-          </>
-        )}
-        <p className="small">You can revisit completed activities from Home.</p>
-      </section>
+            </>
+          )}
+          <p className="small">You can revisit completed activities from Home.</p>
+        </section>
+      </>
     );
   const item = items[index],
     activity = activityById(item.activityId)!;
@@ -225,6 +229,7 @@ export function PracticePage() {
           {items.reduce((n, i) => n + i.minutes, 0)} minutes · at your own pace
         </p>
       </div>
+      <RoutineSection />
       <div className="practice-layout">
         <aside className="stack">
           <div className="card session-steps">

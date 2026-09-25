@@ -1,13 +1,75 @@
 import { activities, levels, skills } from "../curriculum/foundations";
-import { canUnlock } from "./selectors";
+import { chords } from "../curriculum/chords";
+import { canUnlock, isAppUnlocked } from "./selectors";
 import {
   reasons,
+  routineBlockKinds,
   statuses,
   type Actor,
   type Command,
   type DemoState,
   type Result,
+  type RoutineBlock,
 } from "./types";
+
+/**
+ * Validates routine blocks and returns them normalized (trimmed strings,
+ * generated ids for blocks missing one). Returns an error string when invalid.
+ */
+export function validateRoutineBlocks(
+  name: string,
+  blocks: RoutineBlock[],
+): { ok: true; value: RoutineBlock[] } | { ok: false; error: string } {
+  const fail = (error: string) => ({ ok: false as const, error });
+  if (!name.trim() || name.trim().length > 60)
+    return fail("Give the routine a name between 1 and 60 characters.");
+  if (!Array.isArray(blocks) || blocks.length < 1 || blocks.length > 8)
+    return fail("A routine needs 1 to 8 blocks.");
+  const seen = new Set<string>();
+  const normalized: RoutineBlock[] = [];
+  for (const block of blocks) {
+    if (!block || typeof block !== "object") return fail("Each block needs a title and a length.");
+    if (!routineBlockKinds.includes(block.kind))
+      return fail("Choose a valid block type.");
+    const title = block.title?.trim() ?? "";
+    if (!title || title.length > 80)
+      return fail("Each block needs a title between 1 and 80 characters.");
+    if (!Number.isInteger(block.minutes) || block.minutes < 1 || block.minutes > 30)
+      return fail("Each block needs 1–30 whole minutes.");
+    const id = typeof block.id === "string" && block.id ? block.id : crypto.randomUUID();
+    if (seen.has(id)) return fail("Each block needs its own identity.");
+    seen.add(id);
+    const out: RoutineBlock = { id, kind: block.kind, title, minutes: block.minutes };
+    if (block.activityId !== undefined) {
+      if (!activities.some((a) => a.id === block.activityId))
+        return fail("Choose an available activity for the technique block.");
+      out.activityId = block.activityId;
+    }
+    if (block.chordIds !== undefined) {
+      if (
+        !Array.isArray(block.chordIds) ||
+        block.chordIds.length < 1 ||
+        block.chordIds.length > 6 ||
+        block.chordIds.some((c) => typeof c !== "string" || !chords[c])
+      )
+        return fail("Choose 1–6 real chords for the chord-change block.");
+      out.chordIds = [...block.chordIds];
+    }
+    if (block.bpm !== undefined) {
+      if (!Number.isInteger(block.bpm) || block.bpm < 30 || block.bpm > 240)
+        return fail("Use a metronome target between 30 and 240 BPM.");
+      out.bpm = block.bpm;
+    }
+    if (block.notes !== undefined) {
+      const notes = block.notes.trim();
+      if (notes.length > 500) return fail("Keep block notes under 500 characters.");
+      if (notes) out.notes = notes;
+    }
+    normalized.push(out);
+  }
+  return { ok: true, value: normalized };
+}
+
 export function applyCommand(
   state: DemoState,
   actor: Actor,
@@ -20,10 +82,25 @@ export function applyCommand(
     return fail("A valid date is required.");
   if (
     actor.role !== "teacher" &&
-    (command.type !== "completePractice" ||
-      actor.studentId !== command.studentId)
+    !(
+      (command.type === "completePractice" ||
+        command.type === "createRoutine" ||
+        command.type === "updateRoutine" ||
+        command.type === "deleteRoutine") &&
+      actor.studentId === command.studentId
+    )
   )
     return fail("Your teacher takes care of this step.");
+  // Self-directed routines are a graduation gift: students still working
+  // through the course practice from teacher-shared routines instead.
+  if (
+    actor.role === "student" &&
+    (command.type === "createRoutine" ||
+      command.type === "updateRoutine" ||
+      command.type === "deleteRoutine") &&
+    !isAppUnlocked(original)
+  )
+    return fail("Your teacher shares routines with you while you're working through the course.");
   const next = structuredClone(state),
     student = next.students.find((s) => s.id === command.studentId)!;
   let text = "";
@@ -123,6 +200,19 @@ export function applyCommand(
         command.itemIds.some((id) => !items.some((i) => i.id === id))
       )
         return fail("Choose an assigned practice activity.");
+      let routineName: string | undefined;
+      if (command.routineId !== undefined) {
+        const routine = (next.routines ?? []).find(
+          (r) => r.id === command.routineId && r.studentId === student.id,
+        );
+        if (!routine) return fail("This routine could not be found.");
+        routineName = routine.name;
+      }
+      if (
+        command.label !== undefined &&
+        (!command.label.trim() || command.label.trim().length > 60)
+      )
+        return fail("Keep the session label between 1 and 60 characters.");
       for (const item of items)
         if (command.itemIds.includes(item.id)) item.completed = true;
       next.sessions.push({
@@ -131,8 +221,12 @@ export function applyCommand(
         durationSeconds: Math.floor(command.durationSeconds),
         itemIds: command.itemIds,
         at: command.at,
+        ...(command.routineId ? { routineId: command.routineId } : {}),
+        ...(command.label?.trim() ? { label: command.label.trim() } : {}),
       });
-      text = "Completed a practice session";
+      text = routineName
+        ? `Completed practice routine “${routineName}”`
+        : "Completed a practice session";
       break;
     }
     case "saveNote":
@@ -151,6 +245,47 @@ export function applyCommand(
       text = command.unlocked
         ? `Unlocked the app for ${student.name} — the studio stays with them`
         : `Locked the app for ${student.name}`;
+      break;
+    }
+    case "createRoutine": {
+      // Records created before routines existed have no array yet.
+      if (!next.routines) next.routines = [];
+      const checked = validateRoutineBlocks(command.name, command.blocks);
+      if (!checked.ok) return fail(checked.error);
+      const routine = {
+        id: crypto.randomUUID(),
+        studentId: student.id,
+        name: command.name.trim(),
+        blocks: checked.value,
+        createdBy: actor.role,
+        at: command.at,
+      };
+      next.routines.push(routine);
+      text =
+        actor.role === "teacher"
+          ? `Created practice routine “${routine.name}” for ${student.name}`
+          : `Created practice routine “${routine.name}”`;
+      break;
+    }
+    case "updateRoutine":
+    case "deleteRoutine": {
+      if (!next.routines) next.routines = [];
+      const routine = next.routines.find(
+        (r) => r.id === command.routineId && r.studentId === student.id,
+      );
+      if (!routine) return fail("This routine could not be found.");
+      if (actor.role === "student" && routine.createdBy !== "student")
+        return fail("Only your teacher can change this routine.");
+      if (command.type === "deleteRoutine") {
+        next.routines = next.routines.filter((r) => r.id !== routine.id);
+        text = `Deleted practice routine “${routine.name}”`;
+        break;
+      }
+      const checked = validateRoutineBlocks(command.name, command.blocks);
+      if (!checked.ok) return fail(checked.error);
+      routine.name = command.name.trim();
+      routine.blocks = checked.value;
+      text = `Updated practice routine “${routine.name}”`;
       break;
     }
   }

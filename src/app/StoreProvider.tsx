@@ -7,7 +7,7 @@ import { apiRequest, type Identity, type StudentAccount } from "../auth/api";
 type Status = "loading" | "signed-out" | "ready" | "error";
 type ApiError = { error: string };
 type StatePayload = { state: DemoState; revisions: Record<string, number>; accounts: StudentAccount[] };
-const empty: DemoState = { version: 1, students: [], assignments: [], sessions: [], notes: [], events: [] };
+const empty: DemoState = { version: 1, students: [], assignments: [], sessions: [], notes: [], events: [], routines: [] };
 const signedOutActor: Actor = { role: "student", studentId: "" };
 const failure = (error: string): Result<never> => ({ ok: false, error });
 

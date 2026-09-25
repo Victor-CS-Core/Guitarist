@@ -7,6 +7,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { canUnlock, dueDateLabel, formatDueDate, isOverdue } from "../domain/selectors";
 import { AssessmentForm } from "./AssessmentForm";
 import { AssignmentForm } from "./AssignmentForm";
+import { StudentRoutines } from "./StudentRoutines";
 
 const overdueBadge: CSSProperties = {
   background: "#fbe4dd",
@@ -20,6 +21,7 @@ export function StudentDetail() {
     "Overview",
     "Assess",
     "Assignments",
+    "Routines",
     "Notes",
     "Activity",
     "Account",
@@ -191,6 +193,9 @@ export function StudentDetail() {
               </div>
             </section>
           </div>
+        )}
+        {tab === "Routines" && (
+          <StudentRoutines key={student.id} studentId={student.id} />
         )}
         {tab === "Notes" && (
           <div className="learning-layout">

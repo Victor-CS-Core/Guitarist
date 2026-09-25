@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock, Timer, Drum, BookOpen, AudioWaveform } from "lucide-react";
+import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock, Timer, Drum, BookOpen, AudioWaveform, ListMusic } from "lucide-react";
 import { useDemo, useStudent } from "../app/StoreProvider";
-import { isAppUnlocked } from "../domain/selectors";
+import { isAppUnlocked, studentRoutines } from "../domain/selectors";
 import { levels, activityById } from "../curriculum/foundations";
 import { dueDateLabel, formatDueDate } from "../domain/selectors";
 import { ActivityPreview } from "../components/ActivityPreview";
 import { CheckInRecorder } from "./CheckInRecorder";
+import { RoutineCard } from "../routines/RoutineCard";
 export function Dashboard() {
   const student = useStudent();
   if (isAppUnlocked(student)) return <UnlockedDashboard />;
@@ -42,6 +43,7 @@ function UnlockedDashboard() {
       .filter((s) => new Date(s.at).getTime() >= weekAgo)
       .reduce((n, s) => n + s.durationSeconds, 0) / 60,
   );
+  const routines = studentRoutines(state, student.id);
   if (!celebrated)
     return (
       <section className="card hero celebration-card">
@@ -109,6 +111,45 @@ function UnlockedDashboard() {
         Sharing is optional now — record a check-in below only if you’d like
         your teacher’s ears on your playing.
       </p>
+      <div className="section-heading">
+        <div>
+          <h2>Your routines</h2>
+          <p>Guided sessions you built — or your teacher shared with you.</p>
+        </div>
+        <Link className="text-link" to="/student/practice">
+          Practice <ArrowRight size={16} />
+        </Link>
+      </div>
+      {routines.length === 0 ? (
+        <div className="card routine-card">
+          <div className="row spread">
+            <div>
+              <h3>Design your perfect session</h3>
+              <p className="small">
+                Warm-up, technique, chord changes, song, cool-down — the player
+                walks you through each block with a timer.
+              </p>
+            </div>
+            <span className="round-icon"><ListMusic size={23} /></span>
+          </div>
+          <div className="row">
+            <Link className="button" to="/student/routines/new">
+              <Play size={16} /> Build a routine
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="routine-grid">
+          {routines.slice(0, 3).map((r) => (
+            <RoutineCard
+              key={r.id}
+              routine={r}
+              playTo={`/student/routines/${r.id}/play`}
+              editTo={r.createdBy === "student" ? `/student/routines/${r.id}/edit` : undefined}
+            />
+          ))}
+        </div>
+      )}
       <section id="audio-check-in" aria-label="Audio check-in">
         <CheckInRecorder />
       </section>

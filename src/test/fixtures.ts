@@ -112,5 +112,6 @@ export function seed(): DemoState {
       },
     ],
     events: [],
+    routines: [],
   };
 }
