@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
+import { chords } from "../curriculum/chords";
 import { ChordLibraryPage } from "./ChordLibrary";
 import { RhythmToolPage } from "./RhythmTool";
 import { StudyTimerPage } from "./StudyTimer";
@@ -52,14 +53,31 @@ describe("tools pages", () => {
   it("ChordLibraryPage renders the chord grid and filters by search", async () => {
     const { container } = renderInRouter(<ChordLibraryPage />);
     expect(screen.getByText("Chord library")).toBeInTheDocument();
-    // All 7 chords render a diagram each.
-    expect(container.querySelectorAll(".chord-diagram")).toHaveLength(7);
-    expect(screen.getAllByRole("button", { name: /String 6: open/i })).toHaveLength(2);
-    const search = screen.getByLabelText("Search chords by name");
+    // One diagram per chord in the generated library.
+    const total = Object.keys(chords).length;
+    expect(total).toBeGreaterThan(200);
+    expect(container.querySelectorAll(".chord-diagram")).toHaveLength(total);
+    // Query the input directly: getByLabelText walks the whole labelled tree
+    // (thousands of string-explorer buttons) and takes ~35s in jsdom.
+    const search = container.querySelector('input[type="search"]');
+    expect(search).not.toBeNull();
     const { fireEvent } = await import("@testing-library/react");
-    fireEvent.change(search, { target: { value: "minor" } });
-    expect(container.querySelectorAll(".chord-diagram")).toHaveLength(2);
+    // "maj9" matches exactly one chord per root (12 roots).
+    fireEvent.change(search!, { target: { value: "maj9" } });
+    expect(container.querySelectorAll(".chord-diagram")).toHaveLength(12);
     expect(container.textContent).toMatch(/matching/);
-    expect(container.textContent).toContain("minor");
+    expect(container.textContent).toContain("maj9");
+  }, 30000);
+
+  it("ChordLibraryPage filters by root and type", async () => {
+    const { container } = renderInRouter(<ChordLibraryPage />);
+    const { fireEvent } = await import("@testing-library/react");
+    // 24 qualities per root: picking root E leaves 24 chords.
+    fireEvent.click(screen.getByRole("button", { name: "E", pressed: false }));
+    expect(container.querySelectorAll(".chord-diagram")).toHaveLength(24);
+    // Narrowing to minor 7 leaves a single chord.
+    fireEvent.click(screen.getByRole("button", { name: "m7" }));
+    expect(container.querySelectorAll(".chord-diagram")).toHaveLength(1);
+    expect(container.textContent).toContain("Em7");
   });
 });

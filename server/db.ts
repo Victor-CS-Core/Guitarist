@@ -23,6 +23,7 @@ export function createEmptyStudentState(id: string, name: string): DemoState {
       id, name, currentLevelId: first.id, unlockedLevels: [first.id],
       skills: Object.fromEntries(skills.map((skill) => [skill.id, "NOT_INTRODUCED"])) as DemoState["students"][number]["skills"],
       goal: first.goal,
+      appUnlocked: false,
     }],
     assignments: [], sessions: [], notes: [], events: [],
   };

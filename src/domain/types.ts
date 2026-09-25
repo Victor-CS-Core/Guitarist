@@ -34,6 +34,8 @@ export interface Student {
   unlockedLevels: string[];
   skills: Record<string, Status>;
   goal: string;
+  /** Teacher has unlocked the app: the student keeps it as a self-directed practice tool. */
+  appUnlocked: boolean;
 }
 export interface AssignmentItem {
   id: string;
@@ -97,6 +99,7 @@ export type Command = Base &
         dueDate?: string;
       }
     | { type: "unlock"; levelId: string; overrideReason?: string }
+    | { type: "setAppUnlocked"; unlocked: boolean }
     | {
         type: "completePractice";
         sessionId: string;

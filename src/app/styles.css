@@ -277,6 +277,16 @@ button {
   line-height: 1.8;
   color: #796147;
 }
+.celebration-card .hero-copy {
+  width: 100%;
+  max-width: 560px;
+}
+.celebration-card h1 {
+  font-size: 34px;
+  letter-spacing: -1.2px;
+  margin: 17px 0 10px;
+  color: #fff;
+}
 .button {
   display: inline-flex;
   align-items: center;
@@ -2312,3 +2322,69 @@ html[data-theme="dark"] .string-details button {
   color: var(--ink);
 }
 
+
+/* Chord library: filter chips + voicing tabs */
+.filter-group {
+  margin-top: 12px;
+}
+.filter-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.filter-chips button {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.filter-chips button.active {
+  background: #2f4b5e;
+  border-color: #2f4b5e;
+  color: #fff;
+}
+.voicing-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.voicing-tabs button {
+  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.voicing-tabs button.active {
+  background: #2f4b5e;
+  border-color: #2f4b5e;
+  color: #fff;
+}
+.chord-notes {
+  text-align: center;
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+html[data-theme="dark"] .filter-chips button.active,
+html[data-theme="dark"] .voicing-tabs button.active {
+  background: #c98f5f;
+  border-color: #c98f5f;
+  color: #14202b;
+}

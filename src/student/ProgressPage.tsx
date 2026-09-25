@@ -2,13 +2,14 @@ import { Check, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDemo, useStudent } from "../app/StoreProvider";
 import { levels, skills } from "../curriculum/foundations";
-import { earnedBadgeIds } from "../domain/selectors";
+import { earnedBadgeIds, isAppUnlocked } from "../domain/selectors";
 import { StatusBadge } from "../components/StatusBadge";
 import { ChapterBadge } from "../components/ChapterBadge";
 export function ProgressPage() {
   const student = useStudent(),
     { state } = useDemo(),
     badges = earnedBadgeIds(state, student.id),
+    appUnlocked = isAppUnlocked(student),
     mastered = Object.values(student.skills).filter(
       (s) => s === "MASTERED",
     ).length;
@@ -51,7 +52,7 @@ export function ProgressPage() {
       <div className="journey" aria-label="Connected chapter progress path">
         {levels.map((l) => {
           const earned = badges.includes(l.badgeId);
-          const unlocked = student.unlockedLevels.includes(l.id);
+          const unlocked = appUnlocked || student.unlockedLevels.includes(l.id);
           return (
             <section
               className={`card journey-level ${earned ? "journey-earned" : unlocked ? "journey-current" : "journey-locked"}`}
@@ -76,7 +77,7 @@ export function ProgressPage() {
                       collected
                     </>
                   ) : unlocked ? (
-                    "A badge to earn with your teacher"
+                    appUnlocked ? "Yours to revisit anytime" : "A badge to earn with your teacher"
                   ) : (
                     "A new chapter is ahead"
                   )}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams, useBlocker } from "react-router-dom";
 import { Play, Pause, Check, ArrowRight, Music2, Timer } from "lucide-react";
 import { useDemo, useStudent } from "../app/StoreProvider";
+import { isAppUnlocked } from "../domain/selectors";
 import { activityById } from "../curriculum/foundations";
 import { Exercises } from "../student/Exercises";
 import { elapsedSeconds } from "./timer";
@@ -11,6 +12,7 @@ export function PracticePage() {
   const { state, dispatch, setPracticeActive } = useDemo(),
     student = useStudent(),
     [params] = useSearchParams();
+  const appUnlocked = isAppUnlocked(student);
   const [items] = useState(() => {
     const all = state.assignments
       .filter((a) => a.studentId === student.id)
@@ -160,8 +162,9 @@ export function PracticePage() {
           assigned.
         </p>
         <div className="teacher-tip">
-          Your teacher can now see this session. They’ll listen to your playing
-          at your next lesson.
+          {appUnlocked
+            ? "This session is logged in your practice history — just for you."
+            : "Your teacher can now see this session. They’ll listen to your playing at your next lesson."}
         </div>
         <Link to="/student" className="button">
           Back home <ArrowRight size={17} />
@@ -173,13 +176,32 @@ export function PracticePage() {
       <section className="card empty">
         <Music2 size={38} />
         <h1>You’re all caught up.</h1>
-        <p>
-          Your assigned practice is complete, or your teacher hasn’t assigned it
-          yet.
-        </p>
-        <Link className="button" to="/student/learn">
-          Explore your lessons
-        </Link>
+        {appUnlocked ? (
+          <>
+            <p>
+              No assignments on your stand — this studio is yours now.
+              Warm up with a tool below, or revisit any lesson.
+            </p>
+            <div className="hero-actions">
+              <Link className="button" to="/tools/timer">
+                Start a timed session
+              </Link>
+              <Link className="text-link" to="/tools/chords">
+                Browse the chord library
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>
+              Your assigned practice is complete, or your teacher hasn’t assigned it
+              yet.
+            </p>
+            <Link className="button" to="/student/learn">
+              Explore your lessons
+            </Link>
+          </>
+        )}
         <p className="small">You can revisit completed activities from Home.</p>
       </section>
     );

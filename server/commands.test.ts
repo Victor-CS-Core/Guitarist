@@ -43,3 +43,16 @@ test("practice persists, duplicate sessions are idempotent, and stale changes co
   const reload = await (await setup.api("/api/state", "GET", undefined, student.cookie)).json() as {state:{sessions:unknown[]}};
   expect(reload.state.sessions).toHaveLength(1);
 });
+
+test("teacher can unlock the app for a student; students cannot", async () => {
+  const teacher = await setup.signIn("Ktr0nn", teacherPassword);
+  const alex = await createStudent(teacher.cookie, "alex2");
+  const student = await setup.signIn("alex2", studentPassword);
+  const denied = await setup.api("/api/commands", "POST", { revision: 1, command: { type: "setAppUnlocked", studentId: alex, unlocked: true } }, student.cookie);
+  expect(denied.status).toBe(403);
+  const ok = await setup.api("/api/commands", "POST", { revision: 1, command: { type: "setAppUnlocked", studentId: alex, unlocked: true } }, teacher.cookie);
+  expect(ok.status).toBe(200);
+  const state = await setup.api("/api/state", "GET", undefined, student.cookie);
+  expect(state.status).toBe(200);
+  expect(await state.text()).toContain("\"appUnlocked\":true");
+});

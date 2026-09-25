@@ -1,11 +1,140 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock, Timer, Drum, BookOpen, AudioWaveform } from "lucide-react";
 import { useDemo, useStudent } from "../app/StoreProvider";
+import { isAppUnlocked } from "../domain/selectors";
 import { levels, activityById } from "../curriculum/foundations";
 import { dueDateLabel, formatDueDate } from "../domain/selectors";
 import { ActivityPreview } from "../components/ActivityPreview";
 import { CheckInRecorder } from "./CheckInRecorder";
 export function Dashboard() {
+  const student = useStudent();
+  if (isAppUnlocked(student)) return <UnlockedDashboard />;
+  return <CourseDashboard />;
+}
+
+const QUICK_TOOLS = [
+  { to: "/tools/tuner", icon: AudioWaveform, title: "Tuner", blurb: "Get every string in tune — mic needle or reference tones." },
+  { to: "/tools/rhythm", icon: Drum, title: "Rhythm lab", blurb: "Metronome with time signatures, subdivisions, and tap tempo." },
+  { to: "/tools/chords", icon: BookOpen, title: "Chord library", blurb: "Look up any chord, with finger numbers and string-by-string help." },
+  { to: "/tools/timer", icon: Timer, title: "Study timer", blurb: "Count down a focus block or count up freely." },
+];
+
+function celebratedKey(studentId: string) {
+  return `guitarist:unlock-celebrated:${studentId}`;
+}
+
+function UnlockedDashboard() {
+  const { state } = useDemo(),
+    student = useStudent(),
+    [celebrated, setCelebrated] = useState(() => {
+      try {
+        return localStorage.getItem(celebratedKey(student.id)) === "1";
+      } catch {
+        return false;
+      }
+    });
+  const sessions = state.sessions.filter((s) => s.studentId === student.id);
+  const days = new Set(sessions.map((s) => new Date(s.at).toDateString())).size;
+  const weekAgo = Date.now() - 7 * 86_400_000;
+  const weekMinutes = Math.round(
+    sessions
+      .filter((s) => new Date(s.at).getTime() >= weekAgo)
+      .reduce((n, s) => n + s.durationSeconds, 0) / 60,
+  );
+  if (!celebrated)
+    return (
+      <section className="card hero celebration-card">
+        <div className="hero-copy">
+          <span className="pill">🎓 A GIFT FROM YOUR TEACHER</span>
+          <h1>You did it, {student.name}!</h1>
+          <p>
+            You finished the course — and this app is yours to keep.
+            No more assignments, no due dates. Just you, your guitar,
+            and everything in your toolkit.
+          </p>
+          <div className="hero-actions">
+            <button
+              className="button light hero-start"
+              onClick={() => {
+                try {
+                  localStorage.setItem(celebratedKey(student.id), "1");
+                } catch {
+                  /* private mode: celebrate again next visit */
+                }
+                setCelebrated(true);
+              }}
+            >
+              Start exploring <ArrowRight size={17} />
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  return (
+    <>
+      <div className="page-heading dashboard-heading">
+        <div className="eyebrow green">YOUR PRACTICE STUDIO</div>
+        <h1>
+          Welcome back, {student.name}
+          <span className="wave">✺</span>
+        </h1>
+        <p>The studio is yours now. Pick up right where your fingers left off.</p>
+      </div>
+      <div className="section-heading">
+        <div>
+          <h2>Start playing</h2>
+          <p>Your toolkit, ready whenever you are.</p>
+        </div>
+        <Link className="text-link" to="/tools">
+          All tools <ArrowRight size={16} />
+        </Link>
+      </div>
+      <div className="practice-cards">
+        {QUICK_TOOLS.map(({ to, icon: Icon, title, blurb }) => (
+          <Link to={to} className="practice-card" key={to}>
+            <div className="practice-card-content">
+              <span className="round-icon"><Icon size={23} /></span>
+              <div className="eyebrow">TOOL</div>
+              <h3>{title}</h3>
+              <p>{blurb}</p>
+              <div className="card-bottom">
+                <span className="text-link">Open <ArrowRight size={16} /></span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+      <p className="small spaced">
+        Sharing is optional now — record a check-in below only if you’d like
+        your teacher’s ears on your playing.
+      </p>
+      <section id="audio-check-in" aria-label="Audio check-in">
+        <CheckInRecorder />
+      </section>
+      <div className="dashboard-footer-note">
+        <div className="small-stat">
+          <Flame size={23} />
+          <div>
+            <strong>
+              {days} practice {days === 1 ? "day" : "days"}
+            </strong>
+            <p>Every time you show up counts.</p>
+          </div>
+        </div>
+        <div className="small-stat">
+          <Clock3 size={23} />
+          <div>
+            <strong>{weekMinutes} min this week</strong>
+            <p>Keep the strings warm.</p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function CourseDashboard() {
   const { state } = useDemo(),
     student = useStudent(),
     level = levels.find((l) => l.id === student.currentLevelId)!;

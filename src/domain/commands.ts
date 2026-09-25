@@ -146,6 +146,13 @@ export function applyCommand(
       });
       text = "Added a lesson note";
       break;
+    case "setAppUnlocked": {
+      student.appUnlocked = command.unlocked;
+      text = command.unlocked
+        ? `Unlocked the app for ${student.name} — the studio stays with them`
+        : `Locked the app for ${student.name}`;
+      break;
+    }
   }
   next.events.push({
     id: crypto.randomUUID(),

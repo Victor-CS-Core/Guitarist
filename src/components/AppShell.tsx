@@ -4,6 +4,7 @@ import { House, BookOpen, Music2, ChartNoAxesCombined, Users, LogOut, ClipboardL
 import { BrandMark } from "./BrandMark";
 import { AgentTools } from "../integrations/AgentTools";
 import { useStudio, useStudent } from "../app/StoreProvider";
+import { isAppUnlocked } from "../domain/selectors";
 import { getStoredTheme, setStoredTheme, type Theme } from "../lib/theme";
 
 export function AppShell() {
@@ -11,6 +12,7 @@ export function AppShell() {
   const student = useStudent();
   const navigate = useNavigate();
   const teacher = actor.role === "teacher";
+  const unlocked = !teacher && isAppUnlocked(student);
   const [theme, setTheme] = useState<Theme>(getStoredTheme);
   useEffect(() => {
     const sync = (event: StorageEvent) => {
@@ -24,7 +26,9 @@ export function AppShell() {
   }
   const links = teacher
     ? ([["/teacher", "Students", Users], ["/teacher/curriculum", "Curriculum", BookOpen], ["/teacher/assignments", "Assignments", ClipboardList], ["/teacher/check-ins", "Check-ins", Mic], ["/tools", "Tools", Wrench]] as const)
-    : ([["/student", "Home", House], ["/student/learn", "Learn", BookOpen], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined], ["/tools", "Tools", Wrench]] as const);
+    : unlocked
+      ? ([["/student", "Home", House], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined], ["/tools", "Tools", Wrench]] as const)
+      : ([["/student", "Home", House], ["/student/learn", "Learn", BookOpen], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined], ["/tools", "Tools", Wrench]] as const);
   async function signOut() {
     if (practiceActive && !window.confirm("Leave unfinished practice? Unsaved practice time will be discarded.")) return;
     if (await logout()) navigate("/", { replace: true });
@@ -42,12 +46,12 @@ export function AppShell() {
       </nav>
       <div className="sidebar-bottom">
         <div className="sidebar-note"><Music2 size={22} /><p>A little practice.<br /><strong>A lifetime of music.</strong></p></div>
-        <div className="profile-row"><span className="avatar">{(identity?.displayName ?? "G")[0]}</span><div><strong>{teacher ? identity?.displayName : student.name}</strong><small>{teacher ? "Your teaching studio" : "Beginner Guitar Foundations"}</small></div></div>
+        <div className="profile-row"><span className="avatar">{(identity?.displayName ?? "G")[0]}</span><div><strong>{teacher ? identity?.displayName : student.name}</strong><small>{teacher ? "Your teaching studio" : unlocked ? "Your own practice studio" : "Beginner Guitar Foundations"}</small></div></div>
       </div>
     </aside>
     <div className="workspace">
       <header className="topbar">
-        <span className="eyebrow">{teacher ? "THE TEACHING STUDIO" : "BEGINNER GUITAR FOUNDATIONS"}</span>
+        <span className="eyebrow">{teacher ? "THE TEACHING STUDIO" : unlocked ? "YOUR PRACTICE STUDIO" : "BEGINNER GUITAR FOUNDATIONS"}</span>
         <div className="account-controls">
           <button
             className="icon-button theme-toggle"

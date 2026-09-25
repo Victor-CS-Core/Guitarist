@@ -6,11 +6,12 @@ import { useDemo, useStudent } from "../app/StoreProvider";
 import { StatusBadge } from "../components/StatusBadge";
 import { Exercises } from "./Exercises";
 import { ChapterBadge } from "../components/ChapterBadge";
-import { earnedBadgeIds } from "../domain/selectors";
+import { earnedBadgeIds, isAppUnlocked } from "../domain/selectors";
 export function LearnPage() {
   const student = useStudent(),
     { actor, state } = useDemo();
   const badges = earnedBadgeIds(state, student.id);
+  const openAccess = actor.role === "teacher" || isAppUnlocked(student);
   return (
     <>
       <div className="page-heading">
@@ -21,7 +22,7 @@ export function LearnPage() {
       <div className="level-grid">
         {levels.map((l) => (
           <Link
-            className={`card level-card ${!student.unlockedLevels.includes(l.id) && actor.role !== "teacher" ? "locked" : ""}`}
+            className={`card level-card ${!openAccess && !student.unlockedLevels.includes(l.id) ? "locked" : ""}`}
             to={`${actor.role === "teacher" ? "/teacher/curriculum" : "/student/learn"}/${l.id}`}
             key={l.id}
           >
@@ -36,8 +37,8 @@ export function LearnPage() {
               <h2>{l.title}</h2>
               <p>{l.description}</p>
               <span className="text-link">
-                {student.unlockedLevels.includes(l.id) ||
-                actor.role === "teacher" ? (
+                {openAccess ||
+                student.unlockedLevels.includes(l.id) ? (
                   <>
                     Explore chapter <ArrowRight size={16} />
                   </>
@@ -58,6 +59,7 @@ export function LevelPage() {
   const { levelId } = useParams(),
     student = useStudent(),
     { actor } = useDemo();
+  const openAccess = actor.role === "teacher" || isAppUnlocked(student);
   const [active, setActive] = useState<string | null>(null);
   const level = levels.find((l) => l.id === levelId);
   if (!level)
@@ -69,7 +71,7 @@ export function LevelPage() {
         </Link>
       </div>
     );
-  if (actor.role !== "teacher" && !student.unlockedLevels.includes(level.id))
+  if (!openAccess && !student.unlockedLevels.includes(level.id))
     return (
       <div className="card empty">
         <Lock size={35} />

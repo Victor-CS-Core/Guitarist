@@ -42,6 +42,7 @@ function validCommand(command: unknown): command is Command {
     case "assess": return typeof c.skillId === "string" && typeof c.status === "string" && (c.reason === undefined || typeof c.reason === "string") && (c.guidance === undefined || typeof c.guidance === "string");
     case "assign": return typeof c.activityId === "string" && typeof c.minutes === "number" && typeof c.repetitions === "number";
     case "unlock": return typeof c.levelId === "string" && (c.overrideReason === undefined || typeof c.overrideReason === "string");
+    case "setAppUnlocked": return typeof c.unlocked === "boolean";
     case "saveNote": return typeof c.text === "string";
     case "completePractice": return typeof c.sessionId === "string" && c.sessionId.length > 0 && c.sessionId.length <= 100 && typeof c.durationSeconds === "number" && Array.isArray(c.itemIds) && c.itemIds.length <= 100 && c.itemIds.every((id) => typeof id === "string");
     default: return false;

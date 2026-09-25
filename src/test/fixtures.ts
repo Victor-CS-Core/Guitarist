@@ -24,6 +24,7 @@ export function seed(): DemoState {
           "chord-am": "PRACTICING",
         },
         goal: "Build Em and Am without a helping hand.",
+        appUnlocked: false,
       },
       {
         id: "noah",
@@ -39,6 +40,7 @@ export function seed(): DemoState {
           ),
         },
         goal: "Find your strings and play your first little melody.",
+        appUnlocked: false,
       },
     ],
     assignments: [

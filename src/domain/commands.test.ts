@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { seed } from "../test/fixtures";
 import { applyCommand } from "./commands";
-import { canUnlock, earnedBadgeIds } from "./selectors";
+import { canUnlock, earnedBadgeIds, isAppUnlocked } from "./selectors";
 import type { DemoState, Command } from "./types";
 const at = "2026-09-23T12:00:00Z";
 const teacher = { role: "teacher" as const };
@@ -166,4 +166,36 @@ it("records early practice time without completing unperformed steps", () => {
         ?.items.every((i) => !i.completed),
     ).toBe(true);
   }
+});
+
+describe("app unlock (graduation gift)", () => {
+  it("lets the teacher unlock and re-lock the app, and blocks students", () => {
+    const unlocked = run(seed(), {
+      type: "setAppUnlocked",
+      studentId: "noah",
+      unlocked: true,
+      at,
+    });
+    expect(unlocked.students.find((s) => s.id === "noah")!.appUnlocked).toBe(true);
+    const relocked = run(unlocked, {
+      type: "setAppUnlocked",
+      studentId: "noah",
+      unlocked: false,
+      at,
+    });
+    expect(relocked.students.find((s) => s.id === "noah")!.appUnlocked).toBe(false);
+    expect(
+      applyCommand(
+        seed(),
+        { role: "student", studentId: "noah" },
+        { type: "setAppUnlocked", studentId: "noah", unlocked: true, at },
+      ).ok,
+    ).toBe(false);
+  });
+
+  it("treats records without the flag as locked", () => {
+    expect(isAppUnlocked({ appUnlocked: true })).toBe(true);
+    expect(isAppUnlocked({ appUnlocked: false })).toBe(false);
+    expect(isAppUnlocked({} as never)).toBe(false);
+  });
 });

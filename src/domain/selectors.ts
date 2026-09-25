@@ -84,3 +84,12 @@ export function earnedBadgeIds(state: DemoState, studentId: string): string[] {
     .filter((l) => requiredSkillsMastered(student, l))
     .map((l) => l.badgeId);
 }
+
+/**
+ * Whether the teacher has unlocked the app for this student: they keep it as
+ * a self-directed practice tool. Records created before this flag existed
+ * read as locked.
+ */
+export function isAppUnlocked(student: Pick<Student, "appUnlocked">): boolean {
+  return student.appUnlocked === true;
+}

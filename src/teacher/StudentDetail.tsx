@@ -34,6 +34,7 @@ export function StudentDetail() {
     [override, setOverride] = useState(""),
     [newPassword, setNewPassword] = useState(""),
     [accountMessage, setAccountMessage] = useState(""),
+    [unlockMessage, setUnlockMessage] = useState(""),
     [accountPending, setAccountPending] = useState(false);
   if (!student)
     return (
@@ -61,6 +62,7 @@ export function StudentDetail() {
           <h1>{student.name}</h1>
           <p>
             Level {level.order} · {level.title}
+            {student.appUnlocked === true && " · App unlocked 🎓"}
           </p>
         </div>
       </div>
@@ -314,6 +316,35 @@ export function StudentDetail() {
               setAccountMessage(result.ok ? (account?.disabled ? "Student access enabled." : "Student access disabled.") : result.error);
             }}>{account?.disabled ? "Enable student access" : "Disable student access"}</button>
             {accountMessage && <p role="status" className="form-message">{accountMessage}</p>}
+          </section>
+        )}
+        {tab === "Account" && (
+          <section className="card form-card spaced" aria-labelledby="unlock-app-heading">
+            <h2 id="unlock-app-heading">Graduation gift: unlock the app</h2>
+            <p>
+              {student.appUnlocked === true
+                ? `${student.name} keeps the app as a personal practice studio — no more assignments or due dates, just tools, the full chord library, and their own practice rhythm.`
+                : `Finished the course? Unlock the app and ${student.name} keeps it as a personal practice studio — a gift for the road ahead.`}
+            </p>
+            <button
+              className="button"
+              type="button"
+              disabled={accountPending}
+              onClick={async () => {
+                setAccountPending(true); setUnlockMessage("");
+                const r = await dispatch({
+                  type: "setAppUnlocked",
+                  studentId: student.id,
+                  unlocked: student.appUnlocked !== true,
+                  at: new Date().toISOString(),
+                });
+                setAccountPending(false);
+                setUnlockMessage(r.ok
+                  ? (student.appUnlocked === true ? "The app is locked for this student again." : "The app is unlocked — it’s theirs to keep.")
+                  : r.error);
+              }}
+            >{student.appUnlocked === true ? "Lock the app again" : `Unlock the app for ${student.name}`}</button>
+            {unlockMessage && <p role="status" className="form-message">{unlockMessage}</p>}
           </section>
         )}
       </div>

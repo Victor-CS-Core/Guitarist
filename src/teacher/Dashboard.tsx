@@ -62,6 +62,7 @@ export function TeacherDashboard() {
                       <h2>{s.name}</h2>
                       <p>
                         Level {level.order} · {level.title}
+                        {s.appUnlocked === true && " · 🎓 App unlocked"}
                       </p>
                       <p className="small">@{accounts.find((account) => account.studentId === s.id)?.username}{accounts.find((account) => account.studentId === s.id)?.disabled ? " · Access disabled" : ""}</p>
                   </div>

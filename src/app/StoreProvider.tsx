@@ -157,7 +157,7 @@ export const useDemo = useStudio;
 const preview: Student = {
   id: "preview", name: "Student", currentLevelId: levels[0].id, unlockedLevels: [levels[0].id],
   skills: Object.fromEntries(skills.map((skill) => [skill.id, "NOT_INTRODUCED"])) as Student["skills"],
-  goal: levels[0].goal,
+  goal: levels[0].goal, appUnlocked: false,
 };
 export function useStudent(): Student {
   const { state, actor } = useStudio();
