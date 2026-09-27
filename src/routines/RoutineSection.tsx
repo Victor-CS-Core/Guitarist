@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
-import { useDemo, useStudent } from "../app/StoreProvider";
+import { useStudio, useStudent } from "../app/StoreProvider";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { isAppUnlocked, studentRoutines } from "../domain/selectors";
 import { RoutineCard } from "./RoutineCard";
 
@@ -11,17 +12,17 @@ import { RoutineCard } from "./RoutineCard";
  * graduation gift — students still in the course see teacher-shared routines.
  */
 export function RoutineSection() {
-  const { state, dispatch } = useDemo();
+  const { state, dispatch } = useStudio();
   const student = useStudent();
   const routines = studentRoutines(state, student.id);
   const unlocked = isAppUnlocked(student);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
   const deletingRef = useRef(false);
 
-  async function remove(routineId: string, name: string) {
+  async function remove(routineId: string) {
     if (deletingRef.current) return;
-    if (!window.confirm(`Delete the routine “${name}”? This can’t be undone.`)) return;
     deletingRef.current = true;
     setDeletingId(routineId);
     setError("");
@@ -62,13 +63,23 @@ export function RoutineSection() {
               routine={r}
               playTo={`/student/routines/${r.id}/play`}
               editTo={canEdit(r.createdBy) ? `/student/routines/${r.id}/edit` : undefined}
-              onDelete={canEdit(r.createdBy) ? () => remove(r.id, r.name) : undefined}
+              onDelete={canEdit(r.createdBy) ? () => setPendingDelete({ id: r.id, name: r.name }) : undefined}
               deleting={deletingId === r.id}
             />
           ))}
         </div>
       )}
       {error && <p role="alert">{error}</p>}
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={`Delete “${pendingDelete?.name ?? "this routine"}”?`}
+        message="This can’t be undone."
+        onConfirm={() => {
+          if (pendingDelete) void remove(pendingDelete.id);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </section>
   );
 }

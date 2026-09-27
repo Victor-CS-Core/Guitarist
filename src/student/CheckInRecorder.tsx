@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AudioLines, Check, Mic, Square, Trash2, Upload } from "lucide-react";
 import { apiRequest } from "../auth/api";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import {
   MAX_RECORD_SECONDS,
   baseMimeType,
@@ -8,6 +9,7 @@ import {
   formatClipDuration,
   pickRecorderMimeType,
 } from "./checkInUtils";
+import { formatDate, formatTime } from "../lib/format";
 
 export interface CheckinSummary {
   id: string;
@@ -65,6 +67,7 @@ export function CheckInRecorder() {
   const [uploaded, setUploaded] = useState(false);
   const [mine, setMine] = useState<CheckinSummary[]>([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const sessionRef = useRef<Session | null>(null);
   const timerRef = useRef<number | null>(null);
@@ -221,7 +224,6 @@ export function CheckInRecorder() {
   }
 
   async function deleteMine(id: string) {
-    if (!window.confirm("Delete this check-in? Your teacher won't be able to hear it anymore.")) return;
     try {
       const result = await apiRequest<{ ok: true } | { error: string }>(`/api/checkins/${id}`, { method: "DELETE" });
       if (result.status === 200) setMine((list) => list.filter((clip) => clip.id !== id));
@@ -234,22 +236,12 @@ export function CheckInRecorder() {
   return (
     <section className="card spaced" aria-labelledby="check-in-heading">
       <div className="row spread">
-        <h2 id="check-in-heading" style={{ margin: 0 }}>
+        <h2 id="check-in-heading" className="m-0">
           <AudioLines size={20} aria-hidden /> Audio check-in
         </h2>
         {recording && (
           <span className="status" aria-live="polite">
-            <span
-              aria-hidden
-              style={{
-                display: "inline-block",
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: "#c0392b",
-                marginRight: 6,
-              }}
-            />
+            <span aria-hidden className="rec-dot" />
             {formatClipDuration(elapsed)} / {formatClipDuration(MAX_RECORD_SECONDS)}
           </span>
         )}
@@ -272,13 +264,13 @@ export function CheckInRecorder() {
           <button className="button secondary" type="button" onClick={stopRecording}>
             <Square size={14} /> Stop recording
           </button>
-          <p className="small" role="status" style={{ margin: 0 }}>Recording stops automatically at {formatClipDuration(MAX_RECORD_SECONDS)}.</p>
+          <p className="small m-0" role="status">Recording stops automatically at {formatClipDuration(MAX_RECORD_SECONDS)}.</p>
         </div>
       )}
       {phase === "preview" && preview && (
         <div className="stack">
           <audio controls src={preview.url} preload="metadata" />
-          <p className="small" style={{ margin: 0 }}>
+          <p className="small m-0">
             {formatClipDuration(preview.duration)} · {preview.mime} — have a listen, then send it or record again.
           </p>
           <div className="row">
@@ -324,25 +316,25 @@ export function CheckInRecorder() {
       )}
 
       <div className="checkin-history">
-        <h3 className="small" style={{ marginBottom: 8 }}>Your check-ins</h3>
+        <h3 className="small mb-8">Your check-ins</h3>
         {loadingList ? (
           <p className="small">Loading…</p>
         ) : mine.length ? (
-          <ul className="stack" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          <ul className="stack list-reset">
             {mine.map((clip) => (
               <li key={clip.id} className="activity-row">
                 <AudioLines size={18} aria-hidden />
                 <div>
                   <strong>{formatClipDuration(clip.durationSeconds)}</strong>
-                  <p className="small" style={{ margin: 0 }}>
-                    {new Date(clip.createdAt).toLocaleDateString()} · {new Date(clip.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                  <p className="small m-0">
+                    {formatDate(clip.createdAt)} · {formatTime(clip.createdAt)}
                   </p>
                 </div>
                 <button
                   className="button secondary"
                   type="button"
-                  onClick={() => void deleteMine(clip.id)}
-                  aria-label={`Delete check-in from ${new Date(clip.createdAt).toLocaleDateString()}`}
+                  onClick={() => setPendingDelete(clip.id)}
+                  aria-label={`Delete check-in from ${formatDate(clip.createdAt)}`}
                 >
                   <Trash2 size={14} />
                 </button>
@@ -353,6 +345,16 @@ export function CheckInRecorder() {
           <p className="small">Nothing sent yet — your first check-in will appear here.</p>
         )}
       </div>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete this check-in?"
+        message="Your teacher won't be able to hear it anymore."
+        onConfirm={() => {
+          if (pendingDelete) void deleteMine(pendingDelete);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </section>
   );
 }

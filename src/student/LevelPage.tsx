@@ -2,14 +2,15 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Lock, BookOpen } from "lucide-react";
 import { levels, activities } from "../curriculum/foundations";
-import { useDemo, useStudent } from "../app/StoreProvider";
+import { useStudio, useStudent } from "../app/StoreProvider";
 import { StatusBadge } from "../components/StatusBadge";
+import { EmptyState } from "../components/EmptyState";
 import { Exercises } from "./Exercises";
 import { ChapterBadge } from "../components/ChapterBadge";
 import { earnedBadgeIds, isAppUnlocked } from "../domain/selectors";
 export function LearnPage() {
   const student = useStudent(),
-    { actor, state } = useDemo();
+    { actor, state } = useStudio();
   const badges = earnedBadgeIds(state, student.id);
   const openAccess = actor.role === "teacher" || isAppUnlocked(student);
   return (
@@ -58,7 +59,7 @@ export function LearnPage() {
 export function LevelPage() {
   const { levelId } = useParams(),
     student = useStudent(),
-    { actor } = useDemo();
+    { actor } = useStudio();
   const openAccess = actor.role === "teacher" || isAppUnlocked(student);
   const [active, setActive] = useState<string | null>(null);
   const level = levels.find((l) => l.id === levelId);
@@ -73,14 +74,15 @@ export function LevelPage() {
     );
   if (!openAccess && !student.unlockedLevels.includes(level.id))
     return (
-      <div className="card empty">
-        <Lock size={35} />
-        <h1>A new chapter is ahead.</h1>
-        <p>Your teacher will unlock this level when you’re ready.</p>
+      <EmptyState
+        icon={<Lock size={35} />}
+        title="A new chapter is ahead."
+        message="Your teacher will unlock this level when you’re ready."
+      >
         <Link className="button" to="/student/learn">
           Back to your journey
         </Link>
-      </div>
+      </EmptyState>
     );
   const available = activities.filter((a) =>
       level.skills.some((s) => s.id === a.skillId),

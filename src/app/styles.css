@@ -1,4 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap");
+/* ============================================================================
+   styles.css — the component library.
+   Design tokens (:root), base element styles, and every component/page class
+   live here: .button, .card, .status, .dialog, .empty, tool layouts, etc.
+   It loads FIRST. visual-refinement.css loads after it and may override these
+   rules for the editorial pass; spacing/layout utilities live at the very end
+   of visual-refinement.css so they win equal-specificity conflicts.
+   ============================================================================ */
 :root {
   font-family: "DM Sans", sans-serif;
   color: #49382a;
@@ -310,6 +318,49 @@ button {
   background: #fff;
   color: var(--accent);
   border-color: #e0cfb9;
+}
+/* Destructive actions: deleting, disabling access, discarding work. */
+.button.danger {
+  background: #a4442a;
+  border-color: #a4442a;
+  color: #fff;
+}
+.button.danger:hover:not(:disabled) {
+  background: #8f3a24;
+  border-color: #8f3a24;
+}
+/* Modal confirmation dialog (replaces window.confirm). */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 32, 20, 0.55);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 200;
+}
+.dialog {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 18px 50px rgba(43, 32, 20, 0.25);
+}
+.dialog h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.dialog p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
 }
 .hero-progress {
   margin-top: 24px;
@@ -728,6 +779,14 @@ footer span {
 .status-ready_for_assessment {
   background: #ede5dd;
   color: #82664e;
+}
+.status.overdue {
+  background: #fbe4dd;
+  color: #a4442a;
+}
+.status.due-soon {
+  background: #f8eddb;
+  color: #8a5f2b;
 }
 @media (min-width: 1450px) {
   .workspace main {
@@ -1376,7 +1435,8 @@ footer span {
   padding: 45px 30px;
 }
 .completion h1,
-.empty h1 {
+.empty h1,
+.empty h2 {
   margin: 16px 0;
 }
 .completion-icon {
@@ -1822,12 +1882,95 @@ dialog .row {
 }
 .cents-gauge {
   background: linear-gradient(90deg, #c0392b, #f1c40f 30%, #2f7d4f 50%, #f1c40f 70%, #c0392b);
+  position: relative;
+  height: 12px;
+  border-radius: 6px;
+  margin: 12px auto;
+  max-width: 360px;
 }
 .cents-gauge-needle {
   background: #222;
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 3px;
+  border-radius: 2px;
+}
+.tuner-note {
+  font-size: 56px;
+  font-weight: 700;
+}
+.tuner-string-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
 }
 .timer-progress-track {
   background: rgba(0, 0, 0, 0.12);
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.timer-progress-fill {
+  height: 100%;
+  background: var(--er-green, #2f7d4f);
+  transition: width 0.3s;
+}
+.timer-display {
+  text-align: center;
+  margin: 24px 0 8px;
+}
+.timer-digits {
+  font-size: 64px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+/* Tool picker cards (ToolsHome). */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+.tool-card {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tool-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--er-cream, #f6efe3);
+}
+.tool-card-title {
+  margin: 0;
+  font-size: 19px;
+}
+/* Chord library search + results. */
+.chord-search {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 16px;
+}
+.chord-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 16px;
+}
+/* Pulsing red dot while recording a check-in. */
+.rec-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c0392b;
+  margin-right: 6px;
 }
 
 /* ---- Dark theme ----
@@ -2233,6 +2376,26 @@ html[data-theme="dark"] .status-needs_reinforcement {
   background: #3d3229;
   color: #e0a06a;
 }
+html[data-theme="dark"] .status.overdue {
+  background: #4a2b23;
+  color: #f0a58c;
+}
+html[data-theme="dark"] .status.due-soon {
+  background: #3d3229;
+  color: #e0b46a;
+}
+html[data-theme="dark"] .button.danger {
+  background: #c05a3d;
+  border-color: #c05a3d;
+  color: #fff;
+}
+html[data-theme="dark"] .button.danger:hover:not(:disabled) {
+  background: #a94e34;
+  border-color: #a94e34;
+}
+html[data-theme="dark"] .dialog-overlay {
+  background: rgba(10, 8, 6, 0.65);
+}
 
 /* Teacher: tabs, forms, dialogs */
 html[data-theme="dark"] .tab-row button {
@@ -2351,11 +2514,173 @@ html[data-theme="dark"] .string-details button {
   color: var(--ink);
   font-size: 13px;
   font-weight: 600;
+  position: relative;
+}
+/* Invisible 44px-tall touch target; the pill stays compact. */
+.filter-chips button::before {
+  content: "";
+  position: absolute;
+  inset: -4px -2px;
 }
 .filter-chips button.active {
   background: #2f4b5e;
   border-color: #2f4b5e;
   color: #fff;
+}
+/* Assignment builder: tap-to-pick activity cards and the set panel. */
+.activity-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 6px 0 4px;
+}
+.activity-pick-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+.activity-pick-card strong {
+  font-size: 13px;
+  line-height: 1.25;
+}
+.activity-pick-card .small {
+  color: var(--muted);
+}
+.activity-pick-card.picked {
+  border-color: var(--accent);
+  border-width: 2px;
+  padding: 9px 11px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--paper));
+}
+.pick-order {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pick-check {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  color: var(--accent);
+}
+.set-panel {
+  border-top: 1px solid var(--line);
+  margin-top: 14px;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+}
+.set-order {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.set-order button {
+  display: flex;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  position: relative;
+}
+/* Invisible ~44px touch target; the chevron stays small. */
+.set-order button::before {
+  content: "";
+  position: absolute;
+  inset: -13px;
+}
+.set-order button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.set-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.set-title strong {
+  font-size: 13px;
+}
+.set-title .small {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.stepper button {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+/* Invisible 44px touch target; the visible circle stays compact. */
+.stepper button::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
+}
+.stepper button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.set-remove {
+  display: flex;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  position: relative;
+}
+/* Invisible 44px touch target; the X icon stays small. */
+.set-remove::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
 }
 .voicing-tabs {
   display: flex;
@@ -2372,6 +2697,13 @@ html[data-theme="dark"] .string-details button {
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
+  position: relative;
+}
+/* Invisible 44px-tall touch target; the tab stays compact. */
+.voicing-tabs button::before {
+  content: "";
+  position: absolute;
+  inset: -6px -2px;
 }
 .voicing-tabs button.active {
   background: #2f4b5e;
@@ -2449,6 +2781,13 @@ html[data-theme="dark"] .badge.teacher-shared {
   color: var(--ink);
   font-size: 13px;
   font-weight: 600;
+  position: relative;
+}
+/* Invisible 44px-tall touch target; the pill stays compact. */
+.chip::before {
+  content: "";
+  position: absolute;
+  inset: -4px -2px;
 }
 .chip.active {
   background: #2f4b5e;

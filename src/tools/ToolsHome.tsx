@@ -35,7 +35,7 @@ const TOOLS = [
     icon: BookOpen,
     title: "Chord library",
     blurb:
-      "Searchable diagrams for every open chord, with finger numbers and string-by-string help.",
+      "Searchable diagrams for 288 chords and 856 voicings — open shapes to barre chords — with finger numbers and string-by-string help.",
   },
 ];
 
@@ -54,45 +54,21 @@ export function ToolsHome() {
         </p>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          gap: 16,
-        }}
-      >
+      <div className="tool-grid">
         {TOOLS.map(({ to, icon: Icon, title, blurb }) => (
           <Link
             key={to}
             to={to}
-            className="card"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
+            className="card tool-card"
           >
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: "var(--er-cream, #f6efe3)",
-              }}
-              aria-hidden
-            >
+            <span className="tool-card-icon" aria-hidden>
               <Icon size={22} />
             </span>
-            <h2 style={{ margin: 0, fontSize: 19 }}>{title}</h2>
-            <p className="small" style={{ margin: 0, flex: 1 }}>
+            <h2 className="tool-card-title">{title}</h2>
+            <p className="small m-0 flex-1">
               {blurb}
             </p>
-            <span className="text-link" style={{ alignSelf: "flex-start" }}>
+            <span className="text-link self-start">
               Open tool <ChevronRight size={14} aria-hidden />
             </span>
           </Link>

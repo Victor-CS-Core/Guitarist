@@ -1,7 +1,8 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check, Eye } from "lucide-react";
-import { useDemo } from "../app/StoreProvider";
+import { useStudio } from "../app/StoreProvider";
 import { activityById } from "../curriculum/foundations";
+import { EmptyState } from "../components/EmptyState";
 import { Exercises } from "../student/Exercises";
 
 /**
@@ -17,7 +18,7 @@ import { Exercises } from "../student/Exercises";
 export function ActivityPreviewPage() {
   const { activityId } = useParams();
   const [searchParams] = useSearchParams();
-  const { state } = useDemo();
+  const { state } = useStudio();
   const activity = activityById(activityId ?? "");
   const studentId = searchParams.get("studentId");
   const itemId = searchParams.get("itemId");
@@ -34,14 +35,15 @@ export function ActivityPreviewPage() {
     : "Back to all assignments";
   if (!activity)
     return (
-      <div className="card empty">
-        <Eye size={35} />
-        <h1>That activity isn’t here.</h1>
-        <p>It may have been removed from the curriculum.</p>
+      <EmptyState
+        icon={<Eye size={35} />}
+        title="That activity isn’t here."
+        message="It may have been removed from the curriculum."
+      >
         <Link className="button" to={backTo}>
           {backLabel}
         </Link>
-      </div>
+      </EmptyState>
     );
   return (
     <>

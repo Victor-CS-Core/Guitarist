@@ -1,17 +1,19 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
-import { useDemo } from "../app/StoreProvider";
+import { useStudio } from "../app/StoreProvider";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { isAppUnlocked, studentRoutines } from "../domain/selectors";
 import { RoutineCard } from "../routines/RoutineCard";
 
 /** Teacher view of a student's routines: share new ones, edit or remove old ones. */
 export function StudentRoutines({ studentId }: { studentId: string }) {
-  const { state, dispatch } = useDemo();
+  const { state, dispatch } = useStudio();
   const student = state.students.find((s) => s.id === studentId);
   const routines = studentRoutines(state, studentId);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
   const deletingRef = useRef(false);
 
   if (!student)
@@ -23,9 +25,8 @@ export function StudentRoutines({ studentId }: { studentId: string }) {
     );
   const unlocked = isAppUnlocked(student);
 
-  async function remove(routineId: string, name: string) {
+  async function remove(routineId: string) {
     if (deletingRef.current) return;
-    if (!window.confirm(`Delete the routine “${name}” for ${student?.name ?? "this student"}? This can’t be undone.`)) return;
     deletingRef.current = true;
     setDeletingId(routineId);
     setMessage("");
@@ -73,13 +74,23 @@ export function StudentRoutines({ studentId }: { studentId: string }) {
               routine={r}
               audience="teacher"
               editTo={`/teacher/students/${studentId}/routines/${r.id}/edit`}
-              onDelete={() => remove(r.id, r.name)}
+              onDelete={() => setPendingDelete({ id: r.id, name: r.name })}
               deleting={deletingId === r.id}
             />
           ))}
           {!routines.length && <p>No routines yet — share the first one.</p>}
         </div>
       </section>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={`Delete “${pendingDelete?.name ?? "this routine"}”?`}
+        message={`This will remove the routine for ${student.name}. This can’t be undone.`}
+        onConfirm={() => {
+          if (pendingDelete) void remove(pendingDelete.id);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

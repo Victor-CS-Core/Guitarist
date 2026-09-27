@@ -51,3 +51,11 @@ export function formatDate(iso: string): string {
 export function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString();
 }
+
+/** Locale time, e.g. "3:12 PM". */
+export function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

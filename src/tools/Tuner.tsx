@@ -179,7 +179,7 @@ export function TunerPage() {
 
       <section className="card spaced">
         <div className="row spread">
-          <h2 className="section-heading" style={{ margin: 0 }}>
+          <h2 className="section-heading m-0">
             Microphone tuner
           </h2>
           {status === "listening" ? (
@@ -199,13 +199,10 @@ export function TunerPage() {
         </div>
 
         {status === "listening" && (
-          <div style={{ textAlign: "center", marginTop: 16 }}>
+          <div className="text-center mt-16">
             {reading ? (
               <>
-                <div
-                  aria-live="polite"
-                  style={{ fontSize: 56, fontWeight: 700 }}
-                >
+                <div aria-live="polite" className="tuner-note">
                   {reading.noteName}
                 </div>
                 <p
@@ -232,24 +229,10 @@ export function TunerPage() {
                   role="img"
                   aria-label={`Cents deviation: ${reading.cents} cents`}
                   className="cents-gauge"
-                  style={{
-                    position: "relative",
-                    height: 12,
-                    borderRadius: 6,
-                    margin: "12px auto",
-                    maxWidth: 360,
-                  }}
                 >
                   <div
                     className="cents-gauge-needle"
-                    style={{
-                      position: "absolute",
-                      top: -3,
-                      bottom: -3,
-                      width: 3,
-                      borderRadius: 2,
-                      left: `calc(${50 + cents}% - 1.5px)`,
-                    }}
+                    style={{ left: `calc(${50 + cents}% - 1.5px)` }}
                   />
                 </div>
                 <p className="small">
@@ -268,7 +251,7 @@ export function TunerPage() {
         )}
 
         {status === "denied" && (
-          <p className="small" role="status" style={{ marginTop: 12 }}>
+          <p className="small mt-12" role="status">
             Microphone access was denied, so the tuner can't listen. Check the
             microphone permission in your browser's site settings and try again
             — or tune by ear with the reference tones below.
@@ -276,7 +259,7 @@ export function TunerPage() {
         )}
 
         {status === "unsupported" && (
-          <p className="small" role="status" style={{ marginTop: 12 }}>
+          <p className="small mt-12" role="status">
             This browser couldn't open the microphone or audio playback, so
             listening isn't available here. The reference tones below may still
             work — or try a browser with microphone support.
@@ -284,7 +267,7 @@ export function TunerPage() {
         )}
 
         {status === "idle" && (
-          <p className="small" style={{ marginTop: 12 }}>
+          <p className="small mt-12">
             The tuner needs your microphone to hear the strings. Nothing is
             recorded — the sound is analyzed live in your browser and never
             leaves your device.
@@ -293,20 +276,14 @@ export function TunerPage() {
       </section>
 
       <section className="card spaced">
-        <h2 className="section-heading" style={{ marginTop: 0 }}>
+        <h2 className="section-heading mt-0">
           Reference tones
         </h2>
         <p className="small">
           No microphone? No problem. Play a tone, then match your string to it
           by ear. Tap again to stop.
         </p>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-            gap: 8,
-          }}
-        >
+        <div className="tuner-string-grid">
           {STANDARD_TUNING.map((s) => (
             <button
               key={s.noteName}
@@ -320,7 +297,7 @@ export function TunerPage() {
                 <Play size={14} />
               )}{" "}
               {s.noteName}
-              <span className="small" style={{ marginLeft: 4 }}>
+              <span className="small ml-4">
                 str {s.stringNumber}
               </span>
             </button>

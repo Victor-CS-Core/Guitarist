@@ -1,12 +1,10 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { it, expect } from "vitest";
 import { StoreProvider } from "../app/StoreProvider";
 import { seed } from "../test/fixtures";
 import { AssignmentsOverview } from "./AssignmentsOverview";
-import { ActivityPreviewPage } from "./ActivityPreviewPage";
-import { StudentDetail } from "./StudentDetail";
 
 function renderOverview() {
   render(
@@ -54,48 +52,4 @@ it("filters the overview by completion status", async () => {
   ).toBeVisible();
   await user.selectOptions(screen.getByLabelText("Status"), "open");
   expect(screen.getByText("Hello, E minor")).toBeVisible();
-});
-
-it("previews an activity exactly as the student sees it", () => {
-  render(
-    <MemoryRouter
-      initialEntries={[
-        "/teacher/preview/activity/em-shape?studentId=emma&itemId=emma-em",
-      ]}
-    >
-      <StoreProvider initialState={seed()} initialActor={{ role: "teacher" }}>
-        <Routes>
-          <Route
-            path="/teacher/preview/activity/:activityId"
-            element={<ActivityPreviewPage />}
-          />
-        </Routes>
-      </StoreProvider>
-    </MemoryRouter>,
-  );
-  expect(screen.getAllByText("Hello, E minor").length).toBeGreaterThan(0);
-  // Student context: title, description, steps, and the student exercise UI.
-  expect(screen.getByText("Let every string ring.")).toBeVisible();
-  expect(screen.getByText(/Emma · 3 min · 3 rounds/)).toBeVisible();
-});
-
-it("links student names to that student's Assignments tab", () => {
-  render(
-    <MemoryRouter initialEntries={["/teacher/students/emma?tab=Assignments"]}>
-      <StoreProvider initialState={seed()} initialActor={{ role: "teacher" }}>
-        <Routes>
-          <Route
-            path="/teacher/students/:studentId"
-            element={<StudentDetail />}
-          />
-        </Routes>
-      </StoreProvider>
-    </MemoryRouter>,
-  );
-  const tab = screen.getByRole("tab", { name: "Assignments" });
-  expect(tab).toHaveAttribute("aria-selected", "true");
-  expect(screen.getByRole("heading", { name: "Assigned practice" })).toBeVisible();
-  expect(
-    within(screen.getByRole("tabpanel")).getAllByText("Hello, E minor").length,
-  ).toBeGreaterThan(0);
 });

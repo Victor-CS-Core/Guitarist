@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { it, expect } from "vitest";
-import { StoreProvider, useDemo } from "../app/StoreProvider";
+import { StoreProvider, useStudio } from "../app/StoreProvider";
 import { seed } from "../test/fixtures";
 import { AssessmentForm } from "./AssessmentForm";
 function Readback() {
-  const { state } = useDemo();
+  const { state } = useStudio();
   return (
     <output data-testid="assignment">
       {state.assignments.at(-1)?.items[0].activityId}

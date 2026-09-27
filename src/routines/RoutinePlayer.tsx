@@ -11,7 +11,8 @@ import {
   Music2,
   Waves,
 } from "lucide-react";
-import { useDemo, useStudent } from "../app/StoreProvider";
+import { useStudio, useStudent } from "../app/StoreProvider";
+import { EmptyState } from "../components/EmptyState";
 import { isAppUnlocked, routineMinutes, studentRoutines } from "../domain/selectors";
 import { activityById } from "../curriculum/foundations";
 import { chords } from "../curriculum/chords";
@@ -35,22 +36,25 @@ function formatClock(totalSeconds: number) {
 }
 
 export function RoutinePlayer({ routineId }: { routineId: string }) {
-  const { state } = useDemo();
+  const { state } = useStudio();
   const student = useStudent();
   const routine = studentRoutines(state, student.id).find((r) => r.id === routineId);
   if (!routine || routine.blocks.length === 0)
     return (
-      <section className="card empty">
-        <h1>Routine not found.</h1>
-        <p>It may have been deleted.</p>
-        <Link className="button" to="/student/practice">Back to practice</Link>
-      </section>
+      <EmptyState
+        title="Routine not found."
+        message="It may have been deleted."
+      >
+        <Link className="button" to="/student/practice">
+          Back to practice
+        </Link>
+      </EmptyState>
     );
   return <PlayerView routine={routine} />;
 }
 
 function PlayerView({ routine }: { routine: Routine }) {
-  const { dispatch, setPracticeActive } = useDemo();
+  const { dispatch, setPracticeActive } = useStudio();
   const student = useStudent();
   const navigate = useNavigate();
   const appUnlocked = isAppUnlocked(student);

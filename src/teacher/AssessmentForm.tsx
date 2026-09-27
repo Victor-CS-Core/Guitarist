@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDemo } from "../app/StoreProvider";
+import { useStudio } from "../app/StoreProvider";
 import {
   skills,
   activities,
@@ -9,7 +9,7 @@ import {
 } from "../curriculum/foundations";
 import type { Reason, Status } from "../domain/types";
 export function AssessmentForm({ studentId }: { studentId: string }) {
-  const { state, dispatch } = useDemo();
+  const { state, dispatch } = useStudio();
   const student = state.students.find((s) => s.id === studentId);
   const available = skills.filter(
     (s) => student?.unlockedLevels.includes(s.levelId) ?? false,

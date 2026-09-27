@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Users, Music2, ClipboardCheck } from "lucide-react";
-import { useDemo } from "../app/StoreProvider";
+import { useStudio } from "../app/StoreProvider";
 import { levels } from "../curriculum/foundations";
 import { StatusBadge } from "../components/StatusBadge";
 import { StudentAccountForm } from "./StudentAccountForm";
+import { EmptyState } from "../components/EmptyState";
 export function TeacherDashboard() {
-  const { state, accounts } = useDemo();
+  const { state, accounts } = useStudio();
   return (
     <>
       <div className="page-heading">
@@ -44,7 +45,13 @@ export function TeacherDashboard() {
         <h2>Your students</h2>
         <span className="small">Your teaching studio</span>
       </div>
-      {state.students.length === 0 && <section className="card empty"><Users size={35} /><h2>Your studio is ready.</h2><p>Add your first student to begin assigning practice and recording progress.</p></section>}
+      {state.students.length === 0 && (
+        <EmptyState
+          icon={<Users size={35} />}
+          title="Your studio is ready."
+          message="Add your first student to begin assigning practice and recording progress."
+        />
+      )}
       <div className="teacher-students">
         {state.students.map((s) => {
           const level = levels.find((l) => l.id === s.currentLevelId);

@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, AudioLines, Trash2 } from "lucide-react";
 import { apiRequest } from "../auth/api";
+import { ConfirmDialog } from "../components/ConfirmDialog";
+import { EmptyState } from "../components/EmptyState";
 import { formatClipDuration } from "../student/checkInUtils";
+import { formatDate, formatTime } from "../lib/format";
 import type { CheckinSummary } from "../student/CheckInRecorder";
 
 interface ClipGroup {
@@ -16,6 +19,7 @@ export function CheckInsPage() {
   const [studentId, setStudentId] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -59,7 +63,6 @@ export function CheckInsPage() {
   );
 
   async function deleteClip(id: string) {
-    if (!window.confirm("Delete this check-in? The student will see it disappear from their history.")) return;
     try {
       const result = await apiRequest<{ ok: true } | { error: string }>(`/api/checkins/${id}`, { method: "DELETE" });
       if (result.status === 200) setClips((list) => list.filter((clip) => clip.id !== id));
@@ -99,50 +102,50 @@ export function CheckInsPage() {
 
       {loading && <p className="small" role="status">Loading check-ins…</p>}
       {loadError && !loading && (
-        <div className="card empty">
-          <AudioLines size={35} />
-          <h2>Couldn't load the check-ins.</h2>
-          <p>Check your connection and reload.</p>
-        </div>
+        <EmptyState
+          icon={<AudioLines size={35} />}
+          title="Couldn't load the check-ins."
+          message="Check your connection and reload."
+        />
       )}
 
       {!loading && !loadError && groups.length === 0 && (
-        <div className="card empty">
-          <AudioLines size={35} />
-          <h2>No check-ins yet.</h2>
-          <p>
-            {clips.length
+        <EmptyState
+          icon={<AudioLines size={35} />}
+          title="No check-ins yet."
+          message={
+            clips.length
               ? "No clips match this filter."
-              : "When a student records a practice clip from their home page, it will appear here."}
-          </p>
-        </div>
+              : "When a student records a practice clip from their home page, it will appear here."
+          }
+        />
       )}
 
       {!loading && groups.map((group) => (
         <section className="card spaced" key={group.studentId} aria-label={`Check-ins from ${group.studentName}`}>
           <div className="row spread">
-            <h2 style={{ margin: 0 }}>{group.studentName}</h2>
+            <h2 className="m-0">{group.studentName}</h2>
             <span className="small">{group.clips.length} {group.clips.length === 1 ? "clip" : "clips"}</span>
           </div>
           <div className="stack spaced">
             {group.clips.map((clip) => (
               <div className="activity-row" key={clip.id}>
                 <AudioLines size={18} aria-hidden />
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="flex-1 min-w-0">
                   <strong>
                     {formatClipDuration(clip.durationSeconds)} ·{" "}
-                    {new Date(clip.createdAt).toLocaleDateString()}
+                    {formatDate(clip.createdAt)}
                     {" "}
                     <span className="small">
-                      {new Date(clip.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                      {formatTime(clip.createdAt)}
                     </span>
                   </strong>
-                  <audio controls preload="none" src={`/api/checkins/${clip.id}/audio`} style={{ width: "100%", marginTop: 8 }} />
+                  <audio controls preload="none" src={`/api/checkins/${clip.id}/audio`} className="w-full mt-8" />
                 </div>
                 <button
                   className="button secondary"
                   type="button"
-                  onClick={() => void deleteClip(clip.id)}
+                  onClick={() => setPendingDelete(clip.id)}
                   aria-label={`Delete check-in from ${group.studentName}`}
                 >
                   <Trash2 size={14} />
@@ -152,6 +155,16 @@ export function CheckInsPage() {
           </div>
         </section>
       ))}
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete this check-in?"
+        message="The student will see it disappear from their history."
+        onConfirm={() => {
+          if (pendingDelete) void deleteClip(pendingDelete);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </>
   );
 }

@@ -153,7 +153,6 @@ export function useStudio() {
   if (!value) throw Error("Studio provider is required");
   return value;
 }
-export const useDemo = useStudio;
 const preview: Student = {
   id: "preview", name: "Student", currentLevelId: levels[0].id, unlockedLevels: [levels[0].id],
   skills: Object.fromEntries(skills.map((skill) => [skill.id, "NOT_INTRODUCED"])) as Student["skills"],

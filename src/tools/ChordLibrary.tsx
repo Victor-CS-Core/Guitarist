@@ -3,6 +3,8 @@ import { BookOpen, Search } from "lucide-react";
 import { ChordDiagram, type ChordLabelMode } from "../components/ChordDiagram";
 import { barreRuns } from "../components/chordGeometry";
 import { chords, type Chord } from "../curriculum/chords";
+import { EmptyState } from "../components/EmptyState";
+import { ChipGroup } from "../components/ChipGroup";
 
 const ROOT_FILTERS: Array<{ key: string; label: string }> = [
   { key: "All", label: "All" },
@@ -117,10 +119,7 @@ export function ChordLibraryPage() {
       </div>
 
       <section className="card spaced">
-        <label
-          className="row"
-          style={{ gap: 8, alignItems: "center", marginBottom: 4 }}
-        >
+        <label className="row gap-8 mb-4">
           <Search size={16} aria-hidden />
           <input
             type="search"
@@ -128,98 +127,42 @@ export function ChordLibraryPage() {
             placeholder="Search chords — try “G” or “minor”…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ flex: 1, padding: "8px 10px", fontSize: 16 }}
+            className="chord-search"
           />
         </label>
-        <div className="filter-group">
-          <span className="filter-label" id="root-filter-label">
-            Root
-          </span>
-          <div
-            className="filter-chips"
-            role="group"
-            aria-labelledby="root-filter-label"
-          >
-            {ROOT_FILTERS.map((r) => (
-              <button
-                key={r.key}
-                aria-pressed={root === r.key}
-                className={root === r.key ? "active" : ""}
-                onClick={() => setRoot(r.key)}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="filter-group">
-          <span className="filter-label" id="type-filter-label">
-            Type
-          </span>
-          <div
-            className="filter-chips"
-            role="group"
-            aria-labelledby="type-filter-label"
-          >
-            {QUALITY_FILTERS.map((t) => (
-              <button
-                key={t.key}
-                aria-pressed={quality === t.key}
-                className={quality === t.key ? "active" : ""}
-                onClick={() => setQuality(t.key)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="filter-group">
-          <span className="filter-label" id="position-filter-label">
-            Position
-          </span>
-          <div
-            className="filter-chips"
-            role="group"
-            aria-labelledby="position-filter-label"
-          >
-            {POSITION_FILTERS.map((p) => (
-              <button
-                key={p.key}
-                aria-pressed={position === p.key}
-                className={position === p.key ? "active" : ""}
-                onClick={() => setPosition(p.key)}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="filter-group">
-          <span className="filter-label" id="labels-filter-label">
-            Dot labels
-          </span>
-          <div
-            className="filter-chips"
-            role="group"
-            aria-labelledby="labels-filter-label"
-          >
-            {(
-              [
-                { key: "fingers", label: "Fingers" },
-                { key: "notes", label: "Notes" },
-              ] as const
-            ).map((m) => (
-              <button
-                key={m.key}
-                aria-pressed={labelMode === m.key}
-                className={labelMode === m.key ? "active" : ""}
-                onClick={() => setLabelMode(m.key)}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <ChipGroup
+          label="Root"
+          labelId="root-filter-label"
+          options={ROOT_FILTERS}
+          value={root}
+          onChange={setRoot}
+        />
+        <ChipGroup
+          label="Type"
+          labelId="type-filter-label"
+          options={QUALITY_FILTERS}
+          value={quality}
+          onChange={setQuality}
+        />
+        <ChipGroup
+          label="Position"
+          labelId="position-filter-label"
+          options={POSITION_FILTERS}
+          value={position}
+          onChange={setPosition}
+        />
+        <ChipGroup
+          label="Dot labels"
+          labelId="labels-filter-label"
+          options={
+            [
+              { key: "fingers", label: "Fingers" },
+              { key: "notes", label: "Notes" },
+            ] as const
+          }
+          value={labelMode}
+          onChange={setLabelMode}
+        />
         <p className="small">
           {matches.length} of {total} chords
           {query.trim() && (
@@ -233,13 +176,12 @@ export function ChordLibraryPage() {
       </section>
 
       {matches.length === 0 ? (
-        <section className="empty">
-          <BookOpen size={28} aria-hidden />
-          <h2>No chords found</h2>
-          <p>
-            Nothing matches those filters yet. Try a different root or type —
-            or clear the search to browse everything.
-          </p>
+        <EmptyState
+          bare
+          icon={<BookOpen size={28} aria-hidden />}
+          title="No chords found"
+          message="Nothing matches those filters yet. Try a different root or type — or clear the search to browse everything."
+        >
           <button
             className="button secondary"
             onClick={() => {
@@ -251,15 +193,9 @@ export function ChordLibraryPage() {
           >
             Clear filters
           </button>
-        </section>
+        </EmptyState>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))",
-            gap: 16,
-          }}
-        >
+        <div className="chord-results-grid">
           {matches.map(([id, chord]) => (
             <ChordCard key={id} id={id} chord={chord} labelMode={labelMode} />
           ))}
@@ -267,7 +203,7 @@ export function ChordLibraryPage() {
       )}
 
       <section className="card spaced">
-        <h2 className="section-heading" style={{ marginTop: 0 }}>
+        <h2 className="section-heading mt-0">
           Reading a diagram
         </h2>
         <p className="small">

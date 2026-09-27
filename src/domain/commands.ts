@@ -123,21 +123,19 @@ export function applyCommand(
       break;
     }
     case "assign": {
-      const activity = activities.find((a) => a.id === command.activityId);
-      if (!activity) return fail("Choose an available activity.");
-      const skill = skills.find((s) => s.id === activity.skillId)!;
-      if (!student.unlockedLevels.includes(skill.levelId))
-        return fail("Choose an activity from an unlocked level.");
-      if (
-        !Number.isFinite(command.minutes) ||
-        command.minutes <= 0 ||
-        command.minutes > 60 ||
-        !Number.isInteger(command.repetitions) ||
-        command.repetitions < 1 ||
-        command.repetitions > 100
-      )
-        return fail("Use 1–60 minutes and 1–100 whole rounds.");
-      const id = crypto.randomUUID();
+      // Accept the legacy single-activity shape by normalizing it into items.
+      const requested =
+        "activityId" in command
+          ? [
+              {
+                activityId: command.activityId,
+                minutes: command.minutes,
+                repetitions: command.repetitions,
+              },
+            ]
+          : command.items;
+      if (!Array.isArray(requested) || requested.length < 1 || requested.length > 8)
+        return fail("Choose between 1 and 8 activities for the set.");
       const dueDate = command.dueDate?.trim() || undefined;
       if (dueDate !== undefined) {
         if (
@@ -146,22 +144,46 @@ export function applyCommand(
         )
           return fail("Choose a valid due date.");
       }
+      const built: Array<{ activityId: string; minutes: number; repetitions: number }> = [];
+      for (const item of requested) {
+        const activity = activities.find((a) => a.id === item.activityId);
+        if (!activity) return fail("Choose an available activity.");
+        const skill = skills.find((s) => s.id === activity.skillId)!;
+        if (!student.unlockedLevels.includes(skill.levelId))
+          return fail("Choose an activity from an unlocked level.");
+        if (
+          !Number.isFinite(item.minutes) ||
+          item.minutes <= 0 ||
+          item.minutes > 60 ||
+          !Number.isInteger(item.repetitions) ||
+          item.repetitions < 1 ||
+          item.repetitions > 100
+        )
+          return fail("Use 1–60 minutes and 1–100 whole rounds.");
+        built.push({
+          activityId: activity.id,
+          minutes: item.minutes,
+          repetitions: item.repetitions,
+        });
+      }
+      const id = crypto.randomUUID();
       next.assignments.push({
         id,
         studentId: student.id,
         at: command.at,
-        items: [
-          {
-            id: `${id}-item`,
-            activityId: activity.id,
-            minutes: command.minutes,
-            repetitions: command.repetitions,
-            completed: false,
-            ...(dueDate ? { dueDate } : {}),
-          },
-        ],
+        items: built.map((b, n) => ({
+          id: `${id}-item-${n}`,
+          activityId: b.activityId,
+          minutes: b.minutes,
+          repetitions: b.repetitions,
+          completed: false,
+          ...(dueDate ? { dueDate } : {}),
+        })),
       });
-      text = `Assigned ${activity.title}`;
+      text =
+        built.length === 1
+          ? `Assigned ${activities.find((a) => a.id === built[0].activityId)!.title}`
+          : `Assigned a set of ${built.length} activities`;
       break;
     }
     case "unlock": {

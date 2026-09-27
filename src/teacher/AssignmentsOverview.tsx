@@ -1,7 +1,9 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, BookOpen, Check, ClipboardList, CalendarClock } from "lucide-react";
-import { useDemo } from "../app/StoreProvider";
+import { EmptyState } from "../components/EmptyState";
+import { useStudio } from "../app/StoreProvider";
+import { formatDate } from "../lib/format";
 import {
   isDueSoon,
   isOverdue,
@@ -18,19 +20,10 @@ import {
   type AssignmentStatusFilter,
 } from "./assignmentSelectors";
 
-const overdueBadge: CSSProperties = {
-  background: "#fbe4dd",
-  color: "#a4442a",
-};
-const dueSoonBadge: CSSProperties = {
-  background: "#f8eddb",
-  color: "#8a5f2b",
-};
-
 type AssignmentSort = "newest" | "dueDate";
 
 export function AssignmentsOverview() {
-  const { state } = useDemo();
+  const { state } = useStudio();
   const [studentId, setStudentId] = useState("");
   const [status, setStatus] = useState<AssignmentStatusFilter>("all");
   const [sort, setSort] = useState<AssignmentSort>("newest");
@@ -123,7 +116,7 @@ export function AssignmentsOverview() {
                   <p>
                     {row.minutes} min · {row.repetitions}{" "}
                     {row.repetitions === 1 ? "round" : "rounds"} · assigned{" "}
-                    {new Date(row.assignedAt).toLocaleDateString()}
+                    {formatDate(row.assignedAt)}
                     {row.dueDate && (
                       <>
                         {" "}
@@ -156,12 +149,12 @@ export function AssignmentsOverview() {
                   <span className="status">To practice</span>
                 )}
                 {isOverdue(row) && row.dueDate && (
-                  <span className="status" style={overdueBadge}>
+                  <span className="status overdue">
                     {dueDateLabel(row.dueDate)}
                   </span>
                 )}
                 {!row.completed && !isOverdue(row) && isDueSoon(row) && row.dueDate && (
-                  <span className="status" style={dueSoonBadge}>
+                  <span className="status due-soon">
                     {dueDateLabel(row.dueDate)}
                   </span>
                 )}
@@ -169,15 +162,16 @@ export function AssignmentsOverview() {
             ))}
           </div>
         ) : (
-          <div className="empty">
-            <ClipboardList size={35} />
-            <h3>No exercises match these filters.</h3>
-            <p>
-              {all.length
+          <EmptyState
+            bare
+            icon={<ClipboardList size={35} />}
+            title="No exercises match these filters."
+            message={
+              all.length
                 ? "Try a different student or status."
-                : "Assign practice from a student’s Assignments tab to see it here."}
-            </p>
-          </div>
+                : "Assign practice from a student’s Assignments tab to see it here."
+            }
+          />
         )}
       </section>
     </>

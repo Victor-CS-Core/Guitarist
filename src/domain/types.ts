@@ -141,6 +141,17 @@ export type Command = Base &
       }
     | {
         type: "assign";
+        /** One assignment set: 1–8 activities practiced together. */
+        items: Array<{
+          activityId: string;
+          minutes: number;
+          repetitions: number;
+        }>;
+        /** Optional ISO calendar date (YYYY-MM-DD); stored on each new item. */
+        dueDate?: string;
+      }
+    | {
+        type: "assign";
         activityId: string;
         minutes: number;
         repetitions: number;

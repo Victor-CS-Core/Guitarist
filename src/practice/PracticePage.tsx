@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams, useBlocker } from "react-router-dom";
 import { Play, Pause, Check, ArrowRight, Music2, Timer } from "lucide-react";
-import { useDemo, useStudent } from "../app/StoreProvider";
+import { useStudio, useStudent } from "../app/StoreProvider";
 import { isAppUnlocked } from "../domain/selectors";
 import { activityById } from "../curriculum/foundations";
 import { Exercises } from "../student/Exercises";
@@ -9,8 +9,10 @@ import { elapsedSeconds } from "./timer";
 import { presetSignatureLabel } from "./rhythmEngine";
 import { Metronome } from "./Metronome";
 import { RoutineSection } from "../routines/RoutineSection";
+import { LeavePractice } from "./LeavePractice";
+import { EmptyState } from "../components/EmptyState";
 export function PracticePage() {
-  const { state, dispatch, setPracticeActive } = useDemo(),
+  const { state, dispatch, setPracticeActive } = useStudio(),
     student = useStudent(),
     [params] = useSearchParams();
   const appUnlocked = isAppUnlocked(student);
@@ -179,51 +181,46 @@ export function PracticePage() {
     return (
       <>
         <RoutineSection />
-        <section className="card empty">
-          <Music2 size={38} />
-          <h1>You’re all caught up.</h1>
+        <EmptyState
+          icon={<Music2 size={38} />}
+          title="You’re all caught up."
+          message={
+            appUnlocked
+              ? "No assignments on your stand — this studio is yours now. Run a routine above, warm up with a tool below, or revisit any lesson."
+              : "Your assigned practice is complete, or your teacher hasn’t assigned it yet."
+          }
+        >
           {appUnlocked ? (
-            <>
-              <p>
-                No assignments on your stand — this studio is yours now.
-                Run a routine above, warm up with a tool below, or revisit any lesson.
-              </p>
-              <div className="hero-actions">
-                <Link className="button" to="/tools/timer">
-                  Start a timed session
-                </Link>
-                <Link className="text-link" to="/tools/chords">
-                  Browse the chord library
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <p>
-                Your assigned practice is complete, or your teacher hasn’t assigned it
-                yet.
-              </p>
-              <Link className="button" to="/student/learn">
-                Explore your lessons
+            <div className="hero-actions">
+              <Link className="button" to="/tools/timer">
+                Start a timed session
               </Link>
-            </>
+              <Link className="text-link" to="/tools/chords">
+                Browse the chord library
+              </Link>
+            </div>
+          ) : (
+            <Link className="button" to="/student/learn">
+              Explore your lessons
+            </Link>
           )}
           <p className="small">You can revisit completed activities from Home.</p>
-        </section>
+        </EmptyState>
       </>
     );
   const item = items[index],
     activity = activityById(item.activityId);
   if (!activity)
     return (
-      <section className="card empty">
-        <Music2 size={38} />
-        <h1>This activity isn’t available.</h1>
-        <p>It may have been removed from the curriculum.</p>
+      <EmptyState
+        icon={<Music2 size={38} />}
+        title="This activity isn’t available."
+        message="It may have been removed from the curriculum."
+      >
         <Link className="button" to="/student">
           Back home <ArrowRight size={17} />
         </Link>
-      </section>
+      </EmptyState>
     );
   return (
     <>
@@ -346,46 +343,5 @@ export function PracticePage() {
         </section>
       </div>
     </>
-  );
-}
-
-function LeavePractice({
-  onStay,
-  onLeave,
-}: {
-  onStay: () => void;
-  onLeave: () => void;
-}) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const previous = document.activeElement;
-    ref.current?.showModal();
-    return () => {
-      ref.current?.close();
-      if (previous instanceof HTMLElement) previous.focus();
-    };
-  }, []);
-  return (
-    <dialog
-      ref={ref}
-      onCancel={(e) => {
-        e.preventDefault();
-        onStay();
-      }}
-    >
-      <h2>Leave this practice?</h2>
-      <p>
-        Your unfinished session has not been saved. Stay to finish early and
-        record your time, or leave and discard it.
-      </p>
-      <div className="row">
-        <button className="button" autoFocus onClick={onStay}>
-          Keep practicing
-        </button>
-        <button className="button secondary" onClick={onLeave}>
-          Leave without saving
-        </button>
-      </div>
-    </dialog>
   );
 }

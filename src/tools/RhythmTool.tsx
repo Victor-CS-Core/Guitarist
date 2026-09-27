@@ -196,7 +196,7 @@ export function RhythmToolPage() {
 
       <section className="card spaced">
         <div className="row spread">
-          <h2 className="section-heading" style={{ margin: 0 }}>
+          <h2 className="section-heading m-0">
             <Drum size={18} aria-hidden /> Your steady beat
           </h2>
           <span className="small">
@@ -205,9 +205,8 @@ export function RhythmToolPage() {
         </div>
 
         <div
-          className="beat-dots"
+          className="beat-dots my-16"
           aria-label={running ? `Beat ${currentBeat + 1}` : "Rhythm lab stopped"}
-          style={{ margin: "16px 0" }}
         >
           {Array.from({ length: beats }, (_, n) => {
             const accented = accentForBeat(accentMode, customAccents, n);
@@ -228,8 +227,8 @@ export function RhythmToolPage() {
           })}
         </div>
 
-        <div className="row spread" style={{ alignItems: "center" }}>
-          <label style={{ flex: 1, marginRight: 12 }}>
+        <div className="row spread">
+          <label className="flex-1 mr-12">
             Tempo: <strong>{bpm} BPM</strong>
             <input
               aria-label="Tempo in beats per minute"
@@ -238,7 +237,7 @@ export function RhythmToolPage() {
               max={MAX_BPM}
               value={bpm}
               onChange={(e) => setBpm(clampBpm(Number(e.target.value)))}
-              style={{ width: "100%" }}
+              className="w-full"
             />
           </label>
           <button
@@ -250,7 +249,7 @@ export function RhythmToolPage() {
           </button>
         </div>
 
-        <div className="row" style={{ gap: 8, marginTop: 12 }}>
+        <div className="row gap-8 mt-12">
           <button className="button" onClick={() => void toggle()}>
             {running ? <Pause size={16} /> : <Play size={16} />}{" "}
             {running ? "Stop" : "Start"}
@@ -265,17 +264,16 @@ export function RhythmToolPage() {
       </section>
 
       <section className="card spaced">
-        <h2 className="section-heading" style={{ marginTop: 0 }}>
+        <h2 className="section-heading mt-0">
           Time signature
         </h2>
         <div role="group" aria-label="Time signature">
           {TIME_SIGNATURE_LIST.map((sig) => (
             <button
               key={sig}
-              className={`button secondary${signature === sig ? "" : " light"}`}
+              className={`button secondary mr-8 mb-8${signature === sig ? "" : " light"}`}
               aria-pressed={signature === sig}
               onClick={() => changeSignature(sig)}
-              style={{ marginRight: 8, marginBottom: 8 }}
             >
               {sig}
             </button>
@@ -288,17 +286,16 @@ export function RhythmToolPage() {
       </section>
 
       <section className="card spaced">
-        <h2 className="section-heading" style={{ marginTop: 0 }}>
+        <h2 className="section-heading mt-0">
           Subdivision
         </h2>
         <div role="group" aria-label="Subdivision">
           {SUBDIVISION_LIST.map((sub) => (
             <button
               key={sub}
-              className={`button secondary${subdivision === sub ? "" : " light"}`}
+              className={`button secondary mr-8 mb-8${subdivision === sub ? "" : " light"}`}
               aria-pressed={subdivision === sub}
               onClick={() => setSubdivision(sub)}
-              style={{ marginRight: 8, marginBottom: 8 }}
             >
               {SUBDIVISIONS[sub].label}
             </button>
@@ -312,17 +309,16 @@ export function RhythmToolPage() {
       </section>
 
       <section className="card spaced">
-        <h2 className="section-heading" style={{ marginTop: 0 }}>
+        <h2 className="section-heading mt-0">
           Accents
         </h2>
         <div role="group" aria-label="Accent pattern">
           {ACCENT_MODES.map((m) => (
             <button
               key={m.id}
-              className={`button secondary${accentMode === m.id ? "" : " light"}`}
+              className={`button secondary mr-8 mb-8${accentMode === m.id ? "" : " light"}`}
               aria-pressed={accentMode === m.id}
               onClick={() => setAccentMode(m.id)}
-              style={{ marginRight: 8, marginBottom: 8 }}
             >
               {m.label}
             </button>
@@ -333,7 +329,7 @@ export function RhythmToolPage() {
             {customAccents.map((on, i) => (
               <button
                 key={i}
-                className={`button secondary${on ? "" : " light"}`}
+                className={`button secondary mr-8 mb-8${on ? "" : " light"}`}
                 aria-pressed={on}
                 aria-label={`Accent beat ${i + 1}`}
                 onClick={() =>
@@ -341,7 +337,6 @@ export function RhythmToolPage() {
                     prev.map((v, j) => (j === i ? !v : v)),
                   )
                 }
-                style={{ marginRight: 8, marginBottom: 8 }}
               >
                 {i + 1}
               </button>
@@ -363,7 +358,7 @@ export function RhythmToolPage() {
           />{" "}
           Count-in before starting ({beats} beats)
         </label>
-        <p className="small" style={{ marginTop: 8 }}>
+        <p className="small mt-8">
           A one-bar count-in gives your hands a runway. The dots walk through
           the count so you can breathe in with the beat.
         </p>

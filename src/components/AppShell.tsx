@@ -1,8 +1,9 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { House, BookOpen, Music2, ChartNoAxesCombined, Users, LogOut, ClipboardList, Wrench, Sun, Moon, Mic } from "lucide-react";
+import { House, BookOpen, Music2, ChartNoAxesCombined, Users, LogOut, ClipboardList, Wrench, Sun, Moon, Mic, NotebookPen } from "lucide-react";
 import { BrandMark } from "./BrandMark";
 import { AgentTools } from "../integrations/AgentTools";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { useStudio, useStudent } from "../app/StoreProvider";
 import { isAppUnlocked } from "../domain/selectors";
 import { getStoredTheme, setStoredTheme, type Theme } from "../lib/theme";
@@ -14,6 +15,7 @@ export function AppShell() {
   const teacher = actor.role === "teacher";
   const unlocked = !teacher && isAppUnlocked(student);
   const [theme, setTheme] = useState<Theme>(getStoredTheme);
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
   useEffect(() => {
     const sync = (event: StorageEvent) => {
       if (event.key === "guitarist:theme") setTheme(getStoredTheme());
@@ -25,12 +27,15 @@ export function AppShell() {
     setTheme(setStoredTheme(theme === "dark" ? "light" : "dark"));
   }
   const links = teacher
-    ? ([["/teacher", "Students", Users], ["/teacher/curriculum", "Curriculum", BookOpen], ["/teacher/assignments", "Assignments", ClipboardList], ["/teacher/check-ins", "Check-ins", Mic], ["/tools", "Tools", Wrench]] as const)
+    ? ([["/teacher", "Students", Users], ["/teacher/curriculum", "Curriculum", BookOpen], ["/teacher/lesson-plans", "Lesson plans", NotebookPen], ["/teacher/assignments", "Assignments", ClipboardList], ["/teacher/check-ins", "Check-ins", Mic], ["/tools", "Tools", Wrench]] as const)
     : unlocked
       ? ([["/student", "Home", House], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined], ["/tools", "Tools", Wrench]] as const)
       : ([["/student", "Home", House], ["/student/learn", "Learn", BookOpen], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined], ["/tools", "Tools", Wrench]] as const);
   async function signOut() {
-    if (practiceActive && !window.confirm("Leave unfinished practice? Unsaved practice time will be discarded.")) return;
+    if (practiceActive) {
+      setConfirmSignOut(true);
+      return;
+    }
     if (await logout()) navigate("/", { replace: true });
   }
   return <div className="app-layout">
@@ -69,5 +74,18 @@ export function AppShell() {
       <main id="main"><Outlet /></main>
       <footer>Made for the moments between lessons.</footer>
     </div>
+    <ConfirmDialog
+      open={confirmSignOut}
+      title="Leave unfinished practice?"
+      message="Unsaved practice time will be discarded."
+      confirmLabel="Sign out"
+      onConfirm={() => {
+        setConfirmSignOut(false);
+        void (async () => {
+          if (await logout()) navigate("/", { replace: true });
+        })();
+      }}
+      onCancel={() => setConfirmSignOut(false)}
+    />
   </div>;
 }

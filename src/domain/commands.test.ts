@@ -86,6 +86,78 @@ describe("teacher-controlled mastery", () => {
       }).students[1].currentLevelId,
     ).toBe("level-2");
   });
+  it("assigns a multi-activity set with per-item values and a shared due date", () => {
+    const r = applyCommand(seed(), teacher, {
+      type: "assign",
+      studentId: "noah",
+      items: [
+        { activityId: "strings", minutes: 3, repetitions: 3 },
+        { activityId: "parts", minutes: 2, repetitions: 5 },
+      ],
+      dueDate: "2026-10-02",
+      at,
+    });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      const assignment = r.value.assignments.at(-1)!;
+      expect(assignment.items).toHaveLength(2);
+      expect(assignment.items[0]).toMatchObject({
+        activityId: "strings",
+        minutes: 3,
+        repetitions: 3,
+        completed: false,
+        dueDate: "2026-10-02",
+      });
+      expect(assignment.items[1]).toMatchObject({
+        activityId: "parts",
+        minutes: 2,
+        repetitions: 5,
+        dueDate: "2026-10-02",
+      });
+      const ids = assignment.items.map((i) => i.id);
+      expect(new Set(ids).size).toBe(2);
+    }
+  });
+  it("rejects invalid assignment sets", () => {
+    const base = { type: "assign", studentId: "noah", at } as const;
+    // Empty and oversized sets.
+    expect(
+      applyCommand(seed(), teacher, { ...base, items: [] }).ok,
+    ).toBe(false);
+    expect(
+      applyCommand(seed(), teacher, {
+        ...base,
+        items: Array.from({ length: 9 }, () => ({
+          activityId: "strings",
+          minutes: 3,
+          repetitions: 3,
+        })),
+      }).ok,
+    ).toBe(false);
+    // Unknown activity, invalid per-item values, bad due date.
+    for (const items of [
+      [{ activityId: "nope", minutes: 3, repetitions: 3 }],
+      [{ activityId: "strings", minutes: 0, repetitions: 3 }],
+      [{ activityId: "strings", minutes: 3, repetitions: 1.5 }],
+    ])
+      expect(applyCommand(seed(), teacher, { ...base, items }).ok).toBe(false);
+    expect(
+      applyCommand(seed(), teacher, {
+        ...base,
+        items: [{ activityId: "strings", minutes: 3, repetitions: 3 }],
+        dueDate: "not-a-date",
+      }).ok,
+    ).toBe(false);
+    // Legacy single-activity shape still works.
+    expect(
+      applyCommand(seed(), teacher, {
+        ...base,
+        activityId: "strings",
+        minutes: 3,
+        repetitions: 3,
+      }).ok,
+    ).toBe(true);
+  });
   it("rejects invalid targets and unknown records", () => {
     for (const minutes of [-1, 0, NaN, Infinity])
       expect(

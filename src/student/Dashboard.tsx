@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock, Timer, Drum, BookOpen, AudioWaveform, ListMusic } from "lucide-react";
-import { useDemo, useStudent } from "../app/StoreProvider";
+import { useStudio, useStudent } from "../app/StoreProvider";
 import { isAppUnlocked, studentRoutines } from "../domain/selectors";
 import { levels, activityById } from "../curriculum/foundations";
 import { dueDateLabel, formatDueDate } from "../domain/selectors";
 import { ActivityPreview } from "../components/ActivityPreview";
 import { CheckInRecorder } from "./CheckInRecorder";
+import { EmptyState } from "../components/EmptyState";
+import { hasCelebratedUnlock, markUnlockCelebrated } from "../lib/celebration";
 import { RoutineCard } from "../routines/RoutineCard";
 export function Dashboard() {
   const student = useStudent();
@@ -21,20 +23,12 @@ const QUICK_TOOLS = [
   { to: "/tools/timer", icon: Timer, title: "Study timer", blurb: "Count down a focus block or count up freely." },
 ];
 
-function celebratedKey(studentId: string) {
-  return `guitarist:unlock-celebrated:${studentId}`;
-}
-
 function UnlockedDashboard() {
-  const { state } = useDemo(),
+  const { state } = useStudio(),
     student = useStudent(),
-    [celebrated, setCelebrated] = useState(() => {
-      try {
-        return localStorage.getItem(celebratedKey(student.id)) === "1";
-      } catch {
-        return false;
-      }
-    });
+    [celebrated, setCelebrated] = useState(() =>
+      hasCelebratedUnlock(student.id),
+    );
   const sessions = state.sessions.filter((s) => s.studentId === student.id);
   const days = new Set(sessions.map((s) => new Date(s.at).toDateString())).size;
   const weekAgo = Date.now() - 7 * 86_400_000;
@@ -59,11 +53,7 @@ function UnlockedDashboard() {
             <button
               className="button light hero-start"
               onClick={() => {
-                try {
-                  localStorage.setItem(celebratedKey(student.id), "1");
-                } catch {
-                  /* private mode: celebrate again next visit */
-                }
+                markUnlockCelebrated(student.id);
                 setCelebrated(true);
               }}
             >
@@ -176,18 +166,15 @@ function UnlockedDashboard() {
 }
 
 function CourseDashboard() {
-  const { state } = useDemo(),
+  const { state } = useStudio(),
     student = useStudent(),
     level = levels.find((l) => l.id === student.currentLevelId);
   if (!level)
     return (
-      <div className="card empty">
-        <h1>Your chapter is missing</h1>
-        <p>
-          We couldn’t find your current chapter. Your teacher can get you
-          back on track at your next lesson.
-        </p>
-      </div>
+      <EmptyState
+        title="Your chapter is missing"
+        message="We couldn’t find your current chapter. Your teacher can get you back on track at your next lesson."
+      />
     );
   const items = state.assignments
     .filter((a) => a.studentId === student.id)
@@ -239,7 +226,11 @@ function CourseDashboard() {
                   {Math.round((mastered / level.skills.length) * 100)}%
                 </span>
               </div>
-              <progress value={mastered} max={level.skills.length} />
+              <progress
+                value={mastered}
+                max={level.skills.length}
+                aria-label={`${mastered} of ${level.skills.length} skills mastered`}
+              />
               <small>One skill at a time. At your own pace.</small>
             </div>
           </div>

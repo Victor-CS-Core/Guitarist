@@ -1,13 +1,13 @@
 import { Check, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useDemo, useStudent } from "../app/StoreProvider";
+import { useStudio, useStudent } from "../app/StoreProvider";
 import { levels, skills } from "../curriculum/foundations";
 import { earnedBadgeIds, isAppUnlocked } from "../domain/selectors";
 import { StatusBadge } from "../components/StatusBadge";
 import { ChapterBadge } from "../components/ChapterBadge";
 export function ProgressPage() {
   const student = useStudent(),
-    { state } = useDemo(),
+    { state } = useStudio(),
     badges = earnedBadgeIds(state, student.id),
     appUnlocked = isAppUnlocked(student),
     mastered = Object.values(student.skills).filter(

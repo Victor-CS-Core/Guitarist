@@ -108,10 +108,9 @@ export function StudyTimerPage() {
             {(["countdown", "countup"] as StudyTimerMode[]).map((m) => (
               <button
                 key={m}
-                className={`button secondary${timer.mode === m ? "" : " light"}`}
+                className={`button secondary mr-8${timer.mode === m ? "" : " light"}`}
                 aria-pressed={timer.mode === m}
                 onClick={() => setMode(m)}
-                style={{ marginRight: 8 }}
               >
                 {m === "countdown" ? "Count down" : "Count up"}
               </button>
@@ -121,20 +120,15 @@ export function StudyTimerPage() {
         </div>
 
         {timer.mode === "countdown" && (
-          <div
-            role="group"
-            aria-label="Preset durations"
-            style={{ marginTop: 12 }}
-          >
+          <div role="group" aria-label="Preset durations" className="mt-12">
             {STUDY_TIMER_PRESETS_MIN.map((min) => (
               <button
                 key={min}
-                className={`button secondary${
+                className={`button secondary mr-8 mb-8${
                   timer.targetSeconds === min * 60 ? "" : " light"
                 }`}
                 aria-pressed={timer.targetSeconds === min * 60}
                 onClick={() => setPreset(min)}
-                style={{ marginRight: 8, marginBottom: 8 }}
               >
                 {min} min
               </button>
@@ -142,11 +136,11 @@ export function StudyTimerPage() {
           </div>
         )}
 
-        <div style={{ textAlign: "center", margin: "24px 0 8px" }}>
+        <div className="timer-display">
           <div
             aria-live="polite"
             aria-label={finished ? "Time's up" : "Timer display"}
-            style={{ fontSize: 64, fontWeight: 700, letterSpacing: 2 }}
+            className="timer-digits"
           >
             {display}
           </div>
@@ -166,25 +160,15 @@ export function StudyTimerPage() {
             aria-valuemin={0}
             aria-valuemax={100}
             className="timer-progress-track"
-            style={{
-              height: 8,
-              borderRadius: 4,
-              overflow: "hidden",
-              marginBottom: 16,
-            }}
           >
             <div
-              style={{
-                height: "100%",
-                width: `${progress * 100}%`,
-                background: "var(--er-green, #2f7d4f)",
-                transition: "width .3s",
-              }}
+              className="timer-progress-fill"
+              style={{ width: `${progress * 100}%` }}
             />
           </div>
         )}
 
-        <div className="row" style={{ gap: 8, justifyContent: "center" }}>
+        <div className="row gap-8 justify-center">
           <button
             className="button"
             onClick={() =>
@@ -211,7 +195,7 @@ export function StudyTimerPage() {
       </section>
 
       <section className="card spaced">
-        <h2 className="section-heading" style={{ marginTop: 0 }}>
+        <h2 className="section-heading mt-0">
           A gentle way to use it
         </h2>
         <p className="small">
