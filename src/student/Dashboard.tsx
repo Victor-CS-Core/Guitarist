@@ -178,7 +178,17 @@ function UnlockedDashboard() {
 function CourseDashboard() {
   const { state } = useDemo(),
     student = useStudent(),
-    level = levels.find((l) => l.id === student.currentLevelId)!;
+    level = levels.find((l) => l.id === student.currentLevelId);
+  if (!level)
+    return (
+      <div className="card empty">
+        <h1>Your chapter is missing</h1>
+        <p>
+          We couldn’t find your current chapter. Your teacher can get you
+          back on track at your next lesson.
+        </p>
+      </div>
+    );
   const items = state.assignments
     .filter((a) => a.studentId === student.id)
     .flatMap((a) => a.items);
@@ -271,7 +281,8 @@ function CourseDashboard() {
       <div className="practice-cards">
         {items.length ? (
           items.slice(0, 3).map((item, index) => {
-            const a = activityById(item.activityId)!;
+            const a = activityById(item.activityId);
+            if (!a) return null;
             return (
               <Link
                 to={`/student/practice?item=${item.id}`}

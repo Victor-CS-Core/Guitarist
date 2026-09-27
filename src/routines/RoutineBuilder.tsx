@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { useDemo } from "../app/StoreProvider";
@@ -93,6 +93,7 @@ export function RoutineBuilder({
   );
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const saveInFlight = useRef(false);
 
   if (!student) return <section className="card empty"><h1>Student not found.</h1></section>;
   if (routineId && !existing)
@@ -122,6 +123,8 @@ export function RoutineBuilder({
   }
 
   async function save() {
+    if (saveInFlight.current) return;
+    saveInFlight.current = true;
     setSaving(true);
     setMessage("");
     const payload: RoutineBlock[] = blocks.map((b) => {
@@ -149,6 +152,7 @@ export function RoutineBuilder({
         : { type: "createRoutine", studentId, name, blocks: payload, at: new Date().toISOString() },
     );
     setSaving(false);
+    saveInFlight.current = false;
     if (!result.ok) {
       setMessage(result.error);
       return;

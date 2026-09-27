@@ -18,10 +18,13 @@ export function PracticePage() {
     const all = state.assignments
       .filter((a) => a.studentId === student.id)
       .flatMap((a) => a.items);
+    // Drop items whose activity no longer exists in the curriculum — they
+    // can't be practiced, and rendering them would crash the page.
+    const known = all.filter((i) => activityById(i.activityId) !== undefined);
     const requested = params.get("item");
     return requested
-      ? all.filter((i) => i.id === requested)
-      : all.filter((i) => !i.completed);
+      ? known.filter((i) => i.id === requested)
+      : known.filter((i) => !i.completed);
   });
   const [index, setIndex] = useState(0),
     [started, setStarted] = useState(false),
@@ -210,7 +213,18 @@ export function PracticePage() {
       </>
     );
   const item = items[index],
-    activity = activityById(item.activityId)!;
+    activity = activityById(item.activityId);
+  if (!activity)
+    return (
+      <section className="card empty">
+        <Music2 size={38} />
+        <h1>This activity isn’t available.</h1>
+        <p>It may have been removed from the curriculum.</p>
+        <Link className="button" to="/student">
+          Back home <ArrowRight size={17} />
+        </Link>
+      </section>
+    );
   return (
     <>
       {blocker.state === "blocked" && (

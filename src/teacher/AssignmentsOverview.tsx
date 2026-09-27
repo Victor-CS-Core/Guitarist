@@ -155,14 +155,14 @@ export function AssignmentsOverview() {
                 ) : (
                   <span className="status">To practice</span>
                 )}
-                {isOverdue(row) && (
+                {isOverdue(row) && row.dueDate && (
                   <span className="status" style={overdueBadge}>
-                    {dueDateLabel(row.dueDate!)}
+                    {dueDateLabel(row.dueDate)}
                   </span>
                 )}
-                {!row.completed && !isOverdue(row) && isDueSoon(row) && (
+                {!row.completed && !isOverdue(row) && isDueSoon(row) && row.dueDate && (
                   <span className="status" style={dueSoonBadge}>
-                    {dueDateLabel(row.dueDate!)}
+                    {dueDateLabel(row.dueDate)}
                   </span>
                 )}
               </div>

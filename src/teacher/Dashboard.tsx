@@ -47,7 +47,8 @@ export function TeacherDashboard() {
       {state.students.length === 0 && <section className="card empty"><Users size={35} /><h2>Your studio is ready.</h2><p>Add your first student to begin assigning practice and recording progress.</p></section>}
       <div className="teacher-students">
         {state.students.map((s) => {
-          const level = levels.find((l) => l.id === s.currentLevelId)!;
+          const level = levels.find((l) => l.id === s.currentLevelId);
+          if (!level) return null;
           const sessions = state.sessions.filter((x) => x.studentId === s.id);
           return (
             <Link

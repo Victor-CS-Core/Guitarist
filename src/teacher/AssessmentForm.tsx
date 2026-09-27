@@ -9,18 +9,20 @@ import {
 } from "../curriculum/foundations";
 import type { Reason, Status } from "../domain/types";
 export function AssessmentForm({ studentId }: { studentId: string }) {
-  const { state, dispatch } = useDemo(),
-    student = state.students.find((s) => s.id === studentId)!;
-  const available = skills.filter((s) =>
-    student.unlockedLevels.includes(s.levelId),
+  const { state, dispatch } = useDemo();
+  const student = state.students.find((s) => s.id === studentId);
+  const available = skills.filter(
+    (s) => student?.unlockedLevels.includes(s.levelId) ?? false,
   );
   const [skillId, setSkillId] = useState(
-      available.find((s) => student.skills[s.id] !== "MASTERED")?.id ??
-        available[0].id,
+      available.find((s) => student?.skills[s.id] !== "MASTERED")?.id ??
+        available[0]?.id ??
+        "",
     ),
     [reason, setReason] = useState<Reason>("placement"),
     [guidance, setGuidance] = useState(""),
-    [message, setMessage] = useState("");
+    [message, setMessage] = useState(""),
+    [pending, setPending] = useState(false);
   const suggested = ["rhythm", "transition"].includes(reason)
     ? reinforcement[reason]
     : skillId === "chord-am"
@@ -33,8 +35,10 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
   const availableTarget =
     !!activity &&
     !!targetLevel &&
-    student.unlockedLevels.includes(targetLevel.id);
+    (student?.unlockedLevels.includes(targetLevel.id) ?? false);
   async function assess(status: Status) {
+    if (pending) return false;
+    setPending(true);
     const r = await dispatch({
       type: "assess",
       studentId,
@@ -43,12 +47,14 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
       at: new Date().toISOString(),
       ...(status === "NEEDS_REINFORCEMENT" ? { reason, guidance } : {}),
     });
+    setPending(false);
     setMessage(
       r.ok ? "Assessment saved. Your student’s progress is updated." : r.error,
     );
     return r.ok;
   }
   async function reinforce() {
+    if (pending) return;
     if (!activity || !availableTarget) {
       setMessage(
         "This skill has no targeted activity available yet.",
@@ -56,6 +62,7 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
       return;
     }
     if (await assess("NEEDS_REINFORCEMENT")) {
+      setPending(true);
       const r = await dispatch({
         type: "assign",
         studentId,
@@ -64,6 +71,7 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
         repetitions: 3,
         at: new Date().toISOString(),
       });
+      setPending(false);
       setMessage(
         r.ok
           ? "Reinforcement assigned. It’s ready on the student’s dashboard."
@@ -71,6 +79,14 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
       );
     }
   }
+  if (!student)
+    return (
+      <section className="card form-card">
+        <div className="eyebrow">IN-LESSON ASSESSMENT</div>
+        <h2>Student not found.</h2>
+        <p>Assessments need a valid student.</p>
+      </section>
+    );
   return (
     <section className="card form-card">
       <div className="eyebrow">IN-LESSON ASSESSMENT</div>
@@ -96,23 +112,26 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
       <div className="assessment-actions">
         <button
           className="button secondary"
+          disabled={pending}
           onClick={() => assess("INTRODUCED")}
         >
           Introduce skill
         </button>
         <button
           className="button secondary"
+          disabled={pending}
           onClick={() => assess("PRACTICING")}
         >
           Continue practicing
         </button>
         <button
           className="button secondary"
+          disabled={pending}
           onClick={() => assess("READY_FOR_ASSESSMENT")}
         >
           Ready for assessment
         </button>
-        <button className="button" onClick={() => assess("MASTERED")}>
+        <button className="button" disabled={pending} onClick={() => assess("MASTERED")}>
           Mark mastered
         </button>
       </div>
@@ -161,10 +180,10 @@ export function AssessmentForm({ studentId }: { studentId: string }) {
       )}
       <button
         className="button secondary"
-        disabled={!availableTarget}
+        disabled={!availableTarget || pending}
         onClick={reinforce}
       >
-        Assign reinforcement
+        {pending ? "Assigning…" : "Assign reinforcement"}
       </button>
       <p role="status" className="form-message">
         {message}

@@ -66,6 +66,7 @@ function PlayerView({ routine }: { routine: Routine }) {
   const elapsed = useRef(0);
   const sessionId = useRef(crypto.randomUUID());
   const finished = useRef(false);
+  const saveInFlight = useRef(false);
   const completedCount = useRef(0);
 
   const blocker = useBlocker(
@@ -114,7 +115,7 @@ function PlayerView({ routine }: { routine: Routine }) {
     setRunning(true);
   }
   async function advance() {
-    if (finished.current) return;
+    if (finished.current || saveInFlight.current) return;
     setRunning(false);
     setTimeUp(false);
     completedCount.current += 1;
@@ -125,6 +126,7 @@ function PlayerView({ routine }: { routine: Routine }) {
       return;
     }
     setSaving(true);
+    saveInFlight.current = true;
     setError("");
     try {
       const result = await dispatch({
@@ -143,10 +145,12 @@ function PlayerView({ routine }: { routine: Routine }) {
       } else {
         setError(result.error);
         setSaving(false);
+        saveInFlight.current = false;
       }
     } catch {
       setError("Could not save this session. Please try again.");
       setSaving(false);
+      saveInFlight.current = false;
     }
   }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { useDemo } from "../app/StoreProvider";
@@ -8,14 +8,25 @@ import { RoutineCard } from "../routines/RoutineCard";
 /** Teacher view of a student's routines: share new ones, edit or remove old ones. */
 export function StudentRoutines({ studentId }: { studentId: string }) {
   const { state, dispatch } = useDemo();
-  const student = state.students.find((s) => s.id === studentId)!;
+  const student = state.students.find((s) => s.id === studentId);
   const routines = studentRoutines(state, studentId);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const deletingRef = useRef(false);
+
+  if (!student)
+    return (
+      <div className="card">
+        <h2>Student not found.</h2>
+        <p>Routines need a valid student.</p>
+      </div>
+    );
   const unlocked = isAppUnlocked(student);
 
   async function remove(routineId: string, name: string) {
-    if (!window.confirm(`Delete the routine “${name}” for ${student.name}? This can’t be undone.`)) return;
+    if (deletingRef.current) return;
+    if (!window.confirm(`Delete the routine “${name}” for ${student?.name ?? "this student"}? This can’t be undone.`)) return;
+    deletingRef.current = true;
     setDeletingId(routineId);
     setMessage("");
     const result = await dispatch({
@@ -25,6 +36,7 @@ export function StudentRoutines({ studentId }: { studentId: string }) {
       at: new Date().toISOString(),
     });
     setDeletingId(null);
+    deletingRef.current = false;
     if (!result.ok) setMessage(result.error);
   }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { useDemo, useStudent } from "../app/StoreProvider";
@@ -17,9 +17,12 @@ export function RoutineSection() {
   const unlocked = isAppUnlocked(student);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const deletingRef = useRef(false);
 
   async function remove(routineId: string, name: string) {
+    if (deletingRef.current) return;
     if (!window.confirm(`Delete the routine “${name}”? This can’t be undone.`)) return;
+    deletingRef.current = true;
     setDeletingId(routineId);
     setError("");
     const result = await dispatch({
@@ -29,6 +32,7 @@ export function RoutineSection() {
       at: new Date().toISOString(),
     });
     setDeletingId(null);
+    deletingRef.current = false;
     if (!result.ok) setError(result.error);
   }
 

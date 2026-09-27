@@ -37,6 +37,8 @@ export function StudentDetail() {
     [newPassword, setNewPassword] = useState(""),
     [accountMessage, setAccountMessage] = useState(""),
     [unlockMessage, setUnlockMessage] = useState(""),
+    [unlockPending, setUnlockPending] = useState(false),
+    [notePending, setNotePending] = useState(false),
     [accountPending, setAccountPending] = useState(false);
   if (!student)
     return (
@@ -45,8 +47,19 @@ export function StudentDetail() {
         <Link to="/teacher">Back to studio</Link>
       </div>
     );
-  const level = levels.find((l) => l.id === student.currentLevelId)!,
-    account = accounts.find((a) => a.studentId === student.id),
+  const level = levels.find((l) => l.id === student.currentLevelId);
+  if (!level)
+    return (
+      <div className="card">
+        <h1>This student’s chapter is missing</h1>
+        <p>
+          {student.name} is linked to a chapter that no longer exists. Ask
+          your administrator to check their record.
+        </p>
+        <Link to="/teacher">Back to studio</Link>
+      </div>
+    );
+  const account = accounts.find((a) => a.studentId === student.id),
     next = levels[level.order],
     sessions = state.sessions.filter((s) => s.studentId === student.id),
     items = state.assignments
@@ -126,7 +139,10 @@ export function StudentDetail() {
                   )}
                   <button
                     className="button secondary"
+                    disabled={unlockPending}
                     onClick={async () => {
+                      if (unlockPending) return;
+                      setUnlockPending(true);
                       const r = await dispatch({
                         type: "unlock",
                         studentId: student.id,
@@ -134,12 +150,13 @@ export function StudentDetail() {
                         overrideReason: override,
                         at: new Date().toISOString(),
                       });
+                      setUnlockPending(false);
                       setMessage(
                         r.ok ? "The next chapter is now available." : r.error,
                       );
                     }}
                   >
-                    Unlock Level {next.order}
+                    {unlockPending ? "Unlocking…" : `Unlock Level ${next.order}`}
                   </button>
                   <p role="status" className="form-message">
                     {message}
@@ -203,12 +220,15 @@ export function StudentDetail() {
               className="card form-card"
               onSubmit={async (e) => {
                 e.preventDefault();
+                if (notePending) return;
+                setNotePending(true);
                 const r = await dispatch({
                   type: "saveNote",
                   studentId: student.id,
                   text: note,
                   at: new Date().toISOString(),
                 });
+                setNotePending(false);
                 setMessage(r.ok ? "Lesson note saved." : r.error);
                 if (r.ok) setNote("");
               }}
@@ -225,8 +245,8 @@ export function StudentDetail() {
                   required
                 />
               </label>
-              <button className="button" type="submit">
-                Save note
+              <button className="button" type="submit" disabled={notePending}>
+                {notePending ? "Saving…" : "Save note"}
               </button>
               <p role="status" className="form-message">
                 {message}
