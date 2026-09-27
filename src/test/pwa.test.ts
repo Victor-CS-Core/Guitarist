@@ -53,4 +53,10 @@ describe("PWA installability", () => {
     expect(main).toContain("serviceWorker");
     expect(main).toContain("import.meta.env.PROD");
   });
+
+  it("service worker carries build-time placeholders for precache injection", () => {
+    const sw = read("public/sw.js");
+    expect(sw).toContain("__BUILD_ID__");
+    expect(sw).toContain("__PRECACHE__");
+  });
 });

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock, Timer, Drum, BookOpen, AudioWaveform, ListMusic } from "lucide-react";
+import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock, Timer, Drum, BookOpen, AudioWaveform, ListMusic, Smartphone } from "lucide-react";
 import { useStudio, useStudent } from "../app/StoreProvider";
 import { isAppUnlocked, studentRoutines } from "../domain/selectors";
 import { levels, activityById } from "../curriculum/foundations";
@@ -9,6 +9,7 @@ import { ActivityPreview } from "../components/ActivityPreview";
 import { CheckInRecorder } from "./CheckInRecorder";
 import { EmptyState } from "../components/EmptyState";
 import { hasCelebratedUnlock, markUnlockCelebrated } from "../lib/celebration";
+import { loadStudioSnapshot, saveStudioSnapshot } from "../lib/studioSnapshot";
 import { RoutineCard } from "../routines/RoutineCard";
 export function Dashboard() {
   const student = useStudent();
@@ -23,8 +24,63 @@ const QUICK_TOOLS = [
   { to: "/tools/timer", icon: Timer, title: "Study timer", blurb: "Count down a focus block or count up freely." },
 ];
 
+/** One-tap setup that turns the installed web app into a personal offline
+ * studio: the studio is saved to this phone, and from then on the app opens
+ * with no sign-in and no connection. Audio check-ins need the teacher's
+ * server, so they are hidden once the studio lives on the device. */
+function OfflineStudioCard() {
+  const { state, actor, studioMode } = useStudio();
+  const [saved, setSaved] = useState(() => loadStudioSnapshot() !== null);
+  const [failed, setFailed] = useState(false);
+  if (studioMode)
+    return (
+      <p className="notice" role="status">
+        <Smartphone size={16} aria-hidden /> Your studio lives on this phone —
+        it opens with no sign-in, even with no connection.
+      </p>
+    );
+  function save() {
+    const ok = saveStudioSnapshot({ state, actor, savedAt: Date.now() });
+    setFailed(!ok);
+    if (ok) setSaved(true);
+  }
+  return (
+    <section className="card" aria-label="Take your studio offline">
+      <div className="row spread">
+        <div>
+          <h3>Take your studio offline</h3>
+          <p className="small">
+            Add Guitarist to your home screen, open it from there, and save
+            your studio to this phone. After that it opens instantly — no
+            sign-in, no connection needed.
+          </p>
+        </div>
+        <span className="round-icon"><Smartphone size={23} /></span>
+      </div>
+      {saved ? (
+        <p className="small" role="status">
+          <Check size={16} aria-hidden /> Saved on this phone — opens offline
+          with no sign-in.
+        </p>
+      ) : (
+        <div className="row">
+          <button className="button" type="button" onClick={save}>
+            <Smartphone size={16} /> Save studio to this phone
+          </button>
+        </div>
+      )}
+      {failed && (
+        <p role="alert" className="form-message">
+          Couldn't save to this phone — check that private browsing is off and
+          try again.
+        </p>
+      )}
+    </section>
+  );
+}
+
 function UnlockedDashboard() {
-  const { state } = useStudio(),
+  const { state, studioMode } = useStudio(),
     student = useStudent(),
     [celebrated, setCelebrated] = useState(() =>
       hasCelebratedUnlock(student.id),
@@ -73,6 +129,7 @@ function UnlockedDashboard() {
         </h1>
         <p>The studio is yours now. Pick up right where your fingers left off.</p>
       </div>
+      <OfflineStudioCard />
       <div className="section-heading">
         <div>
           <h2>Start playing</h2>
@@ -97,10 +154,12 @@ function UnlockedDashboard() {
           </Link>
         ))}
       </div>
-      <p className="small spaced">
-        Sharing is optional now — record a check-in below only if you’d like
-        your teacher’s ears on your playing.
-      </p>
+      {!studioMode && (
+        <p className="small spaced">
+          Sharing is optional now — record a check-in below only if you'd like
+          your teacher's ears on your playing.
+        </p>
+      )}
       <div className="section-heading">
         <div>
           <h2>Your routines</h2>
@@ -140,9 +199,11 @@ function UnlockedDashboard() {
           ))}
         </div>
       )}
-      <section id="audio-check-in" aria-label="Audio check-in">
-        <CheckInRecorder />
-      </section>
+      {!studioMode && (
+        <section id="audio-check-in" aria-label="Audio check-in">
+          <CheckInRecorder />
+        </section>
+      )}
       <div className="dashboard-footer-note">
         <div className="small-stat">
           <Flame size={23} />

@@ -9,7 +9,7 @@ import { isAppUnlocked } from "../domain/selectors";
 import { getStoredTheme, setStoredTheme, type Theme } from "../lib/theme";
 
 export function AppShell() {
-  const { actor, identity, warning, logout, practiceActive } = useStudio();
+  const { actor, identity, warning, logout, practiceActive, studioMode } = useStudio();
   const student = useStudent();
   const navigate = useNavigate();
   const teacher = actor.role === "teacher";
@@ -32,7 +32,9 @@ export function AppShell() {
       ? ([["/student", "Home", House], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined], ["/tools", "Tools", Wrench]] as const)
       : ([["/student", "Home", House], ["/student/learn", "Learn", BookOpen], ["/student/practice", "Practice", Music2], ["/student/progress", "Progress", ChartNoAxesCombined], ["/tools", "Tools", Wrench]] as const);
   async function signOut() {
-    if (practiceActive) {
+    // In studio mode there is no session to end — signing out removes the
+    // on-device studio, so confirm first.
+    if (practiceActive || studioMode) {
       setConfirmSignOut(true);
       return;
     }
@@ -68,7 +70,7 @@ export function AppShell() {
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          <span>{identity?.username}</span><button className="button secondary signout" type="button" onClick={signOut}><LogOut size={16} /> Sign out</button></div>
+          <span>{identity?.username ?? (studioMode ? "On this phone" : "")}</span><button className="button secondary signout" type="button" onClick={signOut}><LogOut size={16} /> Sign out</button></div>
       </header>
       {warning && <div role="status" className="notice">{warning}</div>}
       <main id="main"><Outlet /></main>
@@ -76,9 +78,11 @@ export function AppShell() {
     </div>
     <ConfirmDialog
       open={confirmSignOut}
-      title="Leave unfinished practice?"
-      message="Unsaved practice time will be discarded."
-      confirmLabel="Sign out"
+      title={practiceActive ? "Leave unfinished practice?" : "Remove studio from this phone?"}
+      message={practiceActive
+        ? "Unsaved practice time will be discarded."
+        : "Your studio will be removed from this device. Sign in again anytime to bring it back."}
+      confirmLabel={practiceActive ? "Sign out" : "Remove"}
       onConfirm={() => {
         setConfirmSignOut(false);
         void (async () => {

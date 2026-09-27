@@ -4,8 +4,10 @@
  * cached shell so the SPA router still works offline. Never caches API or
  * non-GET traffic.
  */
-const VERSION = "guitarist-v1";
-const SHELL = ["/", "/index.html", "/manifest.webmanifest"];
+const VERSION = "__BUILD_ID__";
+// The precache list is injected at build time by scripts/inject-sw-precache.mjs
+// so the installed app has every asset it needs to run fully offline.
+const SHELL = /*__PRECACHE__*/ ["/", "/index.html", "/manifest.webmanifest"];
 const RUNTIME = "guitarist-runtime-v1";
 
 self.addEventListener("install", (event) => {

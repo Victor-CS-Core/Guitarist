@@ -3,6 +3,7 @@ import type { Actor, Command, DemoState, Result, Student } from "../domain/types
 import { applyCommand } from "../domain/commands";
 import { levels, skills } from "../curriculum/foundations";
 import { apiRequest, type Identity, type StudentAccount } from "../auth/api";
+import { loadStudioSnapshot, saveStudioSnapshot, clearStudioSnapshot } from "../lib/studioSnapshot";
 
 type Status = "loading" | "signed-out" | "ready" | "error";
 type ApiError = { error: string };
@@ -18,6 +19,12 @@ interface Studio {
   identity: Identity | null;
   accounts: StudentAccount[];
   warning?: string;
+  /**
+   * True when the app booted from a saved on-device snapshot instead of a
+   * server session. The studio is fully local: no sign-in, works offline,
+   * every change is written back to the snapshot.
+   */
+  studioMode: boolean;
   dispatch: (command: Command) => Promise<Result<DemoState>>;
   login: (username: string, password: string) => Promise<Result<Identity>>;
   logout: () => Promise<boolean>;
@@ -42,13 +49,14 @@ export function StoreProvider({ children, initialState, initialActor }: {
   const [revisions, setRevisions] = useState<Record<string, number>>({});
   const [warning, setWarning] = useState<string>();
   const [practiceActive, setPracticeActive] = useState(false);
+  const [studioMode, setStudioMode] = useState(false);
   const stateRef = useRef(state);
   stateRef.current = state;
   const revisionsRef = useRef(revisions);
   revisionsRef.current = revisions;
 
   async function refresh() {
-    if (fixture) return;
+    if (fixture || studioMode) return;
     const result = await apiRequest<StatePayload | ApiError>("/api/state");
     if (result.status === 401) { setStatus("signed-out"); return; }
     if (result.status !== 200 || !("state" in result.data)) throw Error("Could not load your studio.");
@@ -60,6 +68,17 @@ export function StoreProvider({ children, initialState, initialActor }: {
   }
   useEffect(() => {
     if (fixture) return;
+    // A saved on-device studio takes precedence over the server session:
+    // the app opens straight into the student's personal studio with no
+    // sign-in, and works fully offline.
+    const snapshot = loadStudioSnapshot();
+    if (snapshot) {
+      setState(snapshot.state);
+      setActor(snapshot.actor);
+      setStudioMode(true);
+      setStatus("ready");
+      return;
+    }
     let active = true;
     async function load() {
       try {
@@ -91,7 +110,11 @@ export function StoreProvider({ children, initialState, initialActor }: {
     } catch { return failure("Could not connect to Guitarist. Please try again."); }
   }
   async function logout(): Promise<boolean> {
-    if (!fixture) {
+    if (studioMode) {
+      // Leaving the on-device studio removes it from this phone. The
+      // student can sign in again anytime and re-save it.
+      clearStudioSnapshot();
+    } else if (!fixture) {
       try {
         const result = await apiRequest<{ok:boolean} | ApiError>("/api/logout", { method: "POST", body: "{}" });
         if (result.status !== 200 || !("ok" in result.data) || !result.data.ok) {
@@ -103,13 +126,16 @@ export function StoreProvider({ children, initialState, initialActor }: {
         return false;
       }
     }
-    setStatus("signed-out"); setIdentity(null); setActor(signedOutActor); setState(empty); setAccounts([]); setRevisions({}); revisionsRef.current = {};
+    setStatus("signed-out"); setIdentity(null); setActor(signedOutActor); setState(empty); setAccounts([]); setRevisions({}); revisionsRef.current = {}; setStudioMode(false);
     return true;
   }
   async function dispatch(command: Command): Promise<Result<DemoState>> {
-    if (fixture) {
+    if (fixture || studioMode) {
       const result = applyCommand(stateRef.current, actor, command);
-      if (result.ok) setState(result.value);
+      if (result.ok) {
+        setState(result.value);
+        if (studioMode) saveStudioSnapshot({ state: result.value, actor, savedAt: Date.now() });
+      }
       return result;
     }
     try {
@@ -141,7 +167,7 @@ export function StoreProvider({ children, initialState, initialActor }: {
     } catch { return failure("Could not update this account. Please try again."); }
   }
   return <Context.Provider value={{
-    status, state, actor, identity, accounts, warning, dispatch, login, logout, createStudent,
+    status, state, actor, identity, accounts, warning, studioMode, dispatch, login, logout, createStudent,
     resetStudentPassword: (id, password) => accountChange(id, "credentials", { password }),
     setStudentDisabled: (id, disabled) => accountChange(id, "status", { disabled }),
     refresh, practiceActive, setPracticeActive,

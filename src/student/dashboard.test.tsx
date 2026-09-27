@@ -6,6 +6,8 @@ import { seed } from "../test/fixtures";
 import type { DemoState } from "../domain/types";
 import { Dashboard } from "./Dashboard";
 import { LevelPage } from "./LevelPage";
+import { loadStudioSnapshot, saveStudioSnapshot } from "../lib/studioSnapshot";
+import { markUnlockCelebrated } from "../lib/celebration";
 
 function unlockedSeed(): DemoState {
   const s = seed();
@@ -62,4 +64,30 @@ it("keeps the course dashboard for students whose app is still locked", () => {
 it("lets an unlocked student open chapters that are still locked in the course", () => {
   renderStudent(unlockedSeed(), "noah", "/student/learn/level-6", "/student/learn/:levelId", <LevelPage />);
   expect(screen.queryByText(/your teacher will unlock/i)).toBeNull();
+});
+
+it("offers to save the studio to the phone after graduation", () => {
+  renderStudent(unlockedSeed(), "noah", "/student", "/student", <Dashboard />);
+  fireEvent.click(screen.getByRole("button", { name: /start exploring/i }));
+  const save = screen.getByRole("button", { name: /save studio to this phone/i });
+  expect(save).toBeVisible();
+  fireEvent.click(save);
+  expect(loadStudioSnapshot()).not.toBeNull();
+  expect(screen.getByText(/saved on this phone/i)).toBeVisible();
+});
+
+it("in studio mode shows the on-phone note and hides audio check-ins", async () => {
+  saveStudioSnapshot({ state: unlockedSeed(), actor: { role: "student", studentId: "noah" }, savedAt: Date.now() });
+  markUnlockCelebrated("noah");
+  render(
+    <StoreProvider>
+      <MemoryRouter initialEntries={["/student"]}>
+        <Routes>
+          <Route path="/student" element={<Dashboard />} />
+        </Routes>
+      </MemoryRouter>
+    </StoreProvider>,
+  );
+  expect(await screen.findByText(/your studio lives on this phone/i)).toBeVisible();
+  expect(screen.queryByLabelText(/audio check-in/i)).toBeNull();
 });
