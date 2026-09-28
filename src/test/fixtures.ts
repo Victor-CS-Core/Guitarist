@@ -1,6 +1,6 @@
 import { skills } from "../curriculum/foundations";
-import type { DemoState, Status } from "../domain/types";
-export function seed(): DemoState {
+import type { AppState, Status } from "../domain/types";
+export function seed(): AppState {
   const base = Object.fromEntries(
     skills.map((s) => [s.id, "NOT_INTRODUCED" as Status]),
   );

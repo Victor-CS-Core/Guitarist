@@ -156,6 +156,7 @@ export function StudyTimerPage() {
         {timer.mode === "countdown" && (
           <div
             role="progressbar"
+            aria-label="Countdown progress"
             aria-valuenow={Math.round(progress * 100)}
             aria-valuemin={0}
             aria-valuemax={100}

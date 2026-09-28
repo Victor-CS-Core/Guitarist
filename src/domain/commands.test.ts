@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { seed } from "../test/fixtures";
 import { applyCommand } from "./commands";
 import { canUnlock, earnedBadgeIds, isAppUnlocked } from "./selectors";
-import type { DemoState, Command, RoutineBlock } from "./types";
+import type { AppState, Command, RoutineBlock } from "./types";
 const at = "2026-09-23T12:00:00Z";
 const teacher = { role: "teacher" as const };
-function run(state: DemoState, command: Command) {
+function run(state: AppState, command: Command) {
   const r = applyCommand(state, teacher, command);
   if (!r.ok) throw Error(r.error);
   return r.value;
@@ -278,7 +278,7 @@ describe("practice routines", () => {
     { id: "b2", kind: "chords" as const, title: "Em to Am", minutes: 5, chordIds: ["Em", "Am"], bpm: 70 },
     { id: "b3", kind: "cooldown" as const, title: "Slow strums", minutes: 2 },
   ];
-  function unlockSeed(id: string): DemoState {
+  function unlockSeed(id: string): AppState {
     const r = applyCommand(seed(), teacher, { type: "setAppUnlocked", studentId: id, unlocked: true, at });
     if (!r.ok) throw Error(r.error);
     return r.value;
@@ -400,7 +400,7 @@ describe("practice routines", () => {
   it("works on records created before routines existed", () => {
     const legacy = seed() as unknown as Record<string, unknown>;
     delete legacy.routines;
-    const r = applyCommand(legacy as unknown as DemoState, teacher, {
+    const r = applyCommand(legacy as unknown as AppState, teacher, {
       type: "createRoutine",
       studentId: "emma",
       name: "Legacy",

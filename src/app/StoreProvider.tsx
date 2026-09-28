@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import type { Actor, Command, DemoState, Result, Student } from "../domain/types";
+import type { Actor, Command, AppState, Result, Student } from "../domain/types";
 import { applyCommand } from "../domain/commands";
 import { levels, skills } from "../curriculum/foundations";
 import { apiRequest, type Identity, type StudentAccount } from "../auth/api";
@@ -7,14 +7,14 @@ import { loadStudioSnapshot, saveStudioSnapshot, clearStudioSnapshot } from "../
 
 type Status = "loading" | "signed-out" | "ready" | "error";
 type ApiError = { error: string };
-type StatePayload = { state: DemoState; revisions: Record<string, number>; accounts: StudentAccount[] };
-const empty: DemoState = { version: 1, students: [], assignments: [], sessions: [], notes: [], events: [], routines: [] };
+type StatePayload = { state: AppState; revisions: Record<string, number>; accounts: StudentAccount[] };
+const empty: AppState = { version: 1, students: [], assignments: [], sessions: [], notes: [], events: [], routines: [] };
 const signedOutActor: Actor = { role: "student", studentId: "" };
 const failure = (error: string): Result<never> => ({ ok: false, error });
 
 interface Studio {
   status: Status;
-  state: DemoState;
+  state: AppState;
   actor: Actor;
   identity: Identity | null;
   accounts: StudentAccount[];
@@ -25,7 +25,7 @@ interface Studio {
    * every change is written back to the snapshot.
    */
   studioMode: boolean;
-  dispatch: (command: Command) => Promise<Result<DemoState>>;
+  dispatch: (command: Command) => Promise<Result<AppState>>;
   login: (username: string, password: string) => Promise<Result<Identity>>;
   logout: () => Promise<boolean>;
   createStudent: (name: string, username: string, password: string) => Promise<Result<string>>;
@@ -38,10 +38,10 @@ interface Studio {
 const Context = createContext<Studio | null>(null);
 
 export function StoreProvider({ children, initialState, initialActor }: {
-  children: ReactNode; initialState?: DemoState; initialActor?: Actor;
+  children: ReactNode; initialState?: AppState; initialActor?: Actor;
 }) {
   const fixture = !!initialState;
-  const [state, setState] = useState<DemoState>(initialState ?? empty);
+  const [state, setState] = useState<AppState>(initialState ?? empty);
   const [actor, setActor] = useState<Actor>(initialActor ?? signedOutActor);
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [status, setStatus] = useState<Status>(fixture ? "ready" : "loading");
@@ -129,7 +129,7 @@ export function StoreProvider({ children, initialState, initialActor }: {
     setStatus("signed-out"); setIdentity(null); setActor(signedOutActor); setState(empty); setAccounts([]); setRevisions({}); revisionsRef.current = {}; setStudioMode(false);
     return true;
   }
-  async function dispatch(command: Command): Promise<Result<DemoState>> {
+  async function dispatch(command: Command): Promise<Result<AppState>> {
     if (fixture || studioMode) {
       const result = applyCommand(stateRef.current, actor, command);
       if (result.ok) {
@@ -139,7 +139,7 @@ export function StoreProvider({ children, initialState, initialActor }: {
       return result;
     }
     try {
-      const result = await apiRequest<{state:DemoState;revision:number} | ApiError>("/api/commands", {
+      const result = await apiRequest<{state:AppState;revision:number} | ApiError>("/api/commands", {
         method: "POST", body: JSON.stringify({ command, revision: revisionsRef.current[command.studentId] }),
       });
       if (result.status !== 200 || !("state" in result.data)) {

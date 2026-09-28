@@ -4,7 +4,8 @@ import { ArrowRight, Play, Clock3, Check, Target, Flame, CalendarClock, Timer, D
 import { useStudio, useStudent } from "../app/StoreProvider";
 import { isAppUnlocked, studentRoutines } from "../domain/selectors";
 import { levels, activityById } from "../curriculum/foundations";
-import { dueDateLabel, formatDueDate } from "../domain/selectors";
+import { dueDateLabel } from "../domain/selectors";
+import { formatDueDate } from "../lib/format";
 import { ActivityPreview } from "../components/ActivityPreview";
 import { CheckInRecorder } from "./CheckInRecorder";
 import { EmptyState } from "../components/EmptyState";

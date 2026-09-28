@@ -1,5 +1,5 @@
-import type { Actor, DemoState } from "../domain/types";
-export function practiceSummary(state: DemoState, actor: Actor) {
+import type { Actor, AppState } from "../domain/types";
+export function practiceSummary(state: AppState, actor: Actor) {
   if (actor.role !== "student")
     throw Error("Sign in as a student first.");
   const student = state.students.find((s) => s.id === actor.studentId);
@@ -40,7 +40,7 @@ interface ModelContext {
 }
 export function registerTools(
   doc: Document,
-  read: () => { state: DemoState; actor: Actor },
+  read: () => { state: AppState; actor: Actor },
   navigate: () => void,
 ) {
   const context = (doc as Document & { modelContext?: ModelContext })

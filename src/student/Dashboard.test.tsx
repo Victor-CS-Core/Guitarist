@@ -3,20 +3,20 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { it, expect, beforeEach } from "vitest";
 import { StoreProvider } from "../app/StoreProvider";
 import { seed } from "../test/fixtures";
-import type { DemoState } from "../domain/types";
+import type { AppState } from "../domain/types";
 import { Dashboard } from "./Dashboard";
 import { LevelPage } from "./LevelPage";
 import { loadStudioSnapshot, saveStudioSnapshot } from "../lib/studioSnapshot";
 import { markUnlockCelebrated } from "../lib/celebration";
 
-function unlockedSeed(): DemoState {
+function unlockedSeed(): AppState {
   const s = seed();
   s.students.find((x) => x.id === "noah")!.appUnlocked = true;
   return s;
 }
 
 function renderStudent(
-  state: DemoState,
+  state: AppState,
   studentId: string,
   entry: string,
   route: string,

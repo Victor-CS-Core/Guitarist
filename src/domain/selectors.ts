@@ -1,6 +1,6 @@
 import { levels } from "../curriculum/foundations";
 import type { Level } from "../curriculum/types";
-import type { DemoState, Routine, Student } from "./types";
+import type { AppState, Routine, Student } from "./types";
 
 /** Today in the viewer's local timezone as an ISO calendar date (YYYY-MM-DD). */
 export function todayIso(): string {
@@ -49,15 +49,6 @@ export function dueDateLabel(
   return `Due in ${d} days`;
 }
 
-/** "Sep 28, 2026". Parsed at noon to avoid the day shifting across timezones. */
-export function formatDueDate(dueDate: string): string {
-  return new Date(`${dueDate}T12:00:00`).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 /** Every required skill in the level is MASTERED. */
 function requiredSkillsMastered(student: Student, level: Level): boolean {
   return level.skills
@@ -66,7 +57,7 @@ function requiredSkillsMastered(student: Student, level: Level): boolean {
 }
 
 export function canUnlock(
-  state: DemoState,
+  state: AppState,
   studentId: string,
   levelId: string,
 ) {
@@ -77,7 +68,7 @@ export function canUnlock(
     .filter((l) => l.order < level.order)
     .every((l) => requiredSkillsMastered(student, l));
 }
-export function earnedBadgeIds(state: DemoState, studentId: string): string[] {
+export function earnedBadgeIds(state: AppState, studentId: string): string[] {
   const student = state.students.find((s) => s.id === studentId);
   if (!student) return [];
   return levels
@@ -99,7 +90,7 @@ export function isAppUnlocked(student: Pick<Student, "appUnlocked">): boolean {
  * before routines existed read as having none.
  */
 export function studentRoutines(
-  state: Pick<DemoState, "routines">,
+  state: Pick<AppState, "routines">,
   studentId: string,
 ): Routine[] {
   return (state.routines ?? [])

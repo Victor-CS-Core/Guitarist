@@ -1,4 +1,4 @@
-import type { Actor, DemoState } from "../domain/types";
+import type { Actor, AppState } from "../domain/types";
 
 /**
  * A per-device copy of a graduated student's studio. Saving it is what turns
@@ -6,7 +6,7 @@ import type { Actor, DemoState } from "../domain/types";
  * the app boots straight from this snapshot — no sign-in, no connection.
  */
 export interface StudioSnapshot {
-  state: DemoState;
+  state: AppState;
   actor: Actor;
   /** Epoch ms when the snapshot was taken. */
   savedAt: number;
@@ -38,7 +38,7 @@ export function loadStudioSnapshot(): StudioSnapshot | null {
     if (!actor || typeof actor !== "object") return null;
     if (actor.role !== "student" || typeof actor.studentId !== "string" || !actor.studentId) return null;
     return {
-      state: parsed.state as DemoState,
+      state: parsed.state as AppState,
       actor: actor as Actor,
       savedAt: typeof parsed.savedAt === "number" ? parsed.savedAt : 0,
     };

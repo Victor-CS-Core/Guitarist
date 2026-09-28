@@ -3,12 +3,11 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, BookOpen, Check, ClipboardList, CalendarClock } from "lucide-react";
 import { EmptyState } from "../components/EmptyState";
 import { useStudio } from "../app/StoreProvider";
-import { formatDate } from "../lib/format";
+import { formatDate, formatDueDate } from "../lib/format";
 import {
   isDueSoon,
   isOverdue,
   dueDateLabel,
-  formatDueDate,
 } from "../domain/selectors";
 import {
   countOpen,

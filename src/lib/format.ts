@@ -59,3 +59,15 @@ export function formatTime(iso: string): string {
     minute: "2-digit",
   });
 }
+
+/**
+ * Due-date as "Sep 28, 2026". Takes a calendar date (YYYY-MM-DD); parsed at
+ * noon to avoid the day shifting across timezones.
+ */
+export function formatDueDate(dueDate: string): string {
+  return new Date(`${dueDate}T12:00:00`).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}

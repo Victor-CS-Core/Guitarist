@@ -5,17 +5,21 @@ import { useStudio, useStudent } from "../app/StoreProvider";
 import { isAppUnlocked } from "../domain/selectors";
 import { activityById } from "../curriculum/foundations";
 import { Exercises } from "../student/Exercises";
-import { elapsedSeconds } from "./timer";
 import { presetSignatureLabel } from "./rhythmEngine";
 import { Metronome } from "./Metronome";
 import { RoutineSection } from "../routines/RoutineSection";
 import { LeavePractice } from "./LeavePractice";
 import { EmptyState } from "../components/EmptyState";
+import { useSessionTimer } from "./useSessionTimer";
+import { PracticeComplete } from "./PracticeComplete";
+import { PracticeEmpty } from "./PracticeEmpty";
+
 export function PracticePage() {
   const { state, dispatch, setPracticeActive } = useStudio(),
     student = useStudent(),
     [params] = useSearchParams();
   const appUnlocked = isAppUnlocked(student);
+  const timer = useSessionTimer();
   const [items] = useState(() => {
     const all = state.assignments
       .filter((a) => a.studentId === student.id)
@@ -30,17 +34,13 @@ export function PracticePage() {
   });
   const [index, setIndex] = useState(0),
     [started, setStarted] = useState(false),
-    [running, setRunning] = useState(false),
-    [seconds, setSeconds] = useState(0),
     [done, setDone] = useState(false),
     [saving, setSaving] = useState(false),
     [error, setError] = useState(""),
     // Bumps each time the suggested-tempo chip is tapped, so the metronome
     // remounts and applies the activity's preset from scratch.
     [tempoRequest, setTempoRequest] = useState(0);
-  const segments = useRef<Array<{ start: number; end: number }>>([]),
-    start = useRef<number | null>(null),
-    session = useRef(crypto.randomUUID()),
+  const session = useRef(crypto.randomUUID()),
     completed = useRef<string[]>([]),
     finished = useRef(false),
     submitting = useRef(false);
@@ -56,40 +56,8 @@ export function PracticePage() {
     return () => setPracticeActive(false);
   }, [started, done, setPracticeActive]);
   function pause() {
-    if (start.current !== null) {
-      segments.current.push({ start: start.current, end: performance.now() });
-      start.current = null;
-    }
-    setRunning(false);
-    setSeconds(elapsedSeconds(segments.current, null, performance.now()));
+    timer.pause();
   }
-  useEffect(() => {
-    if (!running) return;
-    const interval = setInterval(
-      () =>
-        setSeconds(
-          elapsedSeconds(segments.current, start.current, performance.now()),
-        ),
-      200,
-    );
-    const hide = () => {
-      if (document.hidden) {
-        if (start.current !== null) {
-          segments.current.push({
-            start: start.current,
-            end: performance.now(),
-          });
-          start.current = null;
-        }
-        setRunning(false);
-      }
-    };
-    document.addEventListener("visibilitychange", hide);
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener("visibilitychange", hide);
-    };
-  }, [running]);
   useEffect(() => {
     if (!started || done) return;
     const before = (e: BeforeUnloadEvent) => {
@@ -99,9 +67,8 @@ export function PracticePage() {
     return () => window.removeEventListener("beforeunload", before);
   }, [started, done]);
   function begin() {
-    start.current = performance.now();
+    timer.begin();
     setStarted(true);
-    setRunning(true);
   }
   async function advance(early = false) {
     if (finished.current || submitting.current) return;
@@ -114,7 +81,7 @@ export function PracticePage() {
       setIndex(index + 1);
       return;
     }
-    const duration = elapsedSeconds(segments.current, null, performance.now());
+    const duration = timer.elapsed();
     submitting.current = true;
     setSaving(true);
     setError("");
@@ -130,7 +97,7 @@ export function PracticePage() {
       if (result.ok) {
         completed.current = ids;
         finished.current = true;
-        setSeconds(duration);
+        timer.setSeconds(duration);
         setDone(true);
       } else setError(result.error);
     } finally {
@@ -140,74 +107,15 @@ export function PracticePage() {
   }
   if (done)
     return (
-      <section className="card completion">
-        <span className="completion-icon">
-          <Check size={38} />
-        </span>
-        <div className="eyebrow green">YOU SHOWED UP FOR YOUR MUSIC</div>
-        <h1>Practice complete.</h1>
-        <p>That’s another small step forward, {student.name}.</p>
-        <strong className="timer-display">
-          {Math.floor(seconds / 60)}
-          <small> min </small>
-          {seconds % 60}
-          <small> sec</small>
-        </strong>
-        <p>Actual time practiced · self-reported</p>
-        <div className="completed-list">
-          {items
-            .filter((i) => completed.current.includes(i.id))
-            .map((i) => (
-              <p key={i.id}>
-                <Check size={15} /> {activityById(i.activityId)?.title}
-              </p>
-            ))}
-        </div>
-        <p className="small">
-          Only completed activities are checked off. Unfinished steps remain
-          assigned.
-        </p>
-        <div className="teacher-tip">
-          {appUnlocked
-            ? "This session is logged in your practice history — just for you."
-            : "Your teacher can now see this session. They’ll listen to your playing at your next lesson."}
-        </div>
-        <Link to="/student" className="button">
-          Back home <ArrowRight size={17} />
-        </Link>
-      </section>
+      <PracticeComplete
+        seconds={timer.seconds}
+        items={items}
+        completedIds={completed.current}
+        studentName={student.name}
+        appUnlocked={appUnlocked}
+      />
     );
-  if (!items.length)
-    return (
-      <>
-        <RoutineSection />
-        <EmptyState
-          icon={<Music2 size={38} />}
-          title="You’re all caught up."
-          message={
-            appUnlocked
-              ? "No assignments on your stand — this studio is yours now. Run a routine above, warm up with a tool below, or revisit any lesson."
-              : "Your assigned practice is complete, or your teacher hasn’t assigned it yet."
-          }
-        >
-          {appUnlocked ? (
-            <div className="hero-actions">
-              <Link className="button" to="/tools/timer">
-                Start a timed session
-              </Link>
-              <Link className="text-link" to="/tools/chords">
-                Browse the chord library
-              </Link>
-            </div>
-          ) : (
-            <Link className="button" to="/student/learn">
-              Explore your lessons
-            </Link>
-          )}
-          <p className="small">You can revisit completed activities from Home.</p>
-        </EmptyState>
-      </>
-    );
+  if (!items.length) return <PracticeEmpty appUnlocked={appUnlocked} />;
   const item = items[index],
     activity = activityById(item.activityId);
   if (!activity)
@@ -296,17 +204,20 @@ export function PracticePage() {
             </div>
           )}
           <div className="timer-display" aria-label="Practice elapsed time">
-            {String(Math.floor(seconds / 60)).padStart(2, "0")}
+            {String(Math.floor(timer.seconds / 60)).padStart(2, "0")}
             <span>:</span>
-            {String(seconds % 60).padStart(2, "0")}
+            {String(timer.seconds % 60).padStart(2, "0")}
           </div>
           <div className="timer-controls">
-            <button className="button" onClick={running ? pause : begin}>
-              {running ? <Pause size={17} /> : <Play size={17} />}{" "}
-              {running ? "Pause" : started ? "Resume" : "Start practice"}
+            <button
+              className="button"
+              onClick={timer.running ? pause : begin}
+            >
+              {timer.running ? <Pause size={17} /> : <Play size={17} />}{" "}
+              {timer.running ? "Pause" : started ? "Resume" : "Start practice"}
             </button>
             <span className="small">
-              {running
+              {timer.running
                 ? "Make a little music."
                 : started
                   ? "Paused. Take your time."
@@ -334,7 +245,7 @@ export function PracticePage() {
           </div>
           <button
             className="text-link"
-            disabled={!started || seconds === 0 || saving}
+            disabled={!started || timer.seconds === 0 || saving}
             onClick={() => advance(true)}
           >
             Finish early

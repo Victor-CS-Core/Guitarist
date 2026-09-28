@@ -1,4 +1,4 @@
-import type { DemoState } from "../domain/types";
+import type { AppState } from "../domain/types";
 import { activityById } from "../curriculum/foundations";
 import { isOverdue } from "../domain/selectors";
 
@@ -24,7 +24,7 @@ export type AssignmentStatusFilter = "all" | "open" | "complete" | "overdue";
  * Items that reference a missing activity or student stay visible with a
  * clearly-labelled fallback instead of disappearing.
  */
-export function flattenAssignments(state: DemoState): AssignmentRow[] {
+export function flattenAssignments(state: AppState): AssignmentRow[] {
   return state.assignments.flatMap((assignment) => {
     const studentName =
       state.students.find((s) => s.id === assignment.studentId)?.name ??

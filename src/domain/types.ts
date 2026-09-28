@@ -119,7 +119,7 @@ export interface Routine {
   createdBy: "teacher" | "student";
   at: string;
 }
-export interface DemoState {
+export interface AppState {
   version: 1;
   students: Student[];
   assignments: Assignment[];

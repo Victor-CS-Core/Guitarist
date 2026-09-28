@@ -1,11 +1,11 @@
 import type { AccountRow } from "./db";
 import { getStudentRecord, saveStudentRecord } from "./db";
 import { applyCommand } from "../src/domain/commands";
-import type { Actor, Command, DemoState } from "../src/domain/types";
+import type { Actor, Command, AppState } from "../src/domain/types";
 import { json } from "./auth";
 import type { Env } from "./index";
 
-function emptyState(): DemoState {
+function emptyState(): AppState {
   return { version: 1, students: [], assignments: [], sessions: [], notes: [], events: [], routines: [] };
 }
 
@@ -22,7 +22,7 @@ async function stateFor(actor: AccountRow, env: Env) {
   const rows = await env.DB.prepare("SELECT accounts.id, accounts.username, accounts.disabled_at, student_records.state_json, student_records.revision FROM accounts JOIN student_records ON student_records.student_id = accounts.id WHERE accounts.role = 'student' ORDER BY accounts.created_at")
     .all<{id:string;username:string;disabled_at:string|null;state_json:string;revision:number}>();
   for (const row of rows.results) {
-    const record = JSON.parse(row.state_json) as DemoState;
+    const record = JSON.parse(row.state_json) as AppState;
     state.students.push(...record.students);
     state.assignments.push(...record.assignments);
     state.sessions.push(...record.sessions);

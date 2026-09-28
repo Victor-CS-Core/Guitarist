@@ -4,10 +4,10 @@ import { applyCommand } from "./commands";
 import {
   daysUntilDue,
   dueDateLabel,
-  formatDueDate,
   isDueSoon,
   isOverdue,
 } from "./selectors";
+import { formatDueDate } from "../lib/format";
 
 const at = "2026-09-23T12:00:00Z";
 const teacher = { role: "teacher" as const };

@@ -1,7 +1,8 @@
 import { Check, CalendarClock } from "lucide-react";
 import { useStudio } from "../app/StoreProvider";
 import { activityById } from "../curriculum/foundations";
-import { dueDateLabel, formatDueDate, isOverdue } from "../domain/selectors";
+import { dueDateLabel, isOverdue } from "../domain/selectors";
+import { formatDueDate } from "../lib/format";
 import { AssignmentForm } from "./AssignmentForm";
 
 /**

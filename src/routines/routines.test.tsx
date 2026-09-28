@@ -4,7 +4,7 @@ import { it, expect, beforeEach } from "vitest";
 import { StoreProvider } from "../app/StoreProvider";
 import { seed } from "../test/fixtures";
 import { applyCommand } from "../domain/commands";
-import type { DemoState } from "../domain/types";
+import type { AppState } from "../domain/types";
 import { RoutineSection } from "./RoutineSection";
 import { RoutinePlayer } from "./RoutinePlayer";
 import { NewRoutineRoute } from "./routes";
@@ -12,7 +12,7 @@ import { NewRoutineRoute } from "./routes";
 const at = "2026-09-23T12:00:00Z";
 const teacher = { role: "teacher" as const };
 
-function routineSeed(): DemoState {
+function routineSeed(): AppState {
   const r = applyCommand(seed(), teacher, {
     type: "createRoutine",
     studentId: "emma",
@@ -27,7 +27,7 @@ function routineSeed(): DemoState {
   return r.value;
 }
 
-function renderStudent(state: DemoState, studentId: string, entry: string, route: string, element: React.ReactNode) {
+function renderStudent(state: AppState, studentId: string, entry: string, route: string, element: React.ReactNode) {
   return render(
     <StoreProvider initialState={state} initialActor={{ role: "student", studentId }}>
       <MemoryRouter initialEntries={[entry]}>

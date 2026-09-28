@@ -1,7 +1,7 @@
-import type { DemoState } from "../src/domain/types";
+import type { AppState } from "../src/domain/types";
 import { levels, skills } from "../src/curriculum/foundations";
 
-export interface StudentRecord { state: DemoState; revision: number }
+export interface StudentRecord { state: AppState; revision: number }
 export interface AccountRow {
   id: string;
   username: string;
@@ -15,13 +15,13 @@ export interface AccountRow {
   created_at: string;
 }
 
-export function createEmptyStudentState(id: string, name: string): DemoState {
+export function createEmptyStudentState(id: string, name: string): AppState {
   const first = levels[0];
   return {
     version: 1,
     students: [{
       id, name, currentLevelId: first.id, unlockedLevels: [first.id],
-      skills: Object.fromEntries(skills.map((skill) => [skill.id, "NOT_INTRODUCED"])) as DemoState["students"][number]["skills"],
+      skills: Object.fromEntries(skills.map((skill) => [skill.id, "NOT_INTRODUCED"])) as AppState["students"][number]["skills"],
       goal: first.goal,
       appUnlocked: false,
     }],
@@ -35,10 +35,10 @@ export async function getAccountByUsername(db: D1Database, normalizedUsername: s
 
 export async function getStudentRecord(db: D1Database, studentId: string): Promise<StudentRecord | null> {
   const row = await db.prepare("SELECT state_json, revision FROM student_records WHERE student_id = ?").bind(studentId).first<{state_json:string; revision:number}>();
-  return row ? { state: JSON.parse(row.state_json) as DemoState, revision: row.revision } : null;
+  return row ? { state: JSON.parse(row.state_json) as AppState, revision: row.revision } : null;
 }
 
-export async function saveStudentRecord(db: D1Database, studentId: string, expectedRevision: number, state: DemoState): Promise<boolean> {
+export async function saveStudentRecord(db: D1Database, studentId: string, expectedRevision: number, state: AppState): Promise<boolean> {
   const now = new Date().toISOString();
   const json = JSON.stringify(state);
   const result = expectedRevision === 0

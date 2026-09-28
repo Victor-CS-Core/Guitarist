@@ -7,7 +7,7 @@ import {
   statuses,
   type Actor,
   type Command,
-  type DemoState,
+  type AppState,
   type Result,
   type RoutineBlock,
 } from "./types";
@@ -71,11 +71,11 @@ export function validateRoutineBlocks(
 }
 
 export function applyCommand(
-  state: DemoState,
+  state: AppState,
   actor: Actor,
   command: Command,
-): Result<DemoState> {
-  const fail = (error: string): Result<DemoState> => ({ ok: false, error });
+): Result<AppState> {
+  const fail = (error: string): Result<AppState> => ({ ok: false, error });
   const original = state.students.find((s) => s.id === command.studentId);
   if (!original) return fail("This student could not be found.");
   if (!Number.isFinite(Date.parse(command.at)))
